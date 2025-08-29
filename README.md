@@ -48,24 +48,74 @@ SpeechRNT is a web-based application providing seamless, real-time, bidirectiona
 
 ```
 speech-rnt/
-├── frontend/          # React frontend application
-├── backend/           # C++ backend server
-│   ├── src/
-│   │   ├── core/      # Core server components & WebSocket handling
-│   │   ├── audio/     # Audio processing, VAD & real-time analysis
-│   │   ├── stt/       # Speech-to-Text with advanced features
-│   │   │   └── advanced/  # Speaker diarization, preprocessing, contextual transcription
-│   │   ├── mt/        # Machine Translation with GPU acceleration
-│   │   ├── tts/       # Text-to-Speech with voice management
-│   │   ├── models/    # Model management with quantization & GPU support
-│   │   └── utils/     # Utilities, logging, performance monitoring
-│   ├── include/       # Header files
-│   ├── third_party/   # External dependencies
-│   ├── data/          # AI model files (gitignored)
-│   ├── tests/         # Testing suite
-│   └── config/        # Configuration files
-├── scripts/           # Build and deployment scripts
-└── .kiro/            # Development specifications
+├── README.md                    # This file
+├── UNLICENSE                    # Public domain license
+├── CONTRIBUTING.md              # Contribution guidelines
+├── CODE_OF_CONDUCT.md          # Code of conduct
+├── TESTING.md                  # Testing documentation
+├── docker-compose.yml          # Docker production setup
+├── docker-compose.dev.yml      # Docker development setup
+├── .gitignore                  # Git ignore rules
+├── .gitattributes              # Git attributes
+│
+├── frontend/                   # React + TypeScript frontend
+│   ├── src/                    # Source code
+│   │   ├── components/         # React components
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── services/           # API and WebSocket services
+│   │   ├── store/              # State management (Zustand)
+│   │   ├── types/              # TypeScript type definitions
+│   │   └── utils/              # Utility functions
+│   ├── public/                 # Static assets
+│   ├── package.json            # Node.js dependencies
+│   ├── vite.config.ts          # Vite configuration
+│   ├── tailwind.config.cjs     # Tailwind CSS configuration
+│   └── components.json         # shadcn/ui configuration
+│
+├── backend/                    # C++ backend server
+│   ├── src/                    # Source code
+│   │   ├── core/               # Core server components & WebSocket handling
+│   │   ├── audio/              # Audio processing, VAD & real-time analysis
+│   │   ├── stt/                # Speech-to-Text with advanced features
+│   │   │   └── advanced/       # Speaker diarization, preprocessing, contextual transcription
+│   │   ├── mt/                 # Machine Translation with GPU acceleration
+│   │   ├── tts/                # Text-to-Speech with voice management
+│   │   ├── models/             # Model management with quantization & GPU support
+│   │   └── utils/              # Utilities, logging, performance monitoring
+│   ├── include/                # Header files (mirrors src structure)
+│   ├── tests/                  # Testing suite
+│   │   ├── unit/               # Unit tests
+│   │   ├── integration/        # Integration tests
+│   │   └── performance/        # Performance benchmarks
+│   ├── examples/               # Usage examples and demos
+│   ├── docs/                   # Technical documentation
+│   ├── config/                 # Configuration files
+│   ├── third_party/            # External dependencies
+│   ├── CMakeLists.txt          # CMake build configuration
+│   ├── Dockerfile              # Docker container definition
+│   └── setup_*.sh              # Setup scripts for dependencies
+│
+├── scripts/                    # Build and deployment automation
+│   ├── docker-dev.*            # Docker development scripts (Windows/Linux/macOS)
+│   ├── build-*.sh              # Build scripts for frontend/backend
+│   ├── setup.*                 # Environment setup scripts
+│   ├── download-models.*       # AI model download scripts
+│   └── run-all-tests.*         # Test execution scripts
+│
+├── .github/                    # GitHub configuration
+│   ├── workflows/              # GitHub Actions CI/CD
+│   └── ISSUE_TEMPLATE/         # Issue templates
+│
+└── .kiro/                      # Kiro IDE development specifications
+    ├── specs/                  # Feature specifications and requirements
+    └── steering/               # AI assistant guidance rules
+
+# Gitignored directories (not tracked in repository):
+# ├── backend/build/            # CMake build outputs
+# ├── backend/data/             # AI model files (too large for git)
+# ├── frontend/dist/            # Frontend build outputs
+# ├── frontend/node_modules/    # Node.js dependencies
+# └── .dev/                     # Development notes and TODO lists
 ```
 
 ## 🛠️ Prerequisites
@@ -351,13 +401,36 @@ This project is currently in active development. See the [main functionality TOD
 
 ## 📄 License
 
-License to be determined.
+This project is released into the **public domain** under the [Unlicense](https://unlicense.org/).
 
-## 🔗 Links
+This means you are free to:
+- ✅ Use the software for any purpose (commercial or non-commercial)
+- ✅ Copy, modify, and distribute the software
+- ✅ Sell or sublicense the software
+- ✅ Use the software without attribution (though attribution is appreciated)
 
+**No warranty is provided** - the software is provided "as is" without any guarantees.
+
+See the [UNLICENSE](UNLICENSE) file for the full legal text.
+
+## 🔗 Links & Resources
+
+### Documentation
+- **[Contributing Guide](CONTRIBUTING.md)**: How to contribute to the project
+- **[Testing Guide](TESTING.md)**: Testing procedures and standards
+- **[Code of Conduct](CODE_OF_CONDUCT.md)**: Community guidelines
+- **[Advanced STT Documentation](backend/docs/ADVANCED_STT_INFRASTRUCTURE_IMPLEMENTATION.md)**: Technical implementation details
+- **[MT API Documentation](backend/docs/MT_API_DOCUMENTATION.md)**: Machine translation API reference
+
+### Development
 - **Issues**: Report bugs and request features
 - **Discussions**: Community discussions and questions
-- **Wiki**: Detailed documentation and guides (coming soon)
+- **GitHub Actions**: Automated CI/CD workflows
+- **Docker Hub**: Container images (coming soon)
+
+### Legal
+- **[License](UNLICENSE)**: Public domain (Unlicense)
+- **Third-party Licenses**: See individual component documentation
 
 ---
 
