@@ -1,0 +1,152 @@
+# Dev things
+.dev/
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend build outputs
+frontend/dist/
+frontend/build/
+
+# Backend build outputs
+backend/build/
+backend/bin/
+backend/lib/
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.kiro/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# C++ specific
+*.o
+*.obj
+*.pch
+*.pdb
+*.ilk
+*.meta
+*.iobj
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# CMake
+backend/CMakeCache.txt
+backend/CMakeFiles/
+backend/cmake_install.cmake
+backend/Makefile
+backend/*.cmake
+backend/compile_commands.json
+
+# AI Models (too large for git)
+backend/data/
+*.bin
+*.onnx
+*.pt
+*.pth
+*.model
+*.vocab
+
+# Audio test files
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Test outputs
+backend/tests/output/
+test_results/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Package managers
+package-lock.json
+yarn.lock
+Cargo.lock
+
+# Rust (if we add any Rust components later)
+target/
+
+# Python (if we add any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Third party builds
+backend/third_party/*/build/
+backend/third_party/*/bin/
+backend/third_party/*/lib/# Docker
+ volumes and data
+docker-volumes/
+.docker/
+
+# Docker override files (for local development customization)
+docker-compose.local.yml
+docker-compose.*.local.yml
+
+# Container logs
+containers/logs/

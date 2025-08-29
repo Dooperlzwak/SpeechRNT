@@ -1,0 +1,64 @@
+{
+  "global": {
+    "enabled": true,
+    "deviceId": 0,
+    "memoryLimitMB": 4096,
+    "enableMemoryPool": true,
+    "memoryPoolSizeMB": 1024,
+    "enableProfiling": false
+  },
+  "models": {
+    "whisper": {
+      "useGPU": true,
+      "deviceId": 0,
+      "batchSize": 1,
+      "enableQuantization": false,
+      "precision": "fp32"
+    },
+    "marian": {
+      "useGPU": true,
+      "deviceId": 0,
+      "batchSize": 1,
+      "enableQuantization": false,
+      "precision": "fp32",
+      "memoryPoolSizeMB": 1024,
+      "maxConcurrentModels": 3,
+      "enableModelSharing": true,
+      "cudaStreams": 2,
+      "enableTensorRT": false,
+      "tensorRTOptimization": {
+        "enabled": false,
+        "maxBatchSize": 8,
+        "maxWorkspaceSize": 1073741824,
+        "fp16Mode": false,
+        "int8Mode": false
+      },
+      "memoryManagement": {
+        "enableMemoryPool": true,
+        "poolSizeMB": 512,
+        "enableGarbageCollection": true,
+        "gcThresholdMB": 256,
+        "enableMemoryMapping": true
+      },
+      "performance": {
+        "enableAsyncExecution": true,
+        "enableConcurrentKernels": true,
+        "enablePersistentKernels": false,
+        "cudaGraphs": false
+      },
+      "fallback": {
+        "enableCPUFallback": true,
+        "fallbackThresholdMs": 5000,
+        "fallbackOnError": true,
+        "fallbackOnMemoryError": true
+      }
+    },
+    "coqui": {
+      "useGPU": true,
+      "deviceId": 0,
+      "batchSize": 1,
+      "enableQuantization": false,
+      "precision": "fp32"
+    }
+  }
+}

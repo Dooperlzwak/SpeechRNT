@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/Dooperlzwak/SpeechRNT/discussions/new
+    about: Please use GitHub Discussions for questions, ideas, and general support.
+  - name: Security vulnerability report
+    url: https://github.com/Dooperlzwak/SpeechRNT/security/advisories/new
+    about: Please report security issues privately via GitHub Security Advisories. Do not open a public issue.
+  - name: Contact maintainers (email)
+    url: mailto:beckettwinston1@gmail.com
+    about: Use email if you cannot use GitHub Advisories. Do not disclose sensitive information publicly.
+  - name: Socials / Maintainer profile
+    url: https://github.com/Dooperlzwak
+    about: Follow for project updates and contact via profile links.

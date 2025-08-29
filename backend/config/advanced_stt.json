@@ -1,0 +1,164 @@
+{
+  "enableAdvancedFeatures": true,
+  "configVersion": "1.0",
+  "enableDebugMode": false,
+  "enableMetricsCollection": true,
+  "logLevel": "INFO",
+  "maxConcurrentProcessing": 8,
+  "maxMemoryUsageMB": 8192.0,
+  "maxProcessingLatencyMs": 5000.0,
+  
+  "speakerDiarization": {
+    "enabled": false,
+    "modelPath": "data/speaker_models/",
+    "maxSpeakers": 10,
+    "speakerChangeThreshold": 0.7,
+    "enableSpeakerProfiles": false,
+    "enableRealTimeProcessing": true,
+    "embeddingThreshold": 0.8,
+    "parameters": {
+      "modelPath": "data/speaker_models/",
+      "maxSpeakers": "10",
+      "speakerChangeThreshold": "0.7",
+      "enableSpeakerProfiles": "false",
+      "enableRealTimeProcessing": "true",
+      "embeddingThreshold": "0.8"
+    }
+  },
+  
+  "audioPreprocessing": {
+    "enabled": true,
+    "enableNoiseReduction": true,
+    "enableVolumeNormalization": true,
+    "enableEchoCancellation": false,
+    "noiseReductionStrength": 0.5,
+    "adaptivePreprocessing": true,
+    "enabledFilters": ["NOISE_REDUCTION", "VOLUME_NORMALIZATION"],
+    "parameters": {
+      "enableNoiseReduction": "true",
+      "enableVolumeNormalization": "true",
+      "enableEchoCancellation": "false",
+      "noiseReductionStrength": "0.5",
+      "adaptivePreprocessing": "true"
+    }
+  },
+  
+  "contextualTranscription": {
+    "enabled": false,
+    "modelsPath": "data/contextual_models/",
+    "enabledDomains": ["general", "technical", "medical", "legal"],
+    "enableDomainDetection": true,
+    "contextualWeight": 0.3,
+    "maxContextHistory": 10,
+    "enableCustomVocabulary": true,
+    "parameters": {
+      "modelsPath": "data/contextual_models/",
+      "enableDomainDetection": "true",
+      "contextualWeight": "0.3",
+      "maxContextHistory": "10",
+      "enableCustomVocabulary": "true"
+    }
+  },
+  
+  "realTimeAnalysis": {
+    "enabled": true,
+    "analysisBufferSize": 1024,
+    "metricsUpdateIntervalMs": 50.0,
+    "enableSpectralAnalysis": true,
+    "enableAudioEffects": false,
+    "enableLevelMetering": true,
+    "enableNoiseEstimation": true,
+    "parameters": {
+      "analysisBufferSize": "1024",
+      "metricsUpdateIntervalMs": "50.0",
+      "enableSpectralAnalysis": "true",
+      "enableAudioEffects": "false",
+      "enableLevelMetering": "true",
+      "enableNoiseEstimation": "true"
+    }
+  },
+  
+  "adaptiveQuality": {
+    "enabled": true,
+    "enableAdaptation": true,
+    "cpuThreshold": 0.8,
+    "memoryThreshold": 0.8,
+    "defaultQuality": "MEDIUM",
+    "adaptationIntervalMs": 1000.0,
+    "enablePredictiveScaling": true,
+    "parameters": {
+      "enableAdaptation": "true",
+      "cpuThreshold": "0.8",
+      "memoryThreshold": "0.8",
+      "defaultQuality": "2",
+      "adaptationIntervalMs": "1000.0",
+      "enablePredictiveScaling": "true"
+    }
+  },
+  
+  "externalServices": {
+    "enabled": false,
+    "enabledServices": [],
+    "enableResultFusion": true,
+    "fallbackThreshold": 0.5,
+    "enablePrivacyMode": true,
+    "serviceConfigs": {},
+    "parameters": {
+      "enableResultFusion": "true",
+      "fallbackThreshold": "0.5",
+      "enablePrivacyMode": "true"
+    }
+  },
+  
+  "batchProcessing": {
+    "enabled": true,
+    "maxConcurrentJobs": 4,
+    "chunkSizeSeconds": 30,
+    "enableParallelProcessing": true,
+    "outputFormat": "json",
+    "enableProgressTracking": true,
+    "parameters": {
+      "maxConcurrentJobs": "4",
+      "chunkSizeSeconds": "30",
+      "enableParallelProcessing": "true",
+      "outputFormat": "json",
+      "enableProgressTracking": "true"
+    }
+  },
+  
+  "healthMonitoring": {
+    "enableHealthChecks": true,
+    "healthCheckIntervalMs": 30000,
+    "healthCheckTimeoutMs": 5000,
+    "healthThreshold": 0.8,
+    "warningThreshold": 0.6,
+    "maxConsecutiveFailures": 3,
+    "enableAutoRecovery": true,
+    "enableHealthNotifications": true,
+    "monitoredFeatures": [
+      "SPEAKER_DIARIZATION",
+      "AUDIO_PREPROCESSING", 
+      "CONTEXTUAL_TRANSCRIPTION",
+      "REALTIME_ANALYSIS",
+      "ADAPTIVE_QUALITY",
+      "EXTERNAL_SERVICES",
+      "BATCH_PROCESSING"
+    ]
+  },
+  
+  "pipeline": {
+    "enabledStages": [
+      "AUDIO_PREPROCESSING",
+      "REALTIME_ANALYSIS", 
+      "QUALITY_ADAPTATION",
+      "TRANSCRIPTION",
+      "RESULT_FINALIZATION"
+    ],
+    "enableParallelProcessing": true,
+    "enableStageSkipping": true,
+    "enableStageRetry": true,
+    "maxRetryAttempts": 2,
+    "stageTimeoutMs": 5000.0,
+    "enableProfiling": false
+  }
+}

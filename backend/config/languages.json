@@ -1,0 +1,24 @@
+{
+  "supported": [
+    {
+      "code": "en",
+      "name": "English",
+      "voices": ["jenny", "male1"]
+    },
+    {
+      "code": "es", 
+      "name": "Spanish",
+      "voices": ["female1", "male1"]
+    },
+    {
+      "code": "fr",
+      "name": "French", 
+      "voices": ["female1", "male1"]
+    },
+    {
+      "code": "de",
+      "name": "German",
+      "voices": ["female1", "male1"]
+    }
+  ]
+}

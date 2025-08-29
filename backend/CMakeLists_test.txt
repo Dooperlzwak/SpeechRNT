@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.16)
+project(WhisperTest VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Disable CUDA for this test
+set(CUDA_AVAILABLE FALSE)
+
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+# Add whisper.cpp
+set(WHISPER_DIR ${CMAKE_SOURCE_DIR}/third_party/whisper.cpp)
+if(EXISTS ${WHISPER_DIR})
+    # Include whisper.cpp headers
+    include_directories(${WHISPER_DIR}/include)
+    include_directories(${WHISPER_DIR}/ggml/include)
+    
+    # Add whisper.cpp source files
+    set(WHISPER_SOURCES 
+        "${WHISPER_DIR}/src/whisper.cpp"
+    )
+    
+    # Add ggml sources
+    set(GGML_SOURCES 
+        "${WHISPER_DIR}/ggml/src/ggml.c"
+        "${WHISPER_DIR}/ggml/src/ggml-alloc.c"
+        "${WHISPER_DIR}/ggml/src/ggml-backend.cpp"
+        "${WHISPER_DIR}/ggml/src/ggml-quants.c"
+        "${WHISPER_DIR}/ggml/src/ggml-backend-reg.cpp"
+        "${WHISPER_DIR}/ggml/src/ggml-opt.cpp"
+        "${WHISPER_DIR}/ggml/src/ggml-threading.cpp"
+        "${WHISPER_DIR}/ggml/src/gguf.cpp"
+    )
+    
+    list(APPEND WHISPER_SOURCES ${GGML_SOURCES})
+    set(WHISPER_AVAILABLE TRUE)
+    add_definitions(-DWHISPER_AVAILABLE)
+    message(STATUS "whisper.cpp found and configured")
+else()
+    set(WHISPER_AVAILABLE FALSE)
+    message(WARNING "whisper.cpp not found.")
+endif()
+
+# Find required packages
+find_package(Threads REQUIRED)
+
+# Test executable
+add_executable(WhisperTest test_whisper.cpp ${WHISPER_SOURCES})
+
+# Link libraries
+target_link_libraries(WhisperTest Threads::Threads)
+
+# Compiler flags
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(WhisperTest PRIVATE -Wall -Wextra -O2)
+endif()

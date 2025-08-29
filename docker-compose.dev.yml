@@ -1,0 +1,47 @@
+# Development overrides for docker-compose.yml
+services:
+  backend:
+    build:
+      target: builder  # Use builder stage for development
+    environment:
+      - CMAKE_BUILD_TYPE=Debug
+      - ENABLE_LOGGING=true
+      - LOG_LEVEL=debug
+    volumes:
+      - ./backend:/app
+      - backend_build_dev:/app/build
+    command: >
+      bash -c "
+        cd build &&
+        cmake -DCMAKE_BUILD_TYPE=Debug .. &&
+        make -j$(nproc) &&
+        ./SpeechRNT --port 8080 --debug
+      "
+    ports:
+      - "8080:8080"
+      - "9090:9090"  # Debug port
+
+  frontend:
+    build:
+      target: builder  # Use Node.js stage for development
+    environment:
+      - NODE_ENV=development
+      - VITE_BACKEND_WS_URL=ws://localhost:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "3000:3000"
+      - "24678:24678"  # Vite HMR port
+
+  # Add development tools
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - redis
+
+volumes:
+  backend_build_dev:

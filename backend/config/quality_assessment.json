@@ -1,0 +1,205 @@
+{
+  "quality_thresholds": {
+    "high": 0.8,
+    "medium": 0.6,
+    "low": 0.4,
+    "unacceptable": 0.2
+  },
+  "features": {
+    "enable_word_level_scoring": true,
+    "enable_alternatives": true,
+    "enable_quality_issue_detection": true,
+    "enable_confidence_intervals": true,
+    "enable_quality_prediction": true
+  },
+  "quality_metrics": {
+    "fluency": {
+      "enabled": true,
+      "weight": 0.3,
+      "algorithms": ["perplexity", "grammar_check", "readability"],
+      "perplexity": {
+        "enabled": true,
+        "model_path": "data/quality/fluency_model.bin",
+        "weight": 0.5
+      },
+      "grammar_check": {
+        "enabled": true,
+        "weight": 0.3,
+        "max_errors_per_sentence": 2
+      },
+      "readability": {
+        "enabled": true,
+        "weight": 0.2,
+        "metrics": ["flesch_kincaid", "gunning_fog"]
+      }
+    },
+    "adequacy": {
+      "enabled": true,
+      "weight": 0.4,
+      "algorithms": ["semantic_similarity", "content_preservation", "terminology_consistency"],
+      "semantic_similarity": {
+        "enabled": true,
+        "model_path": "data/quality/semantic_model.bin",
+        "weight": 0.5,
+        "similarity_threshold": 0.7
+      },
+      "content_preservation": {
+        "enabled": true,
+        "weight": 0.3,
+        "check_named_entities": true,
+        "check_numbers": true,
+        "check_dates": true
+      },
+      "terminology_consistency": {
+        "enabled": true,
+        "weight": 0.2,
+        "terminology_db_path": "data/quality/terminology.db"
+      }
+    },
+    "consistency": {
+      "enabled": true,
+      "weight": 0.3,
+      "algorithms": ["style_consistency", "tone_consistency", "format_consistency"],
+      "style_consistency": {
+        "enabled": true,
+        "weight": 0.4,
+        "check_formality": true,
+        "check_register": true
+      },
+      "tone_consistency": {
+        "enabled": true,
+        "weight": 0.3,
+        "sentiment_analysis": true
+      },
+      "format_consistency": {
+        "enabled": true,
+        "weight": 0.3,
+        "check_punctuation": true,
+        "check_capitalization": true
+      }
+    }
+  },
+  "confidence_calculation": {
+    "model_scores_weight": 0.4,
+    "length_ratio_weight": 0.15,
+    "diversity_weight": 0.15,
+    "completeness_weight": 0.15,
+    "alignment_weight": 0.15,
+    "normalization": {
+      "enabled": true,
+      "method": "min_max",
+      "confidence_floor": 0.1,
+      "confidence_ceiling": 0.95
+    }
+  },
+  "alternatives": {
+    "max_alternatives": 3,
+    "generation_methods": [
+      "paraphrase",
+      "simplified",
+      "formal",
+      "back_translation"
+    ],
+    "paraphrase": {
+      "enabled": true,
+      "model_path": "data/quality/paraphrase_model.bin",
+      "diversity_penalty": 0.2
+    },
+    "simplified": {
+      "enabled": true,
+      "max_sentence_length": 20,
+      "vocabulary_level": "basic"
+    },
+    "formal": {
+      "enabled": true,
+      "formality_boost": 0.3
+    },
+    "back_translation": {
+      "enabled": true,
+      "intermediate_language": "en",
+      "confidence_threshold": 0.7
+    }
+  },
+  "fallback_strategies": {
+    "enable_word_by_word": true,
+    "enable_template_based": true,
+    "enable_simplified_alternatives": true,
+    "enable_dictionary_lookup": true,
+    "word_by_word": {
+      "enabled": true,
+      "dictionary_path": "data/quality/bilingual_dict.db",
+      "confidence_penalty": 0.3
+    },
+    "template_based": {
+      "enabled": true,
+      "templates_path": "data/quality/templates.json",
+      "match_threshold": 0.8
+    },
+    "dictionary_lookup": {
+      "enabled": true,
+      "dictionaries": ["wordnet", "bilingual"],
+      "max_definitions": 2
+    }
+  },
+  "issue_detection": {
+    "repetition_threshold": 2,
+    "length_ratio_min": 0.2,
+    "length_ratio_max": 4.0,
+    "min_fluency_score": 0.4,
+    "min_adequacy_score": 0.4,
+    "min_consistency_score": 0.4,
+    "detect_untranslated_words": true,
+    "detect_over_translation": true,
+    "detect_under_translation": true,
+    "detect_mistranslation": true,
+    "detect_hallucination": true,
+    "hallucination_detection": {
+      "enabled": true,
+      "similarity_threshold": 0.3,
+      "length_threshold": 2.0
+    }
+  },
+  "word_level_scoring": {
+    "enabled": true,
+    "algorithms": ["attention_weights", "alignment_scores", "uncertainty_estimation"],
+    "attention_weights": {
+      "enabled": true,
+      "weight": 0.4,
+      "normalize_by_length": true
+    },
+    "alignment_scores": {
+      "enabled": true,
+      "weight": 0.3,
+      "alignment_model_path": "data/quality/alignment_model.bin"
+    },
+    "uncertainty_estimation": {
+      "enabled": true,
+      "weight": 0.3,
+      "monte_carlo_samples": 10
+    }
+  },
+  "performance": {
+    "enable_caching": true,
+    "cache_size_limit": 1000,
+    "assessment_timeout_ms": 5000,
+    "enable_parallel_assessment": true,
+    "max_concurrent_assessments": 4,
+    "enable_incremental_assessment": true,
+    "batch_size": 32
+  },
+  "logging": {
+    "log_quality_scores": true,
+    "log_issue_detection": true,
+    "log_alternatives": false,
+    "log_word_level_scores": false,
+    "detailed_logging": false
+  },
+  "model_paths": {
+    "quality_models_dir": "data/quality/",
+    "fluency_model": "fluency_model.bin",
+    "adequacy_model": "adequacy_model.bin",
+    "consistency_model": "consistency_model.bin",
+    "paraphrase_model": "paraphrase_model.bin",
+    "alignment_model": "alignment_model.bin"
+  }
+}

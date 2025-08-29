@@ -1,0 +1,43 @@
+{
+  "gpu": {
+    "enabled": true,
+    "fallbackToCPU": false,
+    "memoryPoolSizeMB": 4096,
+    "maxModelMemoryMB": 8192,
+    "allowedDeviceIds": [0, 1, 2, 3]
+  },
+  
+  "quality": {
+    "highQualityThreshold": 0.85,
+    "mediumQualityThreshold": 0.7,
+    "lowQualityThreshold": 0.5,
+    "maxAlternatives": 2
+  },
+  
+  "caching": {
+    "maxCacheSize": 5000,
+    "persistToDisk": true,
+    "cacheDirectory": "/var/cache/speechrnt/translations"
+  },
+  
+  "batch": {
+    "maxBatchSize": 64,
+    "optimalBatchSize": 16
+  },
+  
+  "streaming": {
+    "maxConcurrentSessions": 500,
+    "sessionTimeoutMinutes": 60
+  },
+  
+  "errorHandling": {
+    "maxRetryAttempts": 5,
+    "translationTimeoutMs": 3000,
+    "enableDegradedMode": false
+  },
+  
+  "performance": {
+    "metricsCollectionIntervalSeconds": 10,
+    "maxMetricsHistorySize": 10000
+  }
+}

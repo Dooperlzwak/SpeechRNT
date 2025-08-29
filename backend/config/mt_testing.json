@@ -1,0 +1,39 @@
+{
+  "gpu": {
+    "enabled": false,
+    "fallbackToCPU": true
+  },
+  
+  "quality": {
+    "enabled": false,
+    "generateAlternatives": false
+  },
+  
+  "caching": {
+    "enabled": false
+  },
+  
+  "batch": {
+    "maxBatchSize": 4,
+    "optimalBatchSize": 2
+  },
+  
+  "streaming": {
+    "enabled": false
+  },
+  
+  "errorHandling": {
+    "maxRetryAttempts": 1,
+    "translationTimeoutMs": 10000,
+    "enableDegradedMode": true,
+    "enableFallbackTranslation": true
+  },
+  
+  "performance": {
+    "enabled": false
+  },
+  
+  "languageDetection": {
+    "enabled": false
+  }
+}

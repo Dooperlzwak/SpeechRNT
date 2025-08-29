@@ -1,0 +1,239 @@
+{
+  "whisper": {
+    "models": {
+      "tiny": {
+        "path": "data/whisper/ggml-tiny.bin",
+        "size": "39 MB",
+        "speed": "~32x",
+        "accuracy": "low"
+      },
+      "base": {
+        "path": "data/whisper/ggml-base.bin",
+        "size": "142 MB",
+        "speed": "~16x",
+        "accuracy": "medium"
+      },
+      "small": {
+        "path": "data/whisper/ggml-small.bin",
+        "size": "466 MB",
+        "speed": "~6x",
+        "accuracy": "good"
+      },
+      "medium": {
+        "path": "data/whisper/ggml-medium.bin",
+        "size": "1.5 GB",
+        "speed": "~2x",
+        "accuracy": "high"
+      },
+      "large": {
+        "path": "data/whisper/ggml-large-v3.bin",
+        "size": "2.9 GB",
+        "speed": "~1x",
+        "accuracy": "highest"
+      }
+    },
+    "defaultModel": "base",
+    "language": "auto",
+    "languageDetection": {
+      "enabled": true,
+      "threshold": 0.7,
+      "autoSwitching": true,
+      "consistentDetectionRequired": 2,
+      "supportedLanguages": [
+        "en", "zh", "de", "es", "ru", "ko", "fr", "ja", "pt", "tr", "pl", "ca", "nl", 
+        "ar", "sv", "it", "id", "hi", "fi", "vi", "he", "uk", "el", "ms", "cs", "ro", 
+        "da", "hu", "ta", "no", "th", "ur", "hr", "bg", "lt", "la", "mi", "ml", "cy", 
+        "sk", "te", "fa", "lv", "bn", "sr", "az", "sl", "kn", "et", "mk", "br", "eu", 
+        "is", "hy", "ne", "mn", "bs", "kk", "sq", "sw", "gl", "mr", "pa", "si", "km", 
+        "sn", "yo", "so", "af", "oc", "ka", "be", "tg", "sd", "gu", "am", "yi", "lo", 
+        "uz", "fo", "ht", "ps", "tk", "nn", "mt", "sa", "lb", "my", "bo", "tl", "mg", 
+        "as", "tt", "haw", "ln", "ha", "ba", "jw", "su"
+      ]
+    },
+    "supportedLanguages": [
+      "en", "zh", "de", "es", "ru", "ko", "fr", "ja", "pt", "tr", "pl", "ca", "nl", 
+      "ar", "sv", "it", "id", "hi", "fi", "vi", "he", "uk", "el", "ms", "cs", "ro", 
+      "da", "hu", "ta", "no", "th", "ur", "hr", "bg", "lt", "la", "mi", "ml", "cy", 
+      "sk", "te", "fa", "lv", "bn", "sr", "az", "sl", "kn", "et", "mk", "br", "eu", 
+      "is", "hy", "ne", "mn", "bs", "kk", "sq", "sw", "gl", "mr", "pa", "si", "km", 
+      "sn", "yo", "so", "af", "oc", "ka", "be", "tg", "sd", "gu", "am", "yi", "lo", 
+      "uz", "fo", "ht", "ps", "tk", "nn", "mt", "sa", "lb", "my", "bo", "tl", "mg", 
+      "as", "tt", "haw", "ln", "ha", "ba", "jw", "su"
+    ]
+  },
+  "marian": {
+    "modelsPath": "data/marian/",
+    "defaultModel": "transformer-base",
+    "supportedLanguages": ["en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko", "ar", "hi", "th", "vi", "nl", "sv", "da", "no", "fi", "pl"],
+    "languagePairs": {
+      "en": ["es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko", "ar", "hi", "th", "vi", "nl", "sv", "da", "no", "fi", "pl"],
+      "es": ["en", "pt", "fr", "it", "ca"],
+      "fr": ["en", "es", "de", "it", "pt", "nl"],
+      "de": ["en", "fr", "nl", "da", "sv", "no"],
+      "it": ["en", "es", "fr", "pt", "ro"],
+      "pt": ["en", "es", "fr", "it"],
+      "ru": ["en", "uk", "be", "bg", "sr"],
+      "zh": ["en", "ja", "ko", "vi", "th"],
+      "ja": ["en", "zh", "ko"],
+      "ko": ["en", "zh", "ja"],
+      "ar": ["en", "fr"],
+      "hi": ["en"],
+      "th": ["en", "zh"],
+      "vi": ["en", "zh"],
+      "nl": ["en", "de", "fr"],
+      "sv": ["en", "de", "da", "no"],
+      "da": ["en", "de", "sv", "no"],
+      "no": ["en", "de", "sv", "da"],
+      "fi": ["en", "sv"],
+      "pl": ["en", "de"]
+    },
+    "bidirectionalPairs": [
+      ["en", "es"], ["en", "fr"], ["en", "de"], ["en", "it"], ["en", "pt"],
+      ["en", "ru"], ["en", "zh"], ["en", "ja"], ["en", "ko"], ["en", "ar"],
+      ["en", "hi"], ["en", "th"], ["en", "vi"], ["en", "nl"], ["en", "sv"],
+      ["en", "da"], ["en", "no"], ["en", "fi"], ["en", "pl"],
+      ["es", "pt"], ["es", "fr"], ["es", "it"],
+      ["fr", "de"], ["fr", "it"], ["fr", "pt"], ["fr", "nl"],
+      ["de", "nl"], ["de", "da"], ["de", "sv"], ["de", "no"],
+      ["zh", "ja"], ["zh", "ko"]
+    ],
+    "modelConfigurations": {
+      "transformer-base": {
+        "type": "transformer",
+        "layers": 6,
+        "heads": 8,
+        "embedSize": 512,
+        "ffnSize": 2048,
+        "vocabSize": 32000,
+        "maxLength": 512,
+        "beamSize": 4,
+        "lengthPenalty": 0.6,
+        "quantization": {
+          "enabled": false,
+          "type": "int8",
+          "calibrationSamples": 1000
+        }
+      },
+      "transformer-big": {
+        "type": "transformer",
+        "layers": 12,
+        "heads": 16,
+        "embedSize": 1024,
+        "ffnSize": 4096,
+        "vocabSize": 32000,
+        "maxLength": 512,
+        "beamSize": 4,
+        "lengthPenalty": 0.6,
+        "quantization": {
+          "enabled": true,
+          "type": "int8",
+          "calibrationSamples": 1000
+        }
+      }
+    },
+    "modelPaths": {
+      "en-es": "data/marian/en-es/model.npz",
+      "es-en": "data/marian/es-en/model.npz",
+      "en-fr": "data/marian/en-fr/model.npz",
+      "fr-en": "data/marian/fr-en/model.npz",
+      "en-de": "data/marian/en-de/model.npz",
+      "de-en": "data/marian/de-en/model.npz",
+      "en-it": "data/marian/en-it/model.npz",
+      "it-en": "data/marian/it-en/model.npz",
+      "en-pt": "data/marian/en-pt/model.npz",
+      "pt-en": "data/marian/pt-en/model.npz",
+      "en-ru": "data/marian/en-ru/model.npz",
+      "ru-en": "data/marian/ru-en/model.npz",
+      "en-zh": "data/marian/en-zh/model.npz",
+      "zh-en": "data/marian/zh-en/model.npz",
+      "en-ja": "data/marian/en-ja/model.npz",
+      "ja-en": "data/marian/ja-en/model.npz",
+      "en-ko": "data/marian/en-ko/model.npz",
+      "ko-en": "data/marian/ko-en/model.npz"
+    },
+    "vocabularyPaths": {
+      "en-es": ["data/marian/en-es/vocab.en.yml", "data/marian/en-es/vocab.es.yml"],
+      "es-en": ["data/marian/es-en/vocab.es.yml", "data/marian/es-en/vocab.en.yml"],
+      "en-fr": ["data/marian/en-fr/vocab.en.yml", "data/marian/en-fr/vocab.fr.yml"],
+      "fr-en": ["data/marian/fr-en/vocab.fr.yml", "data/marian/fr-en/vocab.en.yml"],
+      "en-de": ["data/marian/en-de/vocab.en.yml", "data/marian/en-de/vocab.de.yml"],
+      "de-en": ["data/marian/de-en/vocab.de.yml", "data/marian/de-en/vocab.en.yml"],
+      "en-it": ["data/marian/en-it/vocab.en.yml", "data/marian/en-it/vocab.it.yml"],
+      "it-en": ["data/marian/it-en/vocab.it.yml", "data/marian/it-en/vocab.en.yml"],
+      "en-pt": ["data/marian/en-pt/vocab.en.yml", "data/marian/en-pt/vocab.pt.yml"],
+      "pt-en": ["data/marian/pt-en/vocab.pt.yml", "data/marian/pt-en/vocab.en.yml"],
+      "en-ru": ["data/marian/en-ru/vocab.en.yml", "data/marian/en-ru/vocab.ru.yml"],
+      "ru-en": ["data/marian/ru-en/vocab.ru.yml", "data/marian/ru-en/vocab.en.yml"],
+      "en-zh": ["data/marian/en-zh/vocab.en.yml", "data/marian/en-zh/vocab.zh.yml"],
+      "zh-en": ["data/marian/zh-en/vocab.zh.yml", "data/marian/zh-en/vocab.en.yml"],
+      "en-ja": ["data/marian/en-ja/vocab.en.yml", "data/marian/en-ja/vocab.ja.yml"],
+      "ja-en": ["data/marian/ja-en/vocab.ja.yml", "data/marian/ja-en/vocab.en.yml"],
+      "en-ko": ["data/marian/en-ko/vocab.en.yml", "data/marian/en-ko/vocab.ko.yml"],
+      "ko-en": ["data/marian/ko-en/vocab.ko.yml", "data/marian/ko-en/vocab.en.yml"]
+    },
+    "modelDownloads": {
+      "baseUrl": "https://models.speechrnt.com/marian/",
+      "availableModels": {
+        "en-es": {"size": "180 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "es-en": {"size": "180 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "en-fr": {"size": "190 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "fr-en": {"size": "190 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "en-de": {"size": "200 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "de-en": {"size": "200 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "en-it": {"size": "175 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "it-en": {"size": "175 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "en-pt": {"size": "170 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "pt-en": {"size": "170 MB", "accuracy": "high", "domain": "general", "version": "1.0"},
+        "en-ru": {"size": "220 MB", "accuracy": "medium", "domain": "general", "version": "1.0"},
+        "ru-en": {"size": "220 MB", "accuracy": "medium", "domain": "general", "version": "1.0"},
+        "en-zh": {"size": "250 MB", "accuracy": "medium", "domain": "general", "version": "1.0"},
+        "zh-en": {"size": "250 MB", "accuracy": "medium", "domain": "general", "version": "1.0"},
+        "en-ja": {"size": "240 MB", "accuracy": "medium", "domain": "general", "version": "1.0"},
+        "ja-en": {"size": "240 MB", "accuracy": "medium", "domain": "general", "version": "1.0"},
+        "en-ko": {"size": "235 MB", "accuracy": "medium", "domain": "general", "version": "1.0"},
+        "ko-en": {"size": "235 MB", "accuracy": "medium", "domain": "general", "version": "1.0"}
+      }
+    },
+    "maxConcurrentModels": 5,
+    "modelCaching": {
+      "enabled": true,
+      "lruEviction": true,
+      "memoryThresholdMB": 2048,
+      "preloadModels": ["en-es", "es-en", "en-fr", "fr-en"],
+      "hotSwapping": {
+        "enabled": true,
+        "gracefulShutdown": true,
+        "maxSwapTimeMs": 5000
+      }
+    },
+    "gpuAcceleration": {
+      "enabled": true,
+      "fallbackToCPU": true,
+      "memoryPoolSizeMB": 1024,
+      "deviceId": 0,
+      "batchSize": 1,
+      "precision": "fp32"
+    },
+    "translation": {
+      "maxInputLength": 1000,
+      "timeoutMs": 10000,
+      "retryAttempts": 3,
+      "retryDelayMs": 1000,
+      "confidenceThreshold": 0.5,
+      "enableAlternatives": true,
+      "maxAlternatives": 3,
+      "enableStreaming": true,
+      "streamingChunkSize": 50
+    },
+    "performance": {
+      "enableProfiling": false,
+      "logTranslationTimes": true,
+      "enableMetrics": true,
+      "metricsIntervalMs": 30000
+    }
+  },
+  "coqui": {
+    "modelsPath": "data/coqui/",
+    "defaultVoice": "jenny"
+  }
+}

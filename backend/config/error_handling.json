@@ -1,0 +1,66 @@
+{
+  "retry_configs": {
+    "TRANSLATION_TIMEOUT": {
+      "max_retries": 2,
+      "initial_delay_ms": 500,
+      "max_delay_ms": 2000,
+      "backoff_multiplier": 1.5,
+      "timeout_ms": 10000
+    },
+    "GPU_FAILURE": {
+      "max_retries": 1,
+      "initial_delay_ms": 1000,
+      "max_delay_ms": 3000,
+      "backoff_multiplier": 2.0,
+      "timeout_ms": 5000
+    },
+    "MODEL_LOADING": {
+      "max_retries": 2,
+      "initial_delay_ms": 2000,
+      "max_delay_ms": 5000,
+      "backoff_multiplier": 2.0,
+      "timeout_ms": 30000
+    },
+    "TRANSLATION_FAILURE": {
+      "max_retries": 3,
+      "initial_delay_ms": 100,
+      "max_delay_ms": 1000,
+      "backoff_multiplier": 1.8,
+      "timeout_ms": 5000
+    },
+    "MEMORY_EXHAUSTION": {
+      "max_retries": 1,
+      "initial_delay_ms": 3000,
+      "max_delay_ms": 5000,
+      "backoff_multiplier": 1.0,
+      "timeout_ms": 10000
+    }
+  },
+  "degraded_mode": {
+    "enable_fallback_translation": true,
+    "enable_simplified_models": true,
+    "enable_cpu_only_mode": true,
+    "enable_reduced_quality": true,
+    "quality_threshold": 0.3,
+    "max_degraded_time_minutes": 30
+  },
+  "error_thresholds": {
+    "critical_error_count_per_hour": 10,
+    "warning_error_count_per_hour": 50,
+    "auto_degraded_mode_threshold": 5
+  },
+  "recovery_strategies": {
+    "MODEL_CORRUPTION": "RELOAD_MODEL",
+    "GPU_FAILURE": "FALLBACK_CPU",
+    "TRANSLATION_TIMEOUT": "RETRY",
+    "MEMORY_EXHAUSTION": "FALLBACK_CPU",
+    "CRITICAL_ERROR": "DEGRADED_MODE"
+  },
+  "logging": {
+    "log_all_errors": true,
+    "log_recovery_attempts": true,
+    "log_degraded_mode_changes": true,
+    "error_log_level": "ERROR",
+    "recovery_log_level": "INFO"
+  }
+}

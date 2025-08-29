@@ -1,0 +1,124 @@
+{
+  "contextualTranscription": {
+    "enabled": true,
+    "modelsPath": "data/contextual_models/",
+    "enabledDomains": [
+      "general",
+      "medical", 
+      "technical",
+      "legal",
+      "business"
+    ],
+    "enableDomainDetection": true,
+    "contextualWeight": 0.3,
+    "maxContextHistory": 10,
+    "enableCustomVocabulary": true,
+    "domainClassifier": {
+      "modelPath": "data/contextual_models/domain_classifier",
+      "confidenceThreshold": 0.7,
+      "enableCustomDomains": true
+    },
+    "contextualLanguageModel": {
+      "modelPath": "data/contextual_models/contextual_lm",
+      "maxAlternatives": 5,
+      "enablePrediction": true,
+      "adaptationEnabled": true
+    },
+    "vocabularyMatcher": {
+      "similarityThreshold": 0.7,
+      "enableFuzzyMatching": true,
+      "maxMatches": 5,
+      "enableLearning": true
+    },
+    "vocabularyManager": {
+      "enableAutomaticLearning": true,
+      "minimumConfidenceThreshold": 0.7,
+      "maximumEntriesPerDomain": 10000,
+      "enableConflictResolution": true,
+      "defaultConflictResolution": "highest_confidence",
+      "enableUsageTracking": true,
+      "enableProbabilityUpdates": true,
+      "learningRate": 0.1,
+      "maxAlternativesPerEntry": 5
+    }
+  },
+  "defaultVocabularies": {
+    "medical": {
+      "domainTerms": [
+        "patient", "doctor", "physician", "nurse", "hospital", "clinic",
+        "diagnosis", "treatment", "medication", "prescription", "therapy",
+        "symptoms", "disease", "condition", "examination", "surgery",
+        "blood", "heart", "lung", "brain", "kidney", "liver"
+      ],
+      "technicalTerms": [
+        "hypertension", "diabetes", "pneumonia", "bronchitis", "arthritis",
+        "myocardial", "infarction", "cardiovascular", "respiratory",
+        "neurological", "gastrointestinal", "dermatological"
+      ],
+      "properNouns": [
+        "Aspirin", "Ibuprofen", "Acetaminophen", "Morphine", "Insulin",
+        "Penicillin", "Amoxicillin", "Metformin", "Lisinopril"
+      ]
+    },
+    "technical": {
+      "domainTerms": [
+        "software", "hardware", "computer", "system", "network", "database",
+        "server", "application", "program", "code", "algorithm", "data",
+        "interface", "protocol", "framework", "library", "API", "SDK"
+      ],
+      "technicalTerms": [
+        "JavaScript", "Python", "C++", "Java", "HTML", "CSS", "SQL",
+        "HTTP", "HTTPS", "TCP", "UDP", "REST", "JSON", "XML",
+        "microservices", "containerization", "virtualization"
+      ],
+      "properNouns": [
+        "GitHub", "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud",
+        "React", "Angular", "Vue", "Node.js", "MongoDB", "PostgreSQL"
+      ]
+    },
+    "legal": {
+      "domainTerms": [
+        "court", "law", "legal", "attorney", "lawyer", "judge", "jury",
+        "case", "contract", "agreement", "lawsuit", "litigation",
+        "evidence", "testimony", "witness", "defendant", "plaintiff"
+      ],
+      "technicalTerms": [
+        "jurisdiction", "statute", "regulation", "compliance", "liability",
+        "negligence", "breach", "damages", "injunction", "subpoena",
+        "deposition", "arbitration", "mediation"
+      ],
+      "properNouns": [
+        "Supreme Court", "Federal Court", "District Court", "Appeals Court",
+        "Constitution", "Bill of Rights", "Civil Rights Act"
+      ]
+    },
+    "business": {
+      "domainTerms": [
+        "company", "business", "market", "sales", "revenue", "profit", "customer",
+        "client", "meeting", "project", "management", "strategy", "finance",
+        "budget", "investment", "corporate", "enterprise", "commercial"
+      ],
+      "technicalTerms": [
+        "ROI", "KPI", "B2B", "B2C", "SaaS", "CRM", "ERP", "IPO", "LLC",
+        "acquisition", "merger", "valuation", "equity", "stakeholder"
+      ],
+      "properNouns": [
+        "Fortune 500", "NASDAQ", "NYSE", "SEC", "IRS", "GAAP",
+        "Microsoft", "Apple", "Google", "Amazon", "Facebook"
+      ]
+    }
+  },
+  "performance": {
+    "enableCaching": true,
+    "cacheSize": 1000,
+    "enableParallelProcessing": true,
+    "maxProcessingThreads": 4,
+    "timeoutMs": 5000
+  },
+  "debugging": {
+    "enableDetailedLogging": false,
+    "logLevel": "INFO",
+    "enableProcessingMetrics": true,
+    "enablePerformanceTracking": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "model": {
+    "defaultModel": "base",
+    "modelsPath": "data/whisper/",
+    "language": "auto",
+    "translateToEnglish": false
+  },
+  "languageDetection": {
+    "enabled": true,
+    "threshold": 0.7,
+    "autoSwitching": true,
+    "consistentDetectionRequired": 2
+  },
+  "quantization": {
+    "level": "AUTO",
+    "enableGPUAcceleration": true,
+    "gpuDeviceId": 0,
+    "accuracyThreshold": 0.85
+  },
+  "streaming": {
+    "partialResultsEnabled": true,
+    "minChunkSizeMs": 1000,
+    "maxChunkSizeMs": 10000,
+    "overlapSizeMs": 200,
+    "enableIncrementalUpdates": true
+  },
+  "confidence": {
+    "threshold": 0.5,
+    "wordLevelEnabled": true,
+    "qualityIndicatorsEnabled": true,
+    "filteringEnabled": false
+  },
+  "performance": {
+    "threadCount": 4,
+    "temperature": 0.0,
+    "maxTokens": 0,
+    "suppressBlank": true,
+    "suppressNonSpeechTokens": true
+  },
+  "audio": {
+    "sampleRate": 16000,
+    "audioBufferSizeMB": 8,
+    "enableNoiseReduction": false,
+    "vadThreshold": 0.5
+  },
+  "errorRecovery": {
+    "enabled": true,
+    "maxRetryAttempts": 3,
+    "retryBackoffMultiplier": 2.0,
+    "retryInitialDelayMs": 100
+  },
+  "healthMonitoring": {
+    "enabled": true,
+    "healthCheckIntervalMs": 30000,
+    "maxLatencyMs": 2000.0,
+    "maxMemoryUsageMB": 4096.0
+  }
+}

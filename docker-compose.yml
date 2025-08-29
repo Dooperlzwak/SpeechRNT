@@ -1,0 +1,67 @@
+services:
+  # Backend C++ service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/app
+      - backend_build:/app/build
+      - ai_models:/app/data
+    environment:
+      - CMAKE_BUILD_TYPE=Debug
+      - CUDA_VISIBLE_DEVICES=0
+    depends_on:
+      - model-downloader
+    networks:
+      - speech-rnt
+
+  # Frontend React service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_BACKEND_WS_URL=ws://backend:8080
+    depends_on:
+      - backend
+    networks:
+      - speech-rnt
+
+  # Model downloader service (runs once to download AI models)
+  model-downloader:
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile.models
+    volumes:
+      - ai_models:/models
+    environment:
+      - MODELS_DIR=/models
+    networks:
+      - speech-rnt
+
+  # Development database (optional - for future features)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - speech-rnt
+
+volumes:
+  backend_build:
+  ai_models:
+  redis_data:
+
+networks:
+  speech-rnt:
+    driver: bridge

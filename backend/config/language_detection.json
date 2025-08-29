@@ -1,0 +1,118 @@
+{
+  "enabled": true,
+  "confidence_threshold": 0.8,
+  "detection_method": "hybrid",
+  "supported_languages": [
+    "en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko", 
+    "ar", "hi", "th", "vi", "nl", "sv", "da", "no", "fi", "pl",
+    "ca", "uk", "be", "bg", "sr", "ro"
+  ],
+  "fallback_languages": {
+    "pt": "es",
+    "it": "es", 
+    "ca": "es",
+    "nl": "de",
+    "da": "de",
+    "sv": "de",
+    "no": "de",
+    "fi": "sv",
+    "uk": "ru",
+    "be": "ru",
+    "bg": "ru",
+    "sr": "ru",
+    "ro": "it"
+  },
+  "detection_methods": {
+    "text_analysis": {
+      "enabled": true,
+      "algorithms": ["character_frequency", "n_gram_analysis", "dictionary_lookup"],
+      "character_frequency": {
+        "enabled": true,
+        "weight": 0.4,
+        "min_text_length": 20
+      },
+      "n_gram_analysis": {
+        "enabled": true,
+        "weight": 0.4,
+        "n_gram_size": 3,
+        "min_text_length": 30
+      },
+      "dictionary_lookup": {
+        "enabled": true,
+        "weight": 0.2,
+        "min_matches": 3
+      }
+    },
+    "audio_analysis": {
+      "enabled": true,
+      "use_whisper_detection": true,
+      "phonetic_analysis": {
+        "enabled": false,
+        "weight": 0.3
+      },
+      "prosodic_features": {
+        "enabled": false,
+        "weight": 0.2
+      }
+    },
+    "hybrid": {
+      "enabled": true,
+      "text_weight": 0.6,
+      "audio_weight": 0.4,
+      "confidence_boost": 0.1,
+      "agreement_threshold": 0.7
+    }
+  },
+  "language_models": {
+    "model_path": "data/language_detection/",
+    "models": {
+      "fasttext": {
+        "enabled": true,
+        "model_file": "lid.176.bin",
+        "confidence_threshold": 0.5
+      },
+      "langdetect": {
+        "enabled": true,
+        "confidence_threshold": 0.7
+      }
+    }
+  },
+  "caching": {
+    "enabled": true,
+    "ttl_seconds": 30,
+    "max_entries_per_session": 100,
+    "cache_by_text_hash": true,
+    "cache_by_audio_features": false
+  },
+  "automatic_language_switching": {
+    "enabled": true,
+    "confidence_threshold": 0.85,
+    "consistency_required": 2,
+    "notify_clients": true,
+    "update_mt_engine": true,
+    "switch_delay_ms": 1000,
+    "prevent_rapid_switching": true,
+    "min_switch_interval_ms": 5000
+  },
+  "validation": {
+    "enable_language_validation": true,
+    "validate_against_supported": true,
+    "validate_against_mt_pairs": true,
+    "fallback_on_unsupported": true
+  },
+  "performance": {
+    "max_text_length": 1000,
+    "min_text_length": 10,
+    "detection_timeout_ms": 500,
+    "enable_parallel_detection": true,
+    "max_concurrent_detections": 4,
+    "enable_early_termination": true,
+    "early_termination_threshold": 0.95
+  },
+  "logging": {
+    "log_detections": true,
+    "log_confidence_scores": true,
+    "log_method_results": false,
+    "log_cache_hits": false
+  }
+}

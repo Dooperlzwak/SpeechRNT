@@ -1,0 +1,161 @@
+{
+  "version": "1.0.0",
+  "environment": "development",
+  "modelsBasePath": "data/marian/",
+  
+  "gpu": {
+    "enabled": true,
+    "fallbackToCPU": true,
+    "defaultDeviceId": 0,
+    "memoryPoolSizeMB": 1024,
+    "maxModelMemoryMB": 2048,
+    "memoryReservationRatio": 0.8,
+    "allowedDeviceIds": [0, 1]
+  },
+  
+  "quality": {
+    "enabled": true,
+    "highQualityThreshold": 0.8,
+    "mediumQualityThreshold": 0.6,
+    "lowQualityThreshold": 0.4,
+    "generateAlternatives": true,
+    "maxAlternatives": 3,
+    "enableFallbackTranslation": true
+  },
+  
+  "caching": {
+    "enabled": true,
+    "maxCacheSize": 1000,
+    "cacheExpirationTimeMinutes": 60,
+    "persistToDisk": false,
+    "cacheDirectory": "cache/translations"
+  },
+  
+  "batch": {
+    "maxBatchSize": 32,
+    "batchTimeoutMs": 5000,
+    "enableBatchOptimization": true,
+    "optimalBatchSize": 8
+  },
+  
+  "streaming": {
+    "enabled": true,
+    "sessionTimeoutMinutes": 30,
+    "maxConcurrentSessions": 100,
+    "maxContextLength": 1000,
+    "enableContextPreservation": true
+  },
+  
+  "errorHandling": {
+    "enableRetry": true,
+    "maxRetryAttempts": 3,
+    "initialRetryDelayMs": 100,
+    "retryBackoffMultiplier": 2.0,
+    "maxRetryDelayMs": 10000,
+    "translationTimeoutMs": 5000,
+    "enableDegradedMode": true,
+    "enableFallbackTranslation": true
+  },
+  
+  "performance": {
+    "enabled": true,
+    "metricsCollectionIntervalSeconds": 30,
+    "enableLatencyTracking": true,
+    "enableThroughputTracking": true,
+    "enableResourceUsageTracking": true,
+    "maxMetricsHistorySize": 1000
+  },
+  
+  "languageDetection": {
+    "enabled": true,
+    "confidenceThreshold": 0.7,
+    "detectionMethod": "hybrid",
+    "enableHybridDetection": true,
+    "hybridWeightText": 0.6,
+    "hybridWeightAudio": 0.4,
+    "supportedLanguages": [
+      "en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko",
+      "ar", "hi", "th", "vi", "nl", "sv", "da", "no", "fi", "pl"
+    ],
+    "fallbackLanguages": {
+      "unknown": "en",
+      "auto": "en",
+      "zh-cn": "zh",
+      "zh-tw": "zh"
+    }
+  },
+  
+  "models": {
+    "en->es": {
+      "modelPath": "data/marian/en-es/model.npz",
+      "vocabPath": "data/marian/en-es/vocab.yml",
+      "configPath": "data/marian/en-es/config.yml",
+      "modelType": "transformer",
+      "domain": "general",
+      "accuracy": 0.85,
+      "estimatedSizeMB": 180,
+      "quantized": false,
+      "quantizationType": ""
+    },
+    "es->en": {
+      "modelPath": "data/marian/es-en/model.npz",
+      "vocabPath": "data/marian/es-en/vocab.yml",
+      "configPath": "data/marian/es-en/config.yml",
+      "modelType": "transformer",
+      "domain": "general",
+      "accuracy": 0.85,
+      "estimatedSizeMB": 180,
+      "quantized": false,
+      "quantizationType": ""
+    },
+    "en->fr": {
+      "modelPath": "data/marian/en-fr/model.npz",
+      "vocabPath": "data/marian/en-fr/vocab.yml",
+      "configPath": "data/marian/en-fr/config.yml",
+      "modelType": "transformer",
+      "domain": "general",
+      "accuracy": 0.83,
+      "estimatedSizeMB": 190,
+      "quantized": false,
+      "quantizationType": ""
+    },
+    "fr->en": {
+      "modelPath": "data/marian/fr-en/model.npz",
+      "vocabPath": "data/marian/fr-en/vocab.yml",
+      "configPath": "data/marian/fr-en/config.yml",
+      "modelType": "transformer",
+      "domain": "general",
+      "accuracy": 0.83,
+      "estimatedSizeMB": 190,
+      "quantized": false,
+      "quantizationType": ""
+    },
+    "en->de": {
+      "modelPath": "data/marian/en-de/model.npz",
+      "vocabPath": "data/marian/en-de/vocab.yml",
+      "configPath": "data/marian/en-de/config.yml",
+      "modelType": "transformer",
+      "domain": "general",
+      "accuracy": 0.82,
+      "estimatedSizeMB": 200,
+      "quantized": false,
+      "quantizationType": ""
+    },
+    "de->en": {
+      "modelPath": "data/marian/de-en/model.npz",
+      "vocabPath": "data/marian/de-en/vocab.yml",
+      "configPath": "data/marian/de-en/config.yml",
+      "modelType": "transformer",
+      "domain": "general",
+      "accuracy": 0.82,
+      "estimatedSizeMB": 200,
+      "quantized": false,
+      "quantizationType": ""
+    }
+  },
+  
+  "customModelPaths": {
+    "en->zh": "custom/models/en-zh-medical",
+    "zh->en": "custom/models/zh-en-medical"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "port": 8080,
+  "logLevel": "INFO",
+  "maxConnections": 100,
+  "heartbeatInterval": 30000
+}
