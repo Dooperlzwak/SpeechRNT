@@ -2,7 +2,7 @@
  * ErrorClassificationService - Advanced error classification and recovery strategies
  * 
  * This service provides comprehensive error classification, recovery strategies,
- * and user-friendly error messages for the SpeechRNT application.
+ * and user-friendly error messages for the Vocr application.
  */
 
 import { type AppError, ErrorType, ErrorFactory } from '../components/ErrorNotification';
@@ -339,10 +339,10 @@ export class ErrorClassificationService {
   } {
     // Determine error type based on error message and context
     const errorType = this.determineErrorType(error, context);
-    
+
     // Create standardized AppError
     const appError = this.createAppError(error, errorType, context);
-    
+
     // Get classification and recovery strategy
     const classification = this.errorClassifications.get(errorType) || this.getDefaultClassification();
     const recoveryStrategy = this.recoveryStrategies.get(errorType) || this.getDefaultRecoveryStrategy();
@@ -365,8 +365,8 @@ export class ErrorClassificationService {
     const contextStr = JSON.stringify(context || {}).toLowerCase();
 
     // WebSocket errors
-    if (message.includes('websocket') || message.includes('connection') || 
-        contextStr.includes('websocket') || contextStr.includes('connection')) {
+    if (message.includes('websocket') || message.includes('connection') ||
+      contextStr.includes('websocket') || contextStr.includes('connection')) {
       if (message.includes('reconnect') || contextStr.includes('reconnect')) {
         return ErrorType.WEBSOCKET_RECONNECTION;
       }
@@ -375,39 +375,39 @@ export class ErrorClassificationService {
 
     // Audio errors
     if (message.includes('permission') || message.includes('denied') ||
-        message.includes('microphone access')) {
+      message.includes('microphone access')) {
       return ErrorType.AUDIO_PERMISSION;
     }
 
     if (message.includes('audio capture') || message.includes('mediarecorder') ||
-        message.includes('microphone') || contextStr.includes('audio capture')) {
+      message.includes('microphone') || contextStr.includes('audio capture')) {
       return ErrorType.AUDIO_CAPTURE;
     }
 
     if (message.includes('audio playback') || message.includes('audiocontext') ||
-        contextStr.includes('audio playback')) {
+      contextStr.includes('audio playback')) {
       return ErrorType.AUDIO_PLAYBACK;
     }
 
     // Pipeline errors
     if (message.includes('transcription') || message.includes('stt') ||
-        contextStr.includes('transcription')) {
+      contextStr.includes('transcription')) {
       return ErrorType.TRANSCRIPTION;
     }
 
     if (message.includes('translation') || message.includes('mt') ||
-        contextStr.includes('translation')) {
+      contextStr.includes('translation')) {
       return ErrorType.TRANSLATION;
     }
 
     if (message.includes('synthesis') || message.includes('tts') ||
-        contextStr.includes('synthesis')) {
+      contextStr.includes('synthesis')) {
       return ErrorType.SYNTHESIS;
     }
 
     // Network errors
     if (message.includes('network') || message.includes('fetch') ||
-        message.includes('timeout') || message.includes('offline')) {
+      message.includes('timeout') || message.includes('offline')) {
       return ErrorType.NETWORK;
     }
 
@@ -424,46 +424,46 @@ export class ErrorClassificationService {
           'Unable to connect to the translation server',
           'Please check your internet connection and try again'
         );
-      
+
       case ErrorType.WEBSOCKET_RECONNECTION:
         return ErrorFactory.createWebSocketError(
           'Connection lost - attempting to reconnect',
           'Please wait while we restore your connection'
         );
-      
+
       case ErrorType.AUDIO_PERMISSION:
         return ErrorFactory.createAudioPermissionError();
-      
+
       case ErrorType.AUDIO_CAPTURE:
         return ErrorFactory.createAudioCaptureError(
           'Unable to access your microphone. Please check your microphone settings and try again.'
         );
-      
+
       case ErrorType.AUDIO_PLAYBACK:
         return ErrorFactory.createAudioPlaybackError(
           'Unable to play translated audio. The translation text is still available.'
         );
-      
+
       case ErrorType.TRANSCRIPTION:
         return ErrorFactory.createTranscriptionError(
           'Unable to understand your speech. Please try speaking more clearly.'
         );
-      
+
       case ErrorType.TRANSLATION:
         return ErrorFactory.createTranslationError(
           'Translation service is temporarily unavailable. We\'ll retry automatically.'
         );
-      
+
       case ErrorType.SYNTHESIS:
         return ErrorFactory.createSynthesisError(
           'Unable to generate speech audio. The translation text is available above.'
         );
-      
+
       case ErrorType.NETWORK:
         return ErrorFactory.createNetworkError(
           'Network connection error. Please check your internet connection.'
         );
-      
+
       default:
         return ErrorFactory.createUnknownError(error);
     }
@@ -567,16 +567,16 @@ export class ErrorClassificationService {
     this.errorMetrics.forEach(metrics => {
       // Count by type
       errorsByType[metrics.errorType] = (errorsByType[metrics.errorType] || 0) + 1;
-      
+
       // Count by category
       const category = metrics.classification.category;
       errorsByCategory[category] = (errorsByCategory[category] || 0) + 1;
-      
+
       // Recovery statistics
       if (metrics.timeToRecover !== undefined) {
         totalRecoveryTime += metrics.timeToRecover;
         recoveredErrors++;
-        
+
         if (metrics.recoverySuccess) {
           successfulRecoveries++;
         }

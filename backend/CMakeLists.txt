@@ -200,7 +200,7 @@ file(GLOB_RECURSE SOURCES
     "src/stt/*.cpp"
     "src/stt/advanced/*.cpp"
     "src/mt/*.cpp"
-    "src/tts/*.cpp"
+    "src/tts/piper_tts.cpp"
     "src/models/*.cpp"
     "src/utils/*.cpp"
 )
@@ -222,59 +222,7 @@ endif()
 # Main executable
 add_executable(SpeechRNT src/main.cpp ${SOURCES})
 
-# Audio demo executable
-add_executable(AudioDemo src/audio_demo.cpp ${SOURCES})
 
-# Audio buffer demo executable
-add_executable(AudioBufferDemo src/audio_buffer_demo.cpp ${SOURCES})
-
-# GPU test executable
-add_executable(GPUTest src/gpu_test.cpp ${SOURCES})
-
-# Streaming test executable
-add_executable(StreamingTest test_streaming.cpp ${SOURCES})
-
-# STT Performance Demo executable
-add_executable(STTPerformanceDemo src/stt_performance_demo.cpp ${SOURCES})
-
-# Audio Utils Demo executable
-add_executable(AudioUtilsDemo src/audio_utils_demo.cpp ${SOURCES})
-
-# STT Translation Integration Demo executable
-add_executable(STTTranslationDemo src/stt_translation_integration_demo.cpp ${SOURCES})
-
-# STT Translation Integration Test executable
-add_executable(TranslationIntegrationTest src/test_translation_integration.cpp ${SOURCES})
-
-# Performance Optimization Demo executable
-add_executable(PerformanceOptimizationDemo src/performance_optimization_demo.cpp ${SOURCES})
-
-# Advanced STT Test executable
-add_executable(AdvancedSTTTest src/advanced_stt_test.cpp ${SOURCES})
-
-# Real-time Audio Analyzer Test executable
-add_executable(RealTimeAudioAnalyzerTest src/test_realtime_audio_analyzer.cpp ${SOURCES})
-
-# Advanced Streaming Test executable
-add_executable(AdvancedStreamingTest src/test_advanced_streaming.cpp ${SOURCES})
-
-# Emotion Detection Test executable
-add_executable(EmotionDetectionTest src/test_emotion_detection.cpp ${SOURCES})
-
-# Simple Emotion Test executable
-add_executable(SimpleEmotionTest src/simple_emotion_test.cpp ${SOURCES})
-
-# Advanced Model Management Test executable
-add_executable(AdvancedModelManagementTest src/test_advanced_model_management.cpp ${SOURCES})
-
-# External Service Integration Test executable
-add_executable(ExternalServiceIntegrationTest src/test_external_service_integration.cpp ${SOURCES})
-
-# Real STT Integration Test executable
-add_executable(RealSTTIntegrationTest src/test_real_stt_integration.cpp ${SOURCES})
-
-# Real MT Integration Test executable
-add_executable(RealMTIntegrationTest src/test_real_mt_integration.cpp ${SOURCES})
 
 # MT Configuration Example executable
 add_executable(MTConfigExample examples/mt_config_example.cpp ${SOURCES})
@@ -291,8 +239,7 @@ add_executable(STTIntegrationExample examples/stt_integration_example.cpp ${SOUR
 # MT Integration Example executable
 add_executable(MTIntegrationExample examples/mt_integration_example.cpp ${SOURCES})
 
-# Real TTS Integration Test executable
-add_executable(RealTTSIntegrationTest src/test_real_tts_integration.cpp ${SOURCES})
+
 
 # TTS Integration Example executable
 add_executable(TTSIntegrationExample examples/tts_integration_example.cpp ${SOURCES})
@@ -302,41 +249,7 @@ target_link_libraries(SpeechRNT
     Threads::Threads
 )
 
-target_link_libraries(AudioDemo 
-    Threads::Threads
-)
 
-target_link_libraries(AudioBufferDemo 
-    Threads::Threads
-)
-
-target_link_libraries(GPUTest 
-    Threads::Threads
-)
-
-target_link_libraries(StreamingTest 
-    Threads::Threads
-)
-
-target_link_libraries(STTPerformanceDemo 
-    Threads::Threads
-)
-
-target_link_libraries(AudioUtilsDemo 
-    Threads::Threads
-)
-
-target_link_libraries(STTTranslationDemo 
-    Threads::Threads
-)
-
-target_link_libraries(TranslationIntegrationTest 
-    Threads::Threads
-)
-
-target_link_libraries(PerformanceOptimizationDemo 
-    Threads::Threads
-)
 
 target_link_libraries(MTConfigExample 
     Threads::Threads
@@ -358,45 +271,7 @@ target_link_libraries(MTIntegrationExample
     Threads::Threads
 )
 
-target_link_libraries(AdvancedSTTTest 
-    Threads::Threads
-)
 
-target_link_libraries(RealTimeAudioAnalyzerTest 
-    Threads::Threads
-)
-
-target_link_libraries(AdvancedStreamingTest 
-    Threads::Threads
-)
-
-target_link_libraries(EmotionDetectionTest 
-    Threads::Threads
-)
-
-target_link_libraries(SimpleEmotionTest 
-    Threads::Threads
-)
-
-target_link_libraries(AdvancedModelManagementTest 
-    Threads::Threads
-)
-
-target_link_libraries(ExternalServiceIntegrationTest 
-    Threads::Threads
-)
-
-target_link_libraries(RealSTTIntegrationTest 
-    Threads::Threads
-)
-
-target_link_libraries(RealMTIntegrationTest 
-    Threads::Threads
-)
-
-target_link_libraries(RealTTSIntegrationTest 
-    Threads::Threads
-)
 
 target_link_libraries(TTSIntegrationExample 
     Threads::Threads
@@ -408,42 +283,7 @@ if(CUDA_AVAILABLE)
         CUDA::cudart
         CUDA::cuda_driver
     )
-    target_link_libraries(AudioDemo 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(AudioBufferDemo 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(GPUTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(StreamingTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(STTPerformanceDemo 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(AudioUtilsDemo 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(STTTranslationDemo 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(TranslationIntegrationTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(PerformanceOptimizationDemo 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
+
     target_link_libraries(MTConfigExample 
         CUDA::cudart
         CUDA::cuda_driver
@@ -464,143 +304,52 @@ if(CUDA_AVAILABLE)
         CUDA::cudart
         CUDA::cuda_driver
     )
-    target_link_libraries(AdvancedSTTTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(RealTimeAudioAnalyzerTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(AdvancedStreamingTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(EmotionDetectionTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(AdvancedModelManagementTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(ExternalServiceIntegrationTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(RealSTTIntegrationTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
-    target_link_libraries(RealMTIntegrationTest 
-        CUDA::cudart
-        CUDA::cuda_driver
-    )
+
     
     # Link cuBLAS if found
     if(CUBLAS_LIBRARY)
         target_link_libraries(SpeechRNT CUDA::cublas)
-        target_link_libraries(AudioDemo CUDA::cublas)
-        target_link_libraries(AudioBufferDemo CUDA::cublas)
-        target_link_libraries(GPUTest CUDA::cublas)
-        target_link_libraries(StreamingTest CUDA::cublas)
-        target_link_libraries(STTPerformanceDemo CUDA::cublas)
-        target_link_libraries(AudioUtilsDemo CUDA::cublas)
-        target_link_libraries(STTTranslationDemo CUDA::cublas)
-        target_link_libraries(TranslationIntegrationTest CUDA::cublas)
-        target_link_libraries(PerformanceOptimizationDemo CUDA::cublas)
+
         target_link_libraries(MTConfigExample CUDA::cublas)
         target_link_libraries(GPUAcceleratorExample CUDA::cublas)
         target_link_libraries(AdvancedDebuggingExample CUDA::cublas)
         target_link_libraries(STTIntegrationExample CUDA::cublas)
         target_link_libraries(MTIntegrationExample CUDA::cublas)
-        target_link_libraries(AdvancedSTTTest CUDA::cublas)
-        target_link_libraries(RealTimeAudioAnalyzerTest CUDA::cublas)
-        target_link_libraries(AdvancedStreamingTest CUDA::cublas)
-        target_link_libraries(EmotionDetectionTest CUDA::cublas)
-        target_link_libraries(AdvancedModelManagementTest CUDA::cublas)
-        target_link_libraries(ExternalServiceIntegrationTest CUDA::cublas)
-        target_link_libraries(RealSTTIntegrationTest CUDA::cublas)
-        target_link_libraries(RealMTIntegrationTest CUDA::cublas)
+
     endif()
     
     # Link cuDNN if found
     if(CUDNN_LIBRARY)
         target_link_libraries(SpeechRNT ${CUDNN_LIBRARY})
-        target_link_libraries(AudioDemo ${CUDNN_LIBRARY})
-        target_link_libraries(AudioBufferDemo ${CUDNN_LIBRARY})
-        target_link_libraries(GPUTest ${CUDNN_LIBRARY})
-        target_link_libraries(StreamingTest ${CUDNN_LIBRARY})
-        target_link_libraries(STTPerformanceDemo ${CUDNN_LIBRARY})
-        target_link_libraries(AudioUtilsDemo ${CUDNN_LIBRARY})
-        target_link_libraries(STTTranslationDemo ${CUDNN_LIBRARY})
-        target_link_libraries(TranslationIntegrationTest ${CUDNN_LIBRARY})
-        target_link_libraries(PerformanceOptimizationDemo ${CUDNN_LIBRARY})
+
         target_link_libraries(MTConfigExample ${CUDNN_LIBRARY})
         target_link_libraries(GPUAcceleratorExample ${CUDNN_LIBRARY})
         target_link_libraries(AdvancedDebuggingExample ${CUDNN_LIBRARY})
         target_link_libraries(STTIntegrationExample ${CUDNN_LIBRARY})
         target_link_libraries(MTIntegrationExample ${CUDNN_LIBRARY})
-        target_link_libraries(AdvancedSTTTest ${CUDNN_LIBRARY})
-        target_link_libraries(RealTimeAudioAnalyzerTest ${CUDNN_LIBRARY})
-        target_link_libraries(AdvancedStreamingTest ${CUDNN_LIBRARY})
-        target_link_libraries(EmotionDetectionTest ${CUDNN_LIBRARY})
-        target_link_libraries(AdvancedModelManagementTest ${CUDNN_LIBRARY})
-        target_link_libraries(ExternalServiceIntegrationTest ${CUDNN_LIBRARY})
-        target_link_libraries(RealSTTIntegrationTest ${CUDNN_LIBRARY})
-        target_link_libraries(RealMTIntegrationTest ${CUDNN_LIBRARY})
+
     endif()
 endif()
 
 # Link silero-vad libraries if available
 if(SILERO_VAD_AVAILABLE)
     target_link_libraries(SpeechRNT ${ONNXRUNTIME_LIB})
-    target_link_libraries(AudioDemo ${ONNXRUNTIME_LIB})
-    target_link_libraries(AudioBufferDemo ${ONNXRUNTIME_LIB})
-    target_link_libraries(GPUTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(StreamingTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(STTPerformanceDemo ${ONNXRUNTIME_LIB})
-    target_link_libraries(AudioUtilsDemo ${ONNXRUNTIME_LIB})
-    target_link_libraries(STTTranslationDemo ${ONNXRUNTIME_LIB})
-    target_link_libraries(TranslationIntegrationTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(PerformanceOptimizationDemo ${ONNXRUNTIME_LIB})
+
     target_link_libraries(MTConfigExample ${ONNXRUNTIME_LIB})
     target_link_libraries(GPUAcceleratorExample ${ONNXRUNTIME_LIB})
     target_link_libraries(AdvancedDebuggingExample ${ONNXRUNTIME_LIB})
     target_link_libraries(STTIntegrationExample ${ONNXRUNTIME_LIB})
     target_link_libraries(MTIntegrationExample ${ONNXRUNTIME_LIB})
-    target_link_libraries(AdvancedSTTTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(RealTimeAudioAnalyzerTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(AdvancedStreamingTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(EmotionDetectionTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(AdvancedModelManagementTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(ExternalServiceIntegrationTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(RealSTTIntegrationTest ${ONNXRUNTIME_LIB})
-    target_link_libraries(RealMTIntegrationTest ${ONNXRUNTIME_LIB})
+
 endif()
 
 # Link Marian libraries if available
 if(MARIAN_AVAILABLE)
     target_link_libraries(SpeechRNT ${MARIAN_LIBRARIES})
-    target_link_libraries(AudioDemo ${MARIAN_LIBRARIES})
-    target_link_libraries(AudioBufferDemo ${MARIAN_LIBRARIES})
-    target_link_libraries(GPUTest ${MARIAN_LIBRARIES})
-    target_link_libraries(StreamingTest ${MARIAN_LIBRARIES})
-    target_link_libraries(STTPerformanceDemo ${MARIAN_LIBRARIES})
-    target_link_libraries(AudioUtilsDemo ${MARIAN_LIBRARIES})
-    target_link_libraries(STTTranslationDemo ${MARIAN_LIBRARIES})
-    target_link_libraries(TranslationIntegrationTest ${MARIAN_LIBRARIES})
-    target_link_libraries(PerformanceOptimizationDemo ${MARIAN_LIBRARIES})
+
     target_link_libraries(MTConfigExample ${MARIAN_LIBRARIES})
     target_link_libraries(GPUAcceleratorExample ${MARIAN_LIBRARIES})
-    target_link_libraries(AdvancedSTTTest ${MARIAN_LIBRARIES})
-    target_link_libraries(RealTimeAudioAnalyzerTest ${MARIAN_LIBRARIES})
-    target_link_libraries(AdvancedStreamingTest ${MARIAN_LIBRARIES})
-    target_link_libraries(EmotionDetectionTest ${MARIAN_LIBRARIES})
-    target_link_libraries(AdvancedModelManagementTest ${MARIAN_LIBRARIES})
-    target_link_libraries(ExternalServiceIntegrationTest ${MARIAN_LIBRARIES})
-    target_link_libraries(RealSTTIntegrationTest ${MARIAN_LIBRARIES})
-    target_link_libraries(RealMTIntegrationTest ${MARIAN_LIBRARIES})
+
     target_link_libraries(AdvancedDebuggingExample ${MARIAN_LIBRARIES})
     target_link_libraries(STTIntegrationExample ${MARIAN_LIBRARIES})
     target_link_libraries(MTIntegrationExample ${MARIAN_LIBRARIES})
@@ -609,53 +358,23 @@ endif()
 # Link optional libraries if available
 if(ZLIB_FOUND)
     target_link_libraries(SpeechRNT ${ZLIB_LIBRARIES})
-    target_link_libraries(AudioDemo ${ZLIB_LIBRARIES})
-    target_link_libraries(AudioBufferDemo ${ZLIB_LIBRARIES})
-    target_link_libraries(GPUTest ${ZLIB_LIBRARIES})
-    target_link_libraries(StreamingTest ${ZLIB_LIBRARIES})
-    target_link_libraries(STTPerformanceDemo ${ZLIB_LIBRARIES})
-    target_link_libraries(AudioUtilsDemo ${ZLIB_LIBRARIES})
-    target_link_libraries(STTTranslationDemo ${ZLIB_LIBRARIES})
-    target_link_libraries(TranslationIntegrationTest ${ZLIB_LIBRARIES})
-    target_link_libraries(PerformanceOptimizationDemo ${ZLIB_LIBRARIES})
+
     target_link_libraries(MTConfigExample ${ZLIB_LIBRARIES})
     target_link_libraries(GPUAcceleratorExample ${ZLIB_LIBRARIES})
-    target_link_libraries(AdvancedSTTTest ${ZLIB_LIBRARIES})
-    target_link_libraries(RealTimeAudioAnalyzerTest ${ZLIB_LIBRARIES})
-    target_link_libraries(AdvancedStreamingTest ${ZLIB_LIBRARIES})
-    target_link_libraries(EmotionDetectionTest ${ZLIB_LIBRARIES})
-    target_link_libraries(AdvancedModelManagementTest ${ZLIB_LIBRARIES})
-    target_link_libraries(ExternalServiceIntegrationTest ${ZLIB_LIBRARIES})
-    target_link_libraries(RealSTTIntegrationTest ${ZLIB_LIBRARIES})
-    target_link_libraries(RealMTIntegrationTest ${ZLIB_LIBRARIES})
+
     target_link_libraries(AdvancedDebuggingExample ${ZLIB_LIBRARIES})
     target_link_libraries(STTIntegrationExample ${ZLIB_LIBRARIES})
     target_link_libraries(MTIntegrationExample ${ZLIB_LIBRARIES})
 endif()
 if(LIBUV_FOUND)
     target_link_libraries(SpeechRNT ${LIBUV_LIBRARIES})
-    target_link_libraries(AudioDemo ${LIBUV_LIBRARIES})
-    target_link_libraries(AudioBufferDemo ${LIBUV_LIBRARIES})
-    target_link_libraries(GPUTest ${LIBUV_LIBRARIES})
-    target_link_libraries(StreamingTest ${LIBUV_LIBRARIES})
-    target_link_libraries(STTPerformanceDemo ${LIBUV_LIBRARIES})
-    target_link_libraries(AudioUtilsDemo ${LIBUV_LIBRARIES})
-    target_link_libraries(STTTranslationDemo ${LIBUV_LIBRARIES})
-    target_link_libraries(TranslationIntegrationTest ${LIBUV_LIBRARIES})
-    target_link_libraries(PerformanceOptimizationDemo ${LIBUV_LIBRARIES})
+
     target_link_libraries(MTConfigExample ${LIBUV_LIBRARIES})
     target_link_libraries(GPUAcceleratorExample ${LIBUV_LIBRARIES})
-    target_link_libraries(AdvancedSTTTest ${LIBUV_LIBRARIES})
-    target_link_libraries(RealTimeAudioAnalyzerTest ${LIBUV_LIBRARIES})
-    target_link_libraries(AdvancedStreamingTest ${LIBUV_LIBRARIES})
-    target_link_libraries(EmotionDetectionTest ${LIBUV_LIBRARIES})
-    target_link_libraries(AdvancedModelManagementTest ${LIBUV_LIBRARIES})
-    target_link_libraries(ExternalServiceIntegrationTest ${LIBUV_LIBRARIES})
-    target_link_libraries(RealSTTIntegrationTest ${LIBUV_LIBRARIES})
-    target_link_libraries(RealMTIntegrationTest ${LIBUV_LIBRARIES})
+
     target_link_libraries(AdvancedDebuggingExample ${LIBUV_LIBRARIES})
     target_link_libraries(STTIntegrationExample ${LIBUV_LIBRARIES})
-    target_link_libraries(RealTTSIntegrationTest ${LIBUV_LIBRARIES})
+
     target_link_libraries(TTSIntegrationExample ${LIBUV_LIBRARIES})
 endif()
 

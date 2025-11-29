@@ -2,7 +2,7 @@
 
 ## 🎉 Task 15: Final Integration and Testing - COMPLETED
 
-This document summarizes the completion of the final integration and testing task for the SpeechRNT frontend application.
+This document summarizes the completion of the final integration and testing task for the Vocr frontend application.
 
 ## ✅ Completed Sub-tasks
 

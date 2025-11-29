@@ -2,7 +2,7 @@
  * useWebSocketIntegration - React hook for WebSocket integration with session lifecycle management
  * 
  * This hook wraps WebSocketManager with enhanced session management, connection resilience,
- * and integration-specific features for the SpeechRNT application.
+ * and integration-specific features for the Vocr application.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -94,7 +94,7 @@ export const useWebSocketIntegration = (
   const wsManagerRef = useRef<WebSocketManager | null>(null);
   const connectionPromiseRef = useRef<Promise<void> | null>(null);
   const { handleWebSocketError } = useErrorHandler();
-  
+
   // Performance monitoring
   const performanceMonitoring = usePerformanceMonitoring({
     enabled: true,
@@ -118,12 +118,12 @@ export const useWebSocketIntegration = (
     onMessage: (message: ServerMessage) => {
       setLastMessage(message);
       setError(null); // Clear error on successful message
-      
+
       // Record performance metrics
       performanceMonitoring.recordConnectionMetrics({
         messagesReceived: 1
       });
-      
+
       // Handle session-specific messages
       if (message.type === 'status_update') {
         // Update session state based on server status
@@ -133,63 +133,63 @@ export const useWebSocketIntegration = (
           wsManagerRef.current?.setSessionState(sessionState);
         }
       }
-      
+
       onMessage(message);
     },
 
     onBinaryMessage: (data: ArrayBuffer) => {
       setLastBinaryMessage(data);
       setError(null); // Clear error on successful message
-      
+
       // Record performance metrics
       performanceMonitoring.recordConnectionMetrics({
         messagesReceived: 1
       });
-      
+
       // Update session activity
       const sessionState = wsManagerRef.current?.getSessionState();
       if (sessionState) {
         sessionState.lastActivity = Date.now();
         wsManagerRef.current?.setSessionState(sessionState);
       }
-      
+
       onBinaryMessage(data);
     },
 
     onConnectionChange: (connected: boolean) => {
       const newState = connected ? ConnectionState.CONNECTED : ConnectionState.DISCONNECTED;
       setConnectionState(newState);
-      
+
       // Record performance metrics
       performanceMonitoring.recordConnectionMetrics({
         connected
       });
-      
+
       if (connected) {
         setError(null); // Clear error on successful connection
       }
-      
+
       onConnectionChange(connected);
     },
 
     onError: (errorEvent: Event) => {
-      const errorMessage = errorEvent.type === 'max_reconnect_attempts_reached' 
+      const errorMessage = errorEvent.type === 'max_reconnect_attempts_reached'
         ? 'Failed to reconnect to server after multiple attempts'
         : 'WebSocket connection error occurred';
-      
+
       const wsError = new Error(errorMessage);
       setError(wsError);
-      
+
       // Record performance metrics
       performanceMonitoring.recordError('connection', wsError);
-      
+
       // Handle different types of WebSocket errors with session context
       if (errorEvent.type === 'max_reconnect_attempts_reached') {
         handleWebSocketError('Connection failed: Maximum reconnection attempts reached. Please check your network connection.');
       } else {
         handleWebSocketError('Connection error: Unable to communicate with the server.');
       }
-      
+
       onError(wsError);
     },
 
@@ -197,7 +197,7 @@ export const useWebSocketIntegration = (
       console.log('Session recovered successfully:', sessionState.sessionId);
       // Session recovered successfully
       setError(null);
-      
+
       // Notify about successful session recovery
       onMessage({
         type: 'status_update',
@@ -210,12 +210,12 @@ export const useWebSocketIntegration = (
 
     onConnectionQualityChange: (quality: ConnectionQuality) => {
       setConnectionQuality(quality);
-      
+
       // Record performance metrics
       performanceMonitoring.recordConnectionMetrics({
         quality
       });
-      
+
       // Handle connection quality degradation
       if (quality === 'critical') {
         const qualityError = new Error('Connection quality is critical - experiencing significant delays');
@@ -231,10 +231,10 @@ export const useWebSocketIntegration = (
   // Initialize WebSocket manager
   useEffect(() => {
     const initStartTime = Date.now();
-    
+
     try {
       wsManagerRef.current = new WebSocketManager(wsConfig, messageHandler);
-      
+
       // Record successful initialization
       const initDuration = Date.now() - initStartTime;
       performanceMonitoring.recordServiceInitialization('websocket', initDuration, true);
@@ -259,15 +259,15 @@ export const useWebSocketIntegration = (
         const currentState = wsManagerRef.current.getConnectionState();
         const currentQuality = wsManagerRef.current.getConnectionQuality();
         const stats = wsManagerRef.current.getConnectionStats();
-        
+
         if (currentState !== connectionState) {
           setConnectionState(currentState);
         }
-        
+
         if (currentQuality !== connectionQuality) {
           setConnectionQuality(currentQuality);
         }
-        
+
         // Update performance metrics with connection statistics
         performanceMonitoring.recordConnectionMetrics({
           quality: currentQuality,
@@ -297,7 +297,7 @@ export const useWebSocketIntegration = (
       // Set up one-time listeners for connection result
       const originalOnConnectionChange = messageHandler.onConnectionChange;
       const originalOnError = messageHandler.onError;
-      
+
       let resolved = false;
       const timeout = setTimeout(() => {
         if (!resolved) {
@@ -309,7 +309,7 @@ export const useWebSocketIntegration = (
 
       messageHandler.onConnectionChange = (connected: boolean) => {
         originalOnConnectionChange(connected);
-        
+
         if (connected && !resolved) {
           resolved = true;
           clearTimeout(timeout);
@@ -320,7 +320,7 @@ export const useWebSocketIntegration = (
 
       messageHandler.onError = (errorEvent: Event) => {
         originalOnError(errorEvent);
-        
+
         if (!resolved && errorEvent.type === 'max_reconnect_attempts_reached') {
           resolved = true;
           clearTimeout(timeout);
@@ -351,12 +351,12 @@ export const useWebSocketIntegration = (
   }): string => {
     const startTime = Date.now();
     const messageId = wsManagerRef.current?.sendMessage(message, options) || '';
-    
+
     // Record performance metrics
     performanceMonitoring.recordConnectionMetrics({
       messagesSent: 1
     });
-    
+
     // Record latency if this is a heartbeat or time-sensitive message
     if (message.type === 'ping') {
       performanceMonitoring.recordEvent({
@@ -365,14 +365,14 @@ export const useWebSocketIntegration = (
         data: { messageId }
       });
     }
-    
+
     // Update session activity
     const sessionState = wsManagerRef.current?.getSessionState();
     if (sessionState) {
       sessionState.lastActivity = Date.now();
       wsManagerRef.current?.setSessionState(sessionState);
     }
-    
+
     return messageId;
   }, [performanceMonitoring]);
 
@@ -382,19 +382,19 @@ export const useWebSocketIntegration = (
     maxAttempts?: number;
   }): string => {
     const messageId = wsManagerRef.current?.sendBinaryMessage(data, options) || '';
-    
+
     // Record performance metrics
     performanceMonitoring.recordConnectionMetrics({
       messagesSent: 1
     });
-    
+
     // Update session activity
     const sessionState = wsManagerRef.current?.getSessionState();
     if (sessionState) {
       sessionState.lastActivity = Date.now();
       wsManagerRef.current?.setSessionState(sessionState);
     }
-    
+
     return messageId;
   }, [performanceMonitoring]);
 

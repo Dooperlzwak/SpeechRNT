@@ -4,7 +4,7 @@ import { userEvent } from '@testing-library/user-event';
 import App from '../App';
 
 /**
- * User Acceptance Tests for SpeechRNT
+ * User Acceptance Tests for Vocr
  * These tests simulate real user scenarios and validate the complete user experience
  */
 
@@ -77,7 +77,7 @@ class UATMockWebSocket {
               duration: step.duration || 2.0
             }
           });
-          
+
           // Simulate audio data
           const audioBuffer = new ArrayBuffer(1024);
           setTimeout(() => {
@@ -127,7 +127,7 @@ describe('User Acceptance Tests', () => {
 
   beforeEach(() => {
     user = userEvent.setup();
-    
+
     // Setup comprehensive mocks
     (global as any).WebSocket = vi.fn((url: string) => {
       mockWebSocket = new UATMockWebSocket(url);
@@ -229,9 +229,9 @@ describe('User Acceptance Tests', () => {
       // User can access settings
       const settingsButton = screen.getByRole('button', { name: /open settings/i });
       expect(settingsButton).toBeInTheDocument();
-      
+
       await user.click(settingsButton);
-      
+
       // Settings dialog opens
       await waitFor(() => {
         expect(screen.getByText(/settings/i)).toBeInTheDocument();
@@ -400,7 +400,7 @@ describe('User Acceptance Tests', () => {
         { type: 'audio', content: '', duration: 2.5, delay: 1400 },
         { type: 'status', content: 'speaking', delay: 1500 },
         { type: 'status', content: 'idle', delay: 4000 },
-        
+
         // Second turn
         { type: 'status', content: 'listening', delay: 4500 },
         { type: 'transcription', content: 'What type of cuisine do you prefer?', delay: 5000 },
@@ -626,7 +626,7 @@ describe('User Acceptance Tests', () => {
       await user.click(settingsButton);
 
       const responseTime = performance.now() - startTime;
-      
+
       // Settings should open within reasonable time
       await waitFor(() => {
         expect(screen.getByText(/settings/i)).toBeInTheDocument();
@@ -666,9 +666,9 @@ describe('User Acceptance Tests', () => {
       // UI should still be responsive
       const stopButton = screen.getByRole('button', { name: /stop conversation/i });
       const clickTime = performance.now();
-      
+
       await user.click(stopButton);
-      
+
       const stopTime = performance.now();
 
       // Should stop quickly
@@ -737,7 +737,7 @@ describe('User Acceptance Tests', () => {
       // Simulate mobile viewport
       Object.defineProperty(window, 'innerWidth', { value: 375 });
       Object.defineProperty(window, 'innerHeight', { value: 667 });
-      
+
       render(<App />);
 
       await waitFor(() => {
@@ -817,7 +817,7 @@ describe('User Acceptance Tests', () => {
           { type: 'audio', content: '', duration: 3.0, delay: 2500 },
           { type: 'status', content: 'speaking', delay: 2600 },
           { type: 'status', content: 'idle', delay: 5600 },
-          
+
           { type: 'status', content: 'listening', delay: 6000 },
           { type: 'transcription', content: 'Take the highway for 20 minutes', delay: 6800 },
           { type: 'status', content: 'thinking', delay: 7200 },

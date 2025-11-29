@@ -1,6 +1,6 @@
 # Session State Management
 
-This directory contains the Zustand-based state management implementation for the SpeechRNT application.
+This directory contains the Zustand-based state management implementation for the Vocr application.
 
 ## Overview
 

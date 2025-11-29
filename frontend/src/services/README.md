@@ -1,6 +1,6 @@
 # Services Documentation
 
-This document describes the core services implemented for the SpeechRNT application.
+This document describes the core services implemented for the Vocr application.
 
 ## Services Overview
 
@@ -135,7 +135,7 @@ const useErrorReporting = () => {
 
 # Audio Playback Implementation
 
-This section describes the audio playback system implemented for the SpeechRNT application.
+This section describes the audio playback system implemented for the Vocr application.
 
 ## Overview
 

@@ -16,28 +16,28 @@ export interface AppState {
   // Session state
   sessionActive: boolean;
   currentState: SystemState;
-  
+
   // Language and voice settings
   sourceLang: string;
   targetLang: string;
   selectedVoice: string;
-  
+
   // Conversation content
   conversationHistory: ConversationEntry[];
   currentOriginalText: string;
   currentTranslatedText: string;
   transcriptionConfidence?: number;
-  
+
   // Connection state
   connectionStatus: 'connected' | 'disconnected' | 'reconnecting';
-  
+
   // UI state
   settingsOpen: boolean;
-  
+
   // Error handling
   currentError: AppError | null;
   errorHistory: AppError[];
-  
+
   // Actions
   toggleSession: () => void;
   setCurrentState: (state: SystemState) => void;
@@ -51,7 +51,7 @@ export interface AppState {
   setConnectionStatus: (status: 'connected' | 'disconnected' | 'reconnecting') => void;
   setSettingsOpen: (open: boolean) => void;
   resetSession: () => void;
-  
+
   // Error handling actions
   setCurrentError: (error: AppError) => void;
   clearError: () => void;
@@ -72,7 +72,7 @@ export const useAppStore = create<AppState>()(
       transcriptionConfidence: undefined,
       connectionStatus: 'disconnected',
       settingsOpen: false,
-      
+
       // Error handling initial state
       currentError: null,
       errorHistory: [],
@@ -80,18 +80,18 @@ export const useAppStore = create<AppState>()(
       // Actions
       toggleSession: () => {
         const { sessionActive, resetSession } = get();
-        
+
         if (sessionActive) {
           // Stop session
-          set({ 
-            sessionActive: false, 
-            currentState: 'idle' 
+          set({
+            sessionActive: false,
+            currentState: 'idle'
           });
           resetSession();
         } else {
           // Start session
-          set({ 
-            sessionActive: true, 
+          set({
+            sessionActive: true,
             currentState: 'listening',
             connectionStatus: 'connected' // This would be set by WebSocket connection
           });
@@ -104,21 +104,21 @@ export const useAppStore = create<AppState>()(
 
       setLanguages: (source: string, target: string) => {
         const { selectedVoice } = get();
-        
+
         // Validate and get corrected settings
         const validation = validateSettings({
           sourceLang: source,
           targetLang: target,
           selectedVoice: selectedVoice
         });
-        
+
         // Use the corrected settings from validation
-        set({ 
+        set({
           sourceLang: validation.correctedSettings.sourceLang,
           targetLang: validation.correctedSettings.targetLang,
           selectedVoice: validation.correctedSettings.selectedVoice
         });
-        
+
         // Persist to localStorage with validation
         saveSettingsToStorage({
           sourceLang: source,
@@ -129,17 +129,17 @@ export const useAppStore = create<AppState>()(
 
       setVoice: (voice: string) => {
         const { sourceLang, targetLang } = get();
-        
+
         // Validate and get corrected settings
         const validation = validateSettings({
           sourceLang: sourceLang,
           targetLang: targetLang,
           selectedVoice: voice
         });
-        
+
         // Use the corrected voice from validation
         set({ selectedVoice: validation.correctedSettings.selectedVoice });
-        
+
         // Persist to localStorage with validation
         saveSettingsToStorage({
           sourceLang: sourceLang,
@@ -166,14 +166,14 @@ export const useAppStore = create<AppState>()(
           ...entry,
           timestamp: new Date()
         };
-        
-        set({ 
-          conversationHistory: [...conversationHistory, newEntry] 
+
+        set({
+          conversationHistory: [...conversationHistory, newEntry]
         });
       },
 
       clearConversation: () => {
-        set({ 
+        set({
           conversationHistory: [],
           currentOriginalText: '',
           currentTranslatedText: '',
@@ -201,10 +201,10 @@ export const useAppStore = create<AppState>()(
       // Error handling actions
       setCurrentError: (error: AppError) => {
         const { addToErrorHistory } = get();
-        
+
         // Add to history
         addToErrorHistory(error);
-        
+
         // Set as current error
         set({ currentError: error });
       },
@@ -216,12 +216,12 @@ export const useAppStore = create<AppState>()(
       addToErrorHistory: (error: AppError) => {
         const { errorHistory } = get();
         const updatedHistory = [...errorHistory, error];
-        
+
         // Keep only last 50 errors to prevent memory issues
         if (updatedHistory.length > 50) {
           updatedHistory.splice(0, updatedHistory.length - 50);
         }
-        
+
         set({ errorHistory: updatedHistory });
       },
 
@@ -230,7 +230,7 @@ export const useAppStore = create<AppState>()(
       }
     }),
     {
-      name: 'speech-rnt-store',
+      name: 'vocr-store',
     }
   )
 );

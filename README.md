@@ -1,6 +1,6 @@
-# SpeechRNT - Real-Time Speech Translation
+# Vocr - Real-Time Speech Translation
 
-SpeechRNT is a web-based application providing seamless, real-time, bidirectional speech-to-speech translation. It operates in continuous conversation mode, where users can speak naturally without push-to-talk mechanics.
+Vocr is a web-based application providing seamless, real-time, bidirectional speech-to-speech translation. It operates in continuous conversation mode, where users can speak naturally without push-to-talk mechanics.
 
 ## 🚀 Features
 
@@ -14,7 +14,7 @@ SpeechRNT is a web-based application providing seamless, real-time, bidirectiona
 ### AI Pipeline (Production Ready)
 - **STT**: Whisper.cpp integration with streaming transcription
 - **MT**: Marian NMT with GPU acceleration and quality assessment
-- **TTS**: Coqui TTS with voice selection and synthesis
+- **TTS**: Piper TTS with voice selection and synthesis
 - **VAD**: Voice Activity Detection for intelligent conversation boundaries
 
 ### Advanced STT Features (NEW)
@@ -39,7 +39,7 @@ SpeechRNT is a web-based application providing seamless, real-time, bidirectiona
 - **AI Pipeline**: 
   - **STT**: Whisper.cpp with advanced features (speaker diarization, preprocessing, contextual transcription)
   - **MT**: Marian NMT with GPU acceleration, quality assessment, and batch processing
-  - **TTS**: Coqui TTS with voice management and synthesis optimization
+  - **TTS**: Piper TTS with voice management and synthesis optimization
   - **VAD**: Voice Activity Detection with intelligent conversation boundaries
   - **Language Detection**: Automatic source language detection with hybrid analysis
   - **Advanced Audio Processing**: Real-time analysis, effects, and quality monitoring

@@ -1,4 +1,4 @@
-import ConversationPanel from './components/ConversationPanel'
+import { VocrAppMain } from './components/VocrAppMain'
 import SettingsDialog from './components/SettingsDialog'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ErrorNotification } from './components/ErrorNotification'
@@ -31,6 +31,7 @@ function App() {
     currentOriginalText,
     currentTranslatedText,
     transcriptionConfidence,
+    conversationHistory,
     settingsOpen,
     currentError,
     setLanguages,
@@ -70,7 +71,7 @@ function App() {
 
   // Audio device error handling
   const [dismissedAudioError, setDismissedAudioError] = useState<string | null>(null)
-  
+
   const clearAudioDeviceError = useCallback(() => {
     if (audioDeviceError) {
       setDismissedAudioError(audioDeviceError.message)
@@ -78,7 +79,7 @@ function App() {
   }, [audioDeviceError])
 
   // Show audio device error only if not dismissed and different from last dismissed
-  const shouldShowAudioError = audioDeviceError && 
+  const shouldShowAudioError = audioDeviceError &&
     audioDeviceError.message !== dismissedAudioError
 
   // Retry failed configuration sync
@@ -198,17 +199,31 @@ function App() {
     <ErrorBoundary errorReportingService={errorReportingService}>
       <div className="min-h-screen">
         <ErrorBoundary errorReportingService={errorReportingService}>
-          <ConversationPanel
+          <VocrAppMain
             sessionActive={sessionActive}
             currentState={currentState}
             originalText={currentOriginalText}
             translatedText={currentTranslatedText}
             sourceLang={sourceLang}
             targetLang={targetLang}
-            connectionStatus={connectionStatus}
+            selectedVoice={selectedVoice}
+            conversationHistory={conversationHistory}
             onToggleSession={handleToggleSession}
             onOpenSettings={() => setSettingsOpen(true)}
-            transcriptionConfidence={transcriptionConfidence}
+            onLanguageChange={handleLanguageChange}
+            onVoiceChange={handleVoiceChange}
+            isLanguageSyncing={isLanguageSyncing}
+            isVoiceSyncing={isVoiceSyncing}
+            configSyncError={configSyncError}
+            onClearConfigError={clearConfigSyncError}
+            onRetryConfigSync={retryConfigSync}
+            audioDevices={audioDevices}
+            selectedAudioDevice={selectedAudioDevice}
+            onAudioDeviceChange={handleAudioDeviceChange}
+            isAudioDeviceSyncing={isAudioDeviceSyncing}
+            audioDeviceError={audioDeviceError}
+            isDeviceEnumerating={isDeviceEnumerating}
+            onRefreshAudioDevices={refreshAudioDevices}
           />
         </ErrorBoundary>
 

@@ -1,6 +1,6 @@
-## Contributing to SpeechRNT
+## Contributing to Vocr
 
-Thanks for your interest in contributing! This guide explains how to get set up, make changes safely, run tests, and submit a high‑quality pull request.
+Thank you for your interest in contributing to Vocr! This document provides guidelines and information to help you contribute effectively., run tests, and submit a high‑quality pull request.
 
 If anything is unclear, open a discussion or an issue — improvements to this document are welcome.
 

@@ -2,7 +2,7 @@
  * useAudioIntegration - React hook for audio integration with session lifecycle management
  * 
  * This hook wraps AudioManager with enhanced session management, device enumeration,
- * WebSocket binary message integration, and comprehensive error handling for the SpeechRNT application.
+ * WebSocket binary message integration, and comprehensive error handling for the Vocr application.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -26,23 +26,23 @@ export interface AudioIntegrationReturn {
   isInitialized: boolean;
   isRecording: boolean;
   error: Error | null;
-  
+
   // Audio control
   initialize: (deviceId?: string) => Promise<void>;
   startRecording: () => Promise<void>;
   stopRecording: () => void;
   cleanup: () => void;
-  
+
   // Device management
   getAudioDevices: () => Promise<MediaDeviceInfo[]>;
   setAudioDevice: (deviceId: string) => Promise<void>;
   getSelectedDeviceId: () => string | null;
   refreshDeviceList: () => Promise<MediaDeviceInfo[]>;
-  
+
   // Permission handling
   requestMicrophonePermission: () => Promise<boolean>;
   checkMicrophonePermission: () => Promise<PermissionState>;
-  
+
   // Integration features
   isSupported: boolean;
   getAudioConfig: () => AudioConfig;
@@ -75,7 +75,7 @@ export const useAudioIntegration = (
   const initializationPromiseRef = useRef<Promise<void> | null>(null);
   const deviceEnumerationPromiseRef = useRef<Promise<MediaDeviceInfo[]> | null>(null);
   const { handleAudioError } = useErrorHandler();
-  
+
   // Performance monitoring
   const performanceMonitoring = usePerformanceMonitoring({
     enabled: true,
@@ -98,20 +98,20 @@ export const useAudioIntegration = (
       if (error) {
         setError(null);
       }
-      
+
       // Record performance metrics
       performanceMonitoring.recordAudioMetrics({
         bytesTransmitted: data.byteLength,
         packetsTransmitted: 1
       });
-      
+
       onAudioData(data);
     },
 
     onError: (audioError: Error) => {
       setError(audioError);
       setIsRecording(false);
-      
+
       // Record performance metrics
       if (audioError.message.includes('permission') || audioError.message.includes('denied')) {
         performanceMonitoring.recordAudioMetrics({
@@ -141,23 +141,23 @@ export const useAudioIntegration = (
         performanceMonitoring.recordError('audio', audioError);
         handleAudioError(audioError, 'capture');
       }
-      
+
       onError(audioError);
     },
 
     onStateChange: (recording: boolean) => {
       setIsRecording(recording);
-      
+
       // Record performance metrics
       performanceMonitoring.recordAudioMetrics({
         isStreaming: recording
       });
-      
+
       // Clear error on successful state change
       if (recording && error) {
         setError(null);
       }
-      
+
       onStateChange(recording);
     },
   };
@@ -165,14 +165,14 @@ export const useAudioIntegration = (
   // Initialize audio manager
   useEffect(() => {
     const initStartTime = Date.now();
-    
+
     try {
       audioManagerRef.current = new AudioManager(audioConfig, audioHandler);
-      
+
       // Record successful initialization
       const initDuration = Date.now() - initStartTime;
       performanceMonitoring.recordServiceInitialization('audio', initDuration, true);
-      
+
       // Auto-initialize if enabled
       if (config.autoInitialize !== false) {
         initialize().catch(console.error);
@@ -189,9 +189,9 @@ export const useAudioIntegration = (
       const handleDeviceChange = () => {
         refreshDeviceList().catch(console.error);
       };
-      
+
       navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
-      
+
       return () => {
         if (audioManagerRef.current) {
           audioManagerRef.current.cleanup();
@@ -221,13 +221,13 @@ export const useAudioIntegration = (
 
       try {
         setError(null);
-        
+
         // Check microphone permission first
         const permissionState = await checkMicrophonePermission();
         if (permissionState === 'denied') {
           throw new Error('Microphone permission denied. Please grant access and try again.');
         }
-        
+
         // Request permission if not granted
         if (permissionState !== 'granted') {
           const granted = await requestMicrophonePermission();
@@ -235,16 +235,16 @@ export const useAudioIntegration = (
             throw new Error('Microphone permission is required for audio capture.');
           }
         }
-        
+
         setPermissionGranted(true);
-        
+
         // Refresh device list before initialization
         await refreshDeviceList();
-        
+
         // Initialize audio manager with selected device
         await audioManagerRef.current.initialize(deviceId);
         setIsInitialized(true);
-        
+
         resolve();
       } catch (err) {
         const error = err as Error;
@@ -272,17 +272,17 @@ export const useAudioIntegration = (
 
     try {
       setError(null);
-      
+
       // Ensure audio is initialized
       if (!isInitialized) {
         await initialize();
       }
-      
+
       await audioManagerRef.current.startRecording();
     } catch (err) {
       const error = err as Error;
       setError(error);
-      
+
       // Try to recover from common errors
       if (error.message.includes('permission')) {
         // Try to re-request permission
@@ -332,7 +332,7 @@ export const useAudioIntegration = (
           }
           setPermissionGranted(true);
         }
-        
+
         const devices = await AudioManager.getAudioDevices();
         setAvailableDevices(devices);
         resolve(devices);
@@ -360,22 +360,22 @@ export const useAudioIntegration = (
     try {
       setIsDeviceSwitching(true);
       setError(null);
-      
+
       // Record device switch attempt
       performanceMonitoring.recordAudioMetrics({
         deviceSwitches: 1
       });
-      
+
       // Add delay to prevent rapid device switching
       if (config.deviceSwitchDelay && config.deviceSwitchDelay > 0) {
         await new Promise(resolve => setTimeout(resolve, config.deviceSwitchDelay));
       }
-      
+
       await audioManagerRef.current.setAudioDevice(deviceId);
-      
+
       // Refresh device list to update selection
       await refreshDeviceList();
-      
+
     } catch (err) {
       const error = err as Error;
       setError(error);
@@ -401,7 +401,7 @@ export const useAudioIntegration = (
   // Request microphone permission with retry logic
   const requestMicrophonePermission = useCallback(async (): Promise<boolean> => {
     const maxAttempts = config.permissionRetryAttempts || 1;
-    
+
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         const granted = await AudioManager.requestMicrophonePermission();
@@ -409,21 +409,21 @@ export const useAudioIntegration = (
           setPermissionGranted(true);
           return true;
         }
-        
+
         // If not the last attempt, wait before retrying
         if (attempt < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       } catch (error) {
         console.error(`Permission request attempt ${attempt} failed:`, error);
-        
+
         if (attempt === maxAttempts) {
           setPermissionGranted(false);
           return false;
         }
       }
     }
-    
+
     setPermissionGranted(false);
     return false;
   }, [config.permissionRetryAttempts]);
@@ -435,7 +435,7 @@ export const useAudioIntegration = (
         const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
         return result.state;
       }
-      
+
       // Fallback: try to access microphone to check permission
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -472,23 +472,23 @@ export const useAudioIntegration = (
     isInitialized,
     isRecording,
     error,
-    
+
     // Audio control
     initialize,
     startRecording,
     stopRecording,
     cleanup,
-    
+
     // Device management
     getAudioDevices,
     setAudioDevice,
     getSelectedDeviceId,
     refreshDeviceList,
-    
+
     // Permission handling
     requestMicrophonePermission,
     checkMicrophonePermission,
-    
+
     // Integration features
     isSupported: AudioManager.isSupported(),
     getAudioConfig,

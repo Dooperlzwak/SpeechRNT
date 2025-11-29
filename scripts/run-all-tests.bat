@@ -57,7 +57,7 @@ echo.
 echo Running backend unit tests...
 
 REM List of tests to run
-set TESTS=simple_tests vad_integration_test vad_edge_cases_test whisper_stt_test stt_integration_test streaming_transcriber_test marian_translator_test model_manager_test coqui_tts_test voice_manager_test task_queue_test utterance_manager_test websocket_message_protocol_test audio_buffer_test
+set TESTS=simple_tests vad_integration_test vad_edge_cases_test whisper_stt_test stt_integration_test streaming_transcriber_test marian_translator_test model_manager_test piper_tts_test voice_manager_test task_queue_test utterance_manager_test websocket_message_protocol_test audio_buffer_test
 
 for %%t in (%TESTS%) do (
     if exist "Debug\%%t.exe" (

@@ -1,10 +1,10 @@
-# SpeechRNT Testing Suite
+# Vocr Testing Suite
 
-This document provides comprehensive information about the testing infrastructure for the SpeechRNT project.
+This document provides comprehensive information about the testing infrastructure for the Vocr project.
 
 ## Overview
 
-The SpeechRNT testing suite includes:
+The Vocr testing suite includes:
 
 - **Unit Tests**: Test individual components in isolation
 - **Integration Tests**: Test component interactions and workflows

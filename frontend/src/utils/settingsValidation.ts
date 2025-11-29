@@ -81,7 +81,7 @@ export function isVoiceSupported(voiceId: string): boolean {
  * Gets available voices for a specific language
  */
 export function getVoicesForLanguage(langCode: string): VoiceOption[] {
-  return AVAILABLE_VOICES.filter(voice => 
+  return AVAILABLE_VOICES.filter(voice =>
     voice.language === langCode && voice.supported
   );
 }
@@ -180,14 +180,14 @@ export function validateSettings(settings: Partial<SettingsData>): {
  */
 export function loadSettingsFromStorage(): SettingsData {
   try {
-    const stored = localStorage.getItem('speechrnt-settings');
+    const stored = localStorage.getItem('vocr-settings');
     if (!stored) {
       return DEFAULT_SETTINGS;
     }
 
     const parsed = JSON.parse(stored);
     const validation = validateSettings(parsed);
-    
+
     if (validation.isValid) {
       return validation.correctedSettings;
     } else {
@@ -206,7 +206,7 @@ export function loadSettingsFromStorage(): SettingsData {
 export function saveSettingsToStorage(settings: SettingsData): boolean {
   try {
     const validation = validateSettings(settings);
-    
+
     if (!validation.isValid) {
       console.warn('Invalid settings provided, saving corrected values:', validation.errors);
     }
@@ -216,7 +216,7 @@ export function saveSettingsToStorage(settings: SettingsData): boolean {
       timestamp: Date.now()
     };
 
-    localStorage.setItem('speechrnt-settings', JSON.stringify(toSave));
+    localStorage.setItem('vocr-settings', JSON.stringify(toSave));
     return true;
   } catch (error) {
     console.error('Failed to save settings to localStorage:', error);

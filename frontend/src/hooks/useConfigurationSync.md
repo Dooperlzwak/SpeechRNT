@@ -1,6 +1,6 @@
 # useConfigurationSync Hook
 
-The `useConfigurationSync` hook provides backend configuration synchronization functionality for the SpeechRNT application. It handles language and voice settings synchronization with debouncing, retry logic, and comprehensive error handling.
+The `useConfigurationSync` hook provides backend configuration synchronization functionality for the Vocr application. It handles language and voice settings synchronization with debouncing, retry logic, and comprehensive error handling.
 
 ## Features
 
@@ -201,7 +201,7 @@ npm test -- useConfigurationSync.test.ts
 
 ## Integration with Other Hooks
 
-The hook is designed to work seamlessly with other SpeechRNT hooks:
+The hook is designed to work seamlessly with other Vocr hooks:
 
 - **useWebSocketIntegration**: Provides the `sendMessage` function
 - **useSessionControl**: Can be integrated for session-aware configuration sync

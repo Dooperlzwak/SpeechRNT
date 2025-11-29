@@ -87,7 +87,7 @@ function Run-BackendTests {
             "streaming_transcriber_test",
             "marian_translator_test",
             "model_manager_test",
-            "coqui_tts_test",
+            "piper_tts_test",
             "voice_manager_test",
             "task_queue_test",
             "utterance_manager_test",

@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We as members, contributors, and leaders pledge to make participation in the SpeechRNT project and our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, religion, or sexual identity and orientation.
+We as members, contributors, and leaders pledge to make participation in the Vocr project and our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, religion, or sexual identity and orientation.
 
 We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
 
@@ -36,7 +36,7 @@ This Code of Conduct applies within all project spaces, and it also applies when
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainers for confidential review.
 
-- Preferred: Submit a private report via GitHub Security Advisories: https://github.com/Dooperlzwak/SpeechRNT/security/advisories/new
+- Preferred: Submit a private report via GitHub Security Advisories: https://github.com/Dooperlzwak/Vocr/security/advisories/new
 - Or email the maintainers: beckettwinston1@gmail.com
 - For socials and general contact, see the maintainer profile: https://github.com/Dooperlzwak
 

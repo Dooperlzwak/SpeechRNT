@@ -82,7 +82,7 @@ run_backend_tests() {
         "streaming_transcriber_test:Streaming Transcriber"
         "marian_translator_test:Marian Translator"
         "model_manager_test:Model Manager"
-        "coqui_tts_test:Coqui TTS"
+        "piper_tts_test:Coqui TTS"
         "voice_manager_test:Voice Manager"
         "task_queue_test:Task Queue"
         "utterance_manager_test:Utterance Manager"

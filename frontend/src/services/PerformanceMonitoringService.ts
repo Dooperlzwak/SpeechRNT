@@ -1,5 +1,5 @@
 /**
- * PerformanceMonitoringService - Comprehensive performance monitoring for SpeechRNT
+ * PerformanceMonitoringService - Comprehensive performance monitoring for Vocr
  * 
  * Monitors connection quality, audio streaming performance, service initialization timing,
  * and error rates with recovery success tracking.
@@ -70,7 +70,7 @@ export interface PerformanceSnapshot {
   systemHealth: 'healthy' | 'degraded' | 'critical';
 }
 
-export type MetricEventType = 
+export type MetricEventType =
   | 'connection_established'
   | 'connection_lost'
   | 'reconnection_attempt'
@@ -158,19 +158,19 @@ export class PerformanceMonitoringService {
     lastErrorTime: null,
     lastRecoveryTime: null
   };
-  
+
   private eventHistory: MetricEvent[] = [];
   private maxEventHistory = 1000;
-  
+
   private latencyMeasurements: number[] = [];
   private maxLatencyMeasurements = 100;
-  
+
   private errorTimestamps: number[] = [];
   private errorRateWindow = 60000; // 1 minute
-  
+
   private monitoringStartTime: number;
   private isMonitoring = false;
-  
+
   private performanceTimer: ReturnType<typeof setInterval> | null = null;
   private metricsUpdateInterval = 1000; // 1 second
 
@@ -189,7 +189,7 @@ export class PerformanceMonitoringService {
 
     this.isMonitoring = true;
     this.monitoringStartTime = Date.now();
-    
+
     // Start periodic metrics updates
     this.performanceTimer = setInterval(() => {
       this.updateDerivedMetrics();
@@ -210,7 +210,7 @@ export class PerformanceMonitoringService {
     }
 
     this.isMonitoring = false;
-    
+
     if (this.performanceTimer) {
       clearInterval(this.performanceTimer);
       this.performanceTimer = null;
@@ -420,7 +420,7 @@ export class PerformanceMonitoringService {
     }
 
     // Check if all services are ready
-    this.serviceInitMetrics.servicesReady = 
+    this.serviceInitMetrics.servicesReady =
       this.serviceInitMetrics.webSocketInitTime !== null &&
       this.serviceInitMetrics.audioInitTime !== null &&
       this.serviceInitMetrics.errorReportingInitTime !== null;
@@ -735,8 +735,8 @@ export class PerformanceMonitoringService {
 
     // Calculate average latency
     if (this.latencyMeasurements.length > 0) {
-      this.connectionMetrics.averageLatency = 
-        this.latencyMeasurements.reduce((sum, latency) => sum + latency, 0) / 
+      this.connectionMetrics.averageLatency =
+        this.latencyMeasurements.reduce((sum, latency) => sum + latency, 0) /
         this.latencyMeasurements.length;
     }
 
@@ -751,7 +751,7 @@ export class PerformanceMonitoringService {
 
     // Calculate average packet size
     if (this.audioMetrics.packetsTransmitted > 0) {
-      this.audioMetrics.averagePacketSize = 
+      this.audioMetrics.averagePacketSize =
         this.audioMetrics.bytesTransmitted / this.audioMetrics.packetsTransmitted;
     }
 
@@ -769,7 +769,7 @@ export class PerformanceMonitoringService {
 
     // Calculate recovery success rate
     if (this.errorMetrics.recoveryAttempts > 0) {
-      this.errorMetrics.recoverySuccessRate = 
+      this.errorMetrics.recoverySuccessRate =
         (this.errorMetrics.successfulRecoveries / this.errorMetrics.recoveryAttempts) * 100;
     }
   }
