@@ -92,6 +92,7 @@ export function VocrAppMain({
                     translatedText={translatedText}
                     sourceLang={sourceLang}
                     targetLang={targetLang}
+                    onLanguageChange={onLanguageChange}
                 />
 
                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background via-background to-transparent z-10">

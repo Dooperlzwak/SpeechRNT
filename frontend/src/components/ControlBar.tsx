@@ -1,4 +1,4 @@
-import { Mic, MicOff } from 'lucide-react';
+import { Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -26,9 +26,9 @@ export function ControlBar({ isRecording, onToggleRecording, mode }: ControlBarP
                         )}
                     >
                         {isRecording ? (
-                            <div className="h-8 w-8 rounded-sm bg-white" />
+                            <div className="h-30 w-30 rounded-sm bg-white" />
                         ) : (
-                            <Mic className="h-8 w-8 text-primary-foreground" />
+                            <Mic className="h-30 w-30 text-primary-foreground" />
                         )}
                     </Button>
 

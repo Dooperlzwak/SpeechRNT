@@ -21,6 +21,7 @@ export interface AppState {
   sourceLang: string;
   targetLang: string;
   selectedVoice: string;
+  selectedModel: string;
 
   // Conversation content
   conversationHistory: ConversationEntry[];
@@ -43,6 +44,7 @@ export interface AppState {
   setCurrentState: (state: SystemState) => void;
   setLanguages: (source: string, target: string) => void;
   setVoice: (voice: string) => void;
+  setModel: (model: string) => void;
   setCurrentOriginalText: (text: string) => void;
   setCurrentTranslatedText: (text: string) => void;
   setTranscriptionConfidence: (confidence?: number) => void;
@@ -123,7 +125,8 @@ export const useAppStore = create<AppState>()(
         saveSettingsToStorage({
           sourceLang: source,
           targetLang: target,
-          selectedVoice: selectedVoice
+          selectedVoice: selectedVoice,
+          selectedModel: get().selectedModel
         });
       },
 
@@ -144,7 +147,31 @@ export const useAppStore = create<AppState>()(
         saveSettingsToStorage({
           sourceLang: sourceLang,
           targetLang: targetLang,
-          selectedVoice: voice
+          selectedVoice: voice,
+          selectedModel: get().selectedModel
+        });
+      },
+
+      setModel: (model: string) => {
+        const { sourceLang, targetLang, selectedVoice } = get();
+
+        // Validate and get corrected settings
+        const validation = validateSettings({
+          sourceLang: sourceLang,
+          targetLang: targetLang,
+          selectedVoice: selectedVoice,
+          selectedModel: model
+        });
+
+        // Use the corrected model from validation
+        set({ selectedModel: validation.correctedSettings.selectedModel });
+
+        // Persist to localStorage with validation
+        saveSettingsToStorage({
+          sourceLang: sourceLang,
+          targetLang: targetLang,
+          selectedVoice: selectedVoice,
+          selectedModel: model
         });
       },
 

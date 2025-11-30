@@ -2,7 +2,6 @@
   "version": "1.0.0",
   "environment": "development",
   "modelsBasePath": "data/marian/",
-  
   "gpu": {
     "enabled": true,
     "fallbackToCPU": true,
@@ -10,9 +9,11 @@
     "memoryPoolSizeMB": 1024,
     "maxModelMemoryMB": 2048,
     "memoryReservationRatio": 0.8,
-    "allowedDeviceIds": [0, 1]
+    "allowedDeviceIds": [
+      0,
+      1
+    ]
   },
-  
   "quality": {
     "enabled": true,
     "highQualityThreshold": 0.8,
@@ -22,7 +23,6 @@
     "maxAlternatives": 3,
     "enableFallbackTranslation": true
   },
-  
   "caching": {
     "enabled": true,
     "maxCacheSize": 1000,
@@ -30,14 +30,12 @@
     "persistToDisk": false,
     "cacheDirectory": "cache/translations"
   },
-  
   "batch": {
     "maxBatchSize": 32,
     "batchTimeoutMs": 5000,
     "enableBatchOptimization": true,
     "optimalBatchSize": 8
   },
-  
   "streaming": {
     "enabled": true,
     "sessionTimeoutMinutes": 30,
@@ -45,7 +43,6 @@
     "maxContextLength": 1000,
     "enableContextPreservation": true
   },
-  
   "errorHandling": {
     "enableRetry": true,
     "maxRetryAttempts": 3,
@@ -56,7 +53,6 @@
     "enableDegradedMode": true,
     "enableFallbackTranslation": true
   },
-  
   "performance": {
     "enabled": true,
     "metricsCollectionIntervalSeconds": 30,
@@ -65,7 +61,6 @@
     "enableResourceUsageTracking": true,
     "maxMetricsHistorySize": 1000
   },
-  
   "languageDetection": {
     "enabled": true,
     "confidenceThreshold": 0.7,
@@ -74,8 +69,26 @@
     "hybridWeightText": 0.6,
     "hybridWeightAudio": 0.4,
     "supportedLanguages": [
-      "en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko",
-      "ar", "hi", "th", "vi", "nl", "sv", "da", "no", "fi", "pl"
+      "en",
+      "es",
+      "fr",
+      "de",
+      "it",
+      "pt",
+      "ru",
+      "zh",
+      "ja",
+      "ko",
+      "ar",
+      "hi",
+      "th",
+      "vi",
+      "nl",
+      "sv",
+      "da",
+      "no",
+      "fi",
+      "pl"
     ],
     "fallbackLanguages": {
       "unknown": "en",
@@ -84,7 +97,6 @@
       "zh-tw": "zh"
     }
   },
-  
   "models": {
     "en->es": {
       "modelPath": "data/marian/en-es/model.npz",
@@ -153,9 +165,25 @@
       "quantizationType": ""
     }
   },
-  
   "customModelPaths": {
     "en->zh": "custom/models/en-zh-medical",
     "zh->en": "custom/models/zh-en-medical"
+  },
+  "modelFamilies": {
+    "marian": {
+      "enabled": true,
+      "default": true,
+      "description": "Efficient Transformer models (C++ native)"
+    },
+    "opus-mt": {
+      "enabled": true,
+      "basePath": "data/opus-mt/",
+      "description": "Helsinki-NLP Opus-MT models"
+    },
+    "m2m-100": {
+      "enabled": true,
+      "basePath": "data/m2m-100/",
+      "description": "Facebook M2M-100 massive multilingual model"
+    }
   }
 }

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { STTConfig, ConfigValidationResult, ConfigChangeNotification } from '../types/sttConfig';
+import type { STTConfig, ConfigValidationResult, ConfigChangeNotification } from '../types/sttConfig';
 import { sttConfigService } from '../services/sttConfigService';
 
 interface STTConfigPanelProps {
@@ -12,9 +12,9 @@ interface STTConfigPanelProps {
   className?: string;
 }
 
-export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({ 
-  onConfigChange, 
-  className = '' 
+export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
+  onConfigChange,
+  className = ''
 }) => {
   const [config, setConfig] = useState<STTConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +44,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
           sttConfigService.getAvailableModels(),
           sttConfigService.getSupportedQuantizationLevels()
         ]);
-        
+
         setAvailableModels(models);
         setQuantizationLevels(levels);
 
@@ -66,7 +66,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
     const unsubscribe = sttConfigService.onConfigChange((notification: ConfigChangeNotification) => {
       console.log('Configuration changed:', notification);
       setConfig(notification.config);
-      
+
       if (onConfigChange) {
         onConfigChange(notification.config);
       }
@@ -79,8 +79,8 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
   }, [onConfigChange]);
 
   const handleConfigValueChange = useCallback(async (
-    section: string, 
-    key: string, 
+    section: string,
+    key: string,
     value: any
   ) => {
     if (!config) return;
@@ -90,7 +90,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
       setValidationResult(null);
 
       const result = await sttConfigService.updateConfigValue(section, key, value);
-      
+
       if (!result.isValid) {
         setValidationResult(result);
         setError(result.errors.join(', '));
@@ -117,14 +117,14 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
     try {
       setError(null);
       setValidationResult(null);
-      
+
       const defaultConfig = await sttConfigService.resetConfig();
       setConfig(defaultConfig);
-      
+
       if (onConfigChange) {
         onConfigChange(defaultConfig);
       }
-      
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to reset configuration');
     }
@@ -190,7 +190,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
         {/* Model Configuration */}
         <div className="config-section">
           <h3>Model Settings</h3>
-          
+
           <div className="config-field">
             <label htmlFor="defaultModel">Default Model:</label>
             <select
@@ -236,7 +236,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
         {/* Language Detection */}
         <div className="config-section">
           <h3>Language Detection</h3>
-          
+
           <div className="config-field">
             <label>
               <input
@@ -277,7 +277,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
         {/* Quantization */}
         <div className="config-section">
           <h3>Quantization</h3>
-          
+
           <div className="config-field">
             <label htmlFor="quantizationLevel">Quantization Level:</label>
             <select
@@ -326,7 +326,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
         {/* Streaming */}
         <div className="config-section">
           <h3>Streaming</h3>
-          
+
           <div className="config-field">
             <label>
               <input
@@ -366,7 +366,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
         {/* Confidence */}
         <div className="config-section">
           <h3>Confidence & Quality</h3>
-          
+
           <div className="config-field">
             <label htmlFor="confidenceThreshold">Confidence Threshold:</label>
             <input
@@ -407,7 +407,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
         {/* Performance */}
         <div className="config-section">
           <h3>Performance</h3>
-          
+
           <div className="config-field">
             <label htmlFor="threadCount">Thread Count:</label>
             <input
@@ -437,7 +437,7 @@ export const STTConfigPanel: React.FC<STTConfigPanelProps> = ({
       </div>
 
       <div className="config-actions">
-        <button 
+        <button
           onClick={handleResetConfig}
           className="reset-button"
         >

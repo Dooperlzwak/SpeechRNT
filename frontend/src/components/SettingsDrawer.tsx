@@ -57,7 +57,6 @@ export function SettingsDrawer({
     selectedAudioDevice = null,
     onAudioDeviceChange,
     isAudioDeviceSyncing = false,
-    audioDeviceError = null,
     isDeviceEnumerating = false,
     onRefreshAudioDevices
 }: SettingsDrawerProps) {

@@ -1,8 +1,16 @@
 import { useState } from 'react';
-import { ChevronDown, Play, Copy, MoreHorizontal, Sparkles, Check, Volume2 } from 'lucide-react';
+import { Play, Copy, MoreHorizontal, Check, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WaveformVisualizer } from './WaveformVisualizer';
 import { Textarea } from '@/components/ui/textarea';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { AVAILABLE_LANGUAGES } from '../utils/settingsValidation';
 import type { TranslationMode } from './ControlBar';
 
 interface TranslationConsoleProps {
@@ -14,6 +22,7 @@ interface TranslationConsoleProps {
     targetLang: string;
     onSourceTextChange?: (text: string) => void;
     onTranslate?: () => void;
+    onLanguageChange?: (source: string, target: string) => void;
 }
 
 export function TranslationConsole({
@@ -24,7 +33,8 @@ export function TranslationConsole({
     sourceLang,
     targetLang,
     onSourceTextChange,
-    onTranslate
+    onTranslate,
+    onLanguageChange
 }: TranslationConsoleProps) {
     const [copied, setCopied] = useState(false);
     const [localSourceText, setLocalSourceText] = useState("");
@@ -48,34 +58,31 @@ export function TranslationConsole({
         }
     };
 
-    // Get language flag emoji (simple mapping)
-    const getLanguageFlag = (lang: string) => {
-        const flags: Record<string, string> = {
-            'en': '🇺🇸',
-            'es': '🇪🇸',
-            'fr': '🇫🇷',
-            'de': '🇩🇪',
-            'it': '🇮🇹',
-            'pt': '🇵🇹',
-            'ja': '🇯🇵',
-            'ko': '🇰🇷',
-            'zh': '🇨🇳',
-        };
-        return flags[lang.toLowerCase()] || '🌐';
-    };
-
     return (
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-px bg-border overflow-hidden">
             {/* Source Panel */}
             <div className="bg-background flex flex-col p-6 md:p-8 relative group">
-                <div className="flex items-center justify-between mb-8">
-                    <Button variant="outline" className="h-10 gap-2 min-w-[180px] justify-between border-border bg-card/50 hover:bg-card">
-                        <span className="flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 text-blue-500" />
-                            Detect Language
-                        </span>
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                    </Button>
+                <div className="flex items-center justify-between mb-8 relative z-20">
+                    <Select
+                        value={sourceLang}
+                        onValueChange={(value) => onLanguageChange?.(value, targetLang)}
+                    >
+                        <SelectTrigger className="h-10 gap-2 w-auto justify-between border-border bg-card/50 hover:bg-card">
+                            <span className="flex items-center gap-2">
+                                <SelectValue placeholder="Select Language" />
+                            </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {AVAILABLE_LANGUAGES.map((lang) => (
+                                <SelectItem key={lang.code} value={lang.code} disabled={!lang.supported}>
+                                    <span className="flex items-center gap-2">
+                                        <span>{lang.flag}</span>
+                                        <span>{lang.name}</span>
+                                    </span>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
                     <div className="flex items-center gap-2">
                         <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground border border-border px-2 py-1 rounded-md">
@@ -142,14 +149,31 @@ export function TranslationConsole({
 
             {/* Target Panel */}
             <div className="bg-background flex flex-col p-6 md:p-8 relative group">
-                <div className="flex items-center justify-between mb-8">
-                    <Button variant="outline" className="h-10 gap-2 min-w-[180px] justify-between border-border bg-card/50 hover:bg-card">
-                        <span className="flex items-center gap-2">
-                            <span className="text-lg leading-none">{getLanguageFlag(targetLang)}</span>
-                            {targetLang}
-                        </span>
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                    </Button>
+                <div className="flex items-center justify-between mb-8 relative z-20">
+                    <Select
+                        value={targetLang}
+                        onValueChange={(value) => onLanguageChange?.(sourceLang, value)}
+                    >
+                        <SelectTrigger className="h-10 gap-2 w-auto justify-between border-border bg-card/50 hover:bg-card">
+                            <span className="flex items-center gap-2">
+                                <SelectValue placeholder="Select Language" />
+                            </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {AVAILABLE_LANGUAGES.map((lang) => (
+                                <SelectItem
+                                    key={lang.code}
+                                    value={lang.code}
+                                    disabled={!lang.supported || lang.code === sourceLang}
+                                >
+                                    <span className="flex items-center gap-2">
+                                        <span>{lang.flag}</span>
+                                        <span>{lang.name}</span>
+                                    </span>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
                     <div className="flex items-center gap-1">
                         <Button
@@ -213,6 +237,6 @@ export function TranslationConsole({
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

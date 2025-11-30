@@ -28,14 +28,15 @@ function App() {
     sourceLang,
     targetLang,
     selectedVoice,
+    selectedModel,
     currentOriginalText,
     currentTranslatedText,
-    transcriptionConfidence,
     conversationHistory,
     settingsOpen,
     currentError,
     setLanguages,
     setVoice,
+    setModel,
     setSettingsOpen
   } = useAppStore()
 
@@ -43,7 +44,6 @@ function App() {
   const {
     sessionActive,
     currentState,
-    connectionStatus,
     toggleSession,
     configurationSync,
     audioDevices,
@@ -175,6 +175,28 @@ function App() {
     }
   }, [setVoice, configurationSync])
 
+  const handleModelChange = useCallback(async (model: string) => {
+    try {
+      // Clear any previous sync errors
+      setConfigSyncError(null)
+      // We can reuse isVoiceSyncing or create a new state, but for now let's reuse or just set local
+      // Ideally we should have isModelSyncing, but to keep it simple and consistent with existing UI
+      // we'll just update local state immediately. 
+      // If we want a spinner, we'd need to add isModelSyncing state.
+      // Let's assume fast local update for now.
+
+      setModel(model)
+      console.log('Model configuration updated:', { model })
+
+      // If we had backend sync for model, we'd call it here
+      // if (configurationSync) { await configurationSync.syncModelSettings(model) }
+
+    } catch (error) {
+      console.error('Failed to update model configuration:', error)
+      setConfigSyncError(error instanceof Error ? error : new Error('Failed to update model settings'))
+    }
+  }, [setModel])
+
   const handleAudioDeviceChange = useCallback(async (deviceId: string) => {
     try {
       // Clear any previous sync errors
@@ -234,8 +256,10 @@ function App() {
             sourceLang={sourceLang}
             targetLang={targetLang}
             selectedVoice={selectedVoice}
+            selectedModel={selectedModel}
             onLanguageChange={handleLanguageChange}
             onVoiceChange={handleVoiceChange}
+            onModelChange={handleModelChange}
             isLanguageSyncing={isLanguageSyncing}
             isVoiceSyncing={isVoiceSyncing}
             configSyncError={configSyncError}

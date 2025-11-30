@@ -22,6 +22,7 @@ export interface SettingsData {
   sourceLang: string;
   targetLang: string;
   selectedVoice: string;
+  selectedModel?: string;
   timestamp?: number;
 }
 
@@ -54,11 +55,19 @@ export const AVAILABLE_VOICES: VoiceOption[] = [
   { id: 'pt_male_1', name: 'João (Portuguese)', language: 'pt', gender: 'male', supported: true },
 ];
 
+// Available translation models
+export const AVAILABLE_MODELS = [
+  { id: 'marian', name: 'Marian NMT (Default)', description: 'Fast, efficient transformer models', supported: true },
+  { id: 'opus-mt', name: 'Opus-MT', description: 'High-quality open models from Helsinki-NLP', supported: true },
+  { id: 'm2m-100', name: 'M2M-100', description: 'Massively multilingual model (Facebook)', supported: true },
+];
+
 // Default settings
 export const DEFAULT_SETTINGS: SettingsData = {
   sourceLang: 'en',
   targetLang: 'es',
   selectedVoice: 'es_female_1',
+  selectedModel: 'marian',
 };
 
 /**
@@ -157,6 +166,27 @@ export function validateSettings(settings: Partial<SettingsData>): {
     }
   } else if (settings.selectedVoice !== undefined) {
     errors.push('Selected voice must be a valid string');
+  }
+
+  // Validate model
+  if (settings.selectedModel && typeof settings.selectedModel === 'string') {
+    const model = AVAILABLE_MODELS.find(m => m.id === settings.selectedModel);
+    if (model) {
+      if (model.supported) {
+        correctedSettings.selectedModel = settings.selectedModel;
+      } else {
+        errors.push(`Model '${settings.selectedModel}' is not supported`);
+        correctedSettings.selectedModel = DEFAULT_SETTINGS.selectedModel;
+      }
+    } else {
+      errors.push(`Model '${settings.selectedModel}' is not valid`);
+      correctedSettings.selectedModel = DEFAULT_SETTINGS.selectedModel;
+    }
+  } else if (settings.selectedModel !== undefined) {
+    errors.push('Selected model must be a valid string');
+  } else {
+    // If not present, use default
+    correctedSettings.selectedModel = DEFAULT_SETTINGS.selectedModel;
   }
 
   // Validate timestamp

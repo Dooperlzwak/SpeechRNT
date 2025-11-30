@@ -3,10 +3,10 @@
  * Handles communication with backend for STT configuration management
  */
 
-import { 
-  STTConfig, 
-  STTConfigMessage, 
-  STTConfigMessageType, 
+import type {
+  STTConfig,
+  STTConfigMessage,
+  STTConfigMessageType,
   ConfigValidationResult,
   ConfigChangeNotification,
   ConfigSchema,
@@ -40,26 +40,26 @@ export class STTConfigService {
     return new Promise((resolve, reject) => {
       try {
         this.ws = new WebSocket(wsUrl);
-        
+
         this.ws.onopen = () => {
           console.log('STT Config Service connected');
           resolve();
         };
-        
+
         this.ws.onmessage = (event) => {
           this.handleMessage(event.data);
         };
-        
+
         this.ws.onerror = (error) => {
           console.error('STT Config Service WebSocket error:', error);
           reject(new Error('WebSocket connection failed'));
         };
-        
+
         this.ws.onclose = () => {
           console.log('STT Config Service disconnected');
           this.handleDisconnection();
         };
-        
+
       } catch (error) {
         reject(error);
       }
@@ -98,7 +98,7 @@ export class STTConfigService {
   async updateConfigValue(section: string, key: string, value: any): Promise<ConfigValidationResult> {
     const data = { section, key, value: String(value) };
     const result = await this.sendRequest('UPDATE_CONFIG_VALUE', data);
-    
+
     if (result.error) {
       return {
         isValid: false,
@@ -162,7 +162,7 @@ export class STTConfigService {
   onConfigChange(listener: (notification: ConfigChangeNotification) => void): () => void {
     if (this.options.enableChangeNotifications) {
       this.changeListeners.push(listener);
-      
+
       // Return unsubscribe function
       return () => {
         const index = this.changeListeners.indexOf(listener);
@@ -171,8 +171,8 @@ export class STTConfigService {
         }
       };
     }
-    
-    return () => {}; // No-op if notifications disabled
+
+    return () => { }; // No-op if notifications disabled
   }
 
   /**
@@ -183,9 +183,9 @@ export class STTConfigService {
       this.ws.close();
       this.ws = null;
     }
-    
+
     // Reject all pending requests
-    for (const [requestId, { reject }] of this.pendingRequests) {
+    for (const [_requestId, { reject }] of this.pendingRequests) {
       reject(new Error('Service disconnected'));
     }
     this.pendingRequests.clear();
@@ -216,10 +216,10 @@ export class STTConfigService {
 
     return new Promise((resolve, reject) => {
       this.pendingRequests.set(requestId, { resolve, reject });
-      
+
       try {
         this.ws!.send(JSON.stringify(message));
-        
+
         // Set timeout for request
         setTimeout(() => {
           if (this.pendingRequests.has(requestId)) {
@@ -227,7 +227,7 @@ export class STTConfigService {
             reject(new Error(`Request timeout for ${type}`));
           }
         }, 10000); // 10 second timeout
-        
+
       } catch (error) {
         this.pendingRequests.delete(requestId);
         reject(error);
@@ -238,7 +238,7 @@ export class STTConfigService {
   private handleMessage(data: string): void {
     try {
       const message: STTConfigMessage = JSON.parse(data);
-      
+
       if (message.type === 'CONFIG_CHANGED') {
         this.handleConfigChange(message);
         return;
@@ -255,7 +255,7 @@ export class STTConfigService {
           resolve(message.data);
         }
       }
-      
+
     } catch (error) {
       console.error('Failed to parse STT config message:', error);
     }
@@ -268,7 +268,7 @@ export class STTConfigService {
 
     try {
       const notification: ConfigChangeNotification = message.data;
-      
+
       // Notify all listeners
       for (const listener of this.changeListeners) {
         try {
@@ -277,7 +277,7 @@ export class STTConfigService {
           console.error('Error in config change listener:', error);
         }
       }
-      
+
     } catch (error) {
       console.error('Failed to handle config change notification:', error);
     }
@@ -285,7 +285,7 @@ export class STTConfigService {
 
   private handleDisconnection(): void {
     // Reject all pending requests
-    for (const [requestId, { reject }] of this.pendingRequests) {
+    for (const [_requestId, { reject }] of this.pendingRequests) {
       reject(new Error('Connection lost'));
     }
     this.pendingRequests.clear();

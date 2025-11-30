@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Volume2, Mic, AlertCircle, Loader2, Headphones, RefreshCw } from 'lucide-react';
 import {
   AVAILABLE_LANGUAGES,
+  AVAILABLE_MODELS,
 
   getVoicesForLanguage,
   validateSettings,
@@ -34,8 +35,10 @@ interface SettingsDialogProps {
   sourceLang: string;
   targetLang: string;
   selectedVoice: string;
+  selectedModel: string;
   onLanguageChange: (source: string, target: string) => Promise<void>;
   onVoiceChange: (voice: string) => Promise<void>;
+  onModelChange: (model: string) => Promise<void>;
   isLanguageSyncing?: boolean;
   isVoiceSyncing?: boolean;
   configSyncError?: Error | null;
@@ -57,8 +60,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   sourceLang,
   targetLang,
   selectedVoice,
+  selectedModel,
   onLanguageChange,
   onVoiceChange,
+  onModelChange,
   isLanguageSyncing = false,
   isVoiceSyncing = false,
   configSyncError = null,
@@ -75,6 +80,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   const [tempSourceLang, setTempSourceLang] = useState(sourceLang);
   const [tempTargetLang, setTempTargetLang] = useState(targetLang);
   const [tempSelectedVoice, setTempSelectedVoice] = useState(selectedVoice);
+  const [tempSelectedModel, setTempSelectedModel] = useState(selectedModel);
   const [tempSelectedAudioDevice, setTempSelectedAudioDevice] = useState(selectedAudioDevice);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -87,17 +93,19 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
       setTempSourceLang(sourceLang);
       setTempTargetLang(targetLang);
       setTempSelectedVoice(selectedVoice);
+      setTempSelectedModel(selectedModel);
       setTempSelectedAudioDevice(selectedAudioDevice);
       setValidationError(null);
     }
-  }, [isOpen, sourceLang, targetLang, selectedVoice, selectedAudioDevice]);
+  }, [isOpen, sourceLang, targetLang, selectedVoice, selectedModel, selectedAudioDevice]);
 
   // Validate settings using the validation utility
   const validateCurrentSettings = (): boolean => {
     const validation = validateSettings({
       sourceLang: tempSourceLang,
       targetLang: tempTargetLang,
-      selectedVoice: tempSelectedVoice
+      selectedVoice: tempSelectedVoice,
+      selectedModel: tempSelectedModel
     });
 
     if (!validation.isValid) {
@@ -112,7 +120,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   // Handle language change and auto-update voice if needed
   const handleTargetLanguageChange = (newTargetLang: string) => {
     setTempTargetLang(newTargetLang);
-    
+
     // Auto-select first available voice for new target language
     const availableVoices = getVoicesForLanguage(newTargetLang);
     if (availableVoices.length > 0) {
@@ -128,34 +136,41 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
 
     try {
       setIsSaving(true);
-      
+
       // Check if settings changed
       const languageChanged = tempSourceLang !== sourceLang || tempTargetLang !== targetLang;
       const voiceChanged = tempSelectedVoice !== selectedVoice;
+      const modelChanged = tempSelectedModel !== selectedModel;
       const audioDeviceChanged = tempSelectedAudioDevice !== selectedAudioDevice;
-      
+
       // Sync language settings if changed
       if (languageChanged) {
         await onLanguageChange(tempSourceLang, tempTargetLang);
       }
-      
+
       // Sync voice settings if changed
       if (voiceChanged) {
         await onVoiceChange(tempSelectedVoice);
       }
-      
+
+      // Sync model settings if changed
+      if (modelChanged) {
+        await onModelChange(tempSelectedModel);
+      }
+
       // Sync audio device if changed
       if (audioDeviceChanged && tempSelectedAudioDevice && onAudioDeviceChange) {
         await onAudioDeviceChange(tempSelectedAudioDevice);
       }
-      
+
       // Persist settings using the validation utility
       saveSettingsToStorage({
         sourceLang: tempSourceLang,
         targetLang: tempTargetLang,
-        selectedVoice: tempSelectedVoice
+        selectedVoice: tempSelectedVoice,
+        selectedModel: tempSelectedModel
       });
-      
+
       onClose();
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -170,6 +185,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
     setTempSourceLang(sourceLang);
     setTempTargetLang(targetLang);
     setTempSelectedVoice(selectedVoice);
+    setTempSelectedModel(selectedModel);
     setTempSelectedAudioDevice(selectedAudioDevice);
     setValidationError(null);
     onClose();
@@ -214,8 +230,8 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {AVAILABLE_LANGUAGES.map((lang) => (
-                  <SelectItem 
-                    key={lang.code} 
+                  <SelectItem
+                    key={lang.code}
                     value={lang.code}
                     disabled={!lang.supported}
                   >
@@ -248,8 +264,8 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {AVAILABLE_LANGUAGES.map((lang) => (
-                  <SelectItem 
-                    key={lang.code} 
+                  <SelectItem
+                    key={lang.code}
                     value={lang.code}
                     disabled={!lang.supported || lang.code === tempSourceLang}
                   >
@@ -307,6 +323,42 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
 
           <Separator />
 
+          {/* Model Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="model-select" className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Translation Model
+            </Label>
+            <Select value={tempSelectedModel} onValueChange={setTempSelectedModel}>
+              <SelectTrigger id="model-select">
+                <SelectValue placeholder="Select translation model" />
+              </SelectTrigger>
+              <SelectContent>
+                {AVAILABLE_MODELS.map((model) => (
+                  <SelectItem
+                    key={model.id}
+                    value={model.id}
+                    disabled={!model.supported}
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span>{model.name}</span>
+                        {!model.supported && (
+                          <Badge variant="secondary" className="text-xs">
+                            Coming Soon
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{model.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Separator />
+
           {/* Audio Device Selection */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -324,10 +376,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 <RefreshCw className={`w-3 h-3 ${isDeviceEnumerating ? 'animate-spin' : ''}`} />
               </Button>
             </div>
-            
+
             {audioDevices.length > 0 ? (
-              <Select 
-                value={tempSelectedAudioDevice || ''} 
+              <Select
+                value={tempSelectedAudioDevice || ''}
                 onValueChange={setTempSelectedAudioDevice}
                 disabled={isDeviceEnumerating}
               >
@@ -362,7 +414,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 )}
               </div>
             )}
-            
+
             {/* Audio Device Status */}
             {tempSelectedAudioDevice && audioDevices.length > 0 && (
               <div className="text-xs text-muted-foreground">
@@ -458,7 +510,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => {/* Clear audio device error - could be implemented */}}
+                  onClick={() => {/* Clear audio device error - could be implemented */ }}
                   className="h-7 text-xs text-yellow-700/70 hover:text-yellow-700 hover:bg-yellow-50"
                 >
                   Dismiss
@@ -472,10 +524,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
             <div className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-md">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm">
-                {isSaving 
-                  ? 'Saving configuration...' 
-                  : isLanguageSyncing 
-                    ? 'Syncing language settings...' 
+                {isSaving
+                  ? 'Saving configuration...'
+                  : isLanguageSyncing
+                    ? 'Syncing language settings...'
                     : isVoiceSyncing
                       ? 'Syncing voice settings...'
                       : 'Changing audio device...'
@@ -486,14 +538,14 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
         </div>
 
         <DialogFooter>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleCancel}
             disabled={isSaving || isLanguageSyncing || isVoiceSyncing || isAudioDeviceSyncing}
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleSave}
             disabled={isSaving || isLanguageSyncing || isVoiceSyncing || isAudioDeviceSyncing}
           >
