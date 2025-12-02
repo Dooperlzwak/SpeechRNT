@@ -34,28 +34,28 @@ bool STTHealthIntegration::initialize(const HealthCheckConfig& config) {
     });
     
     initialized_.store(true);
-    utils::Logger::info("STT Health Integration initialized successfully");
+    speechrnt::utils::Logger::info("STT Health Integration initialized successfully");
     return true;
 }
 
 bool STTHealthIntegration::start(bool enableBackgroundMonitoring) {
     if (!initialized_.load()) {
-        utils::Logger::error("STT Health Integration not initialized. Call initialize() first.");
+        speechrnt::utils::Logger::error("STT Health Integration not initialized. Call initialize() first.");
         return false;
     }
     
     if (started_.load()) {
-        utils::Logger::warn("STT Health Integration already started");
+        speechrnt::utils::Logger::warn("STT Health Integration already started");
         return true;
     }
     
     if (!health_checker_->startMonitoring(enableBackgroundMonitoring)) {
-        utils::Logger::error("Failed to start health monitoring");
+        speechrnt::utils::Logger::error("Failed to start health monitoring");
         return false;
     }
     
     started_.store(true);
-    utils::Logger::info("STT Health Integration started with background monitoring: " + 
+    speechrnt::utils::Logger::info("STT Health Integration started with background monitoring: " + 
                         std::string(enableBackgroundMonitoring ? "enabled" : "disabled"));
     return true;
 }
@@ -67,7 +67,7 @@ void STTHealthIntegration::stop() {
     
     health_checker_->stopMonitoring();
     started_.store(false);
-    utils::Logger::info("STT Health Integration stopped");
+    speechrnt::utils::Logger::info("STT Health Integration stopped");
 }
 
 void STTHealthIntegration::integrateWithWebSocketServer(std::shared_ptr<core::WebSocketServer> server) {
@@ -75,7 +75,7 @@ void STTHealthIntegration::integrateWithWebSocketServer(std::shared_ptr<core::We
     
     if (server) {
         server->setHealthChecker(health_checker_);
-        utils::Logger::info("Health monitoring integrated with WebSocket server");
+        speechrnt::utils::Logger::info("Health monitoring integrated with WebSocket server");
     }
 }
 
@@ -94,7 +94,7 @@ void STTHealthIntegration::registerSTTInstance(const std::string& instanceId,
     // Register with health checker
     health_checker_->registerSTTInstance(instanceId, sttInstance);
     
-    utils::Logger::info("STT instance '" + instanceId + "' registered for health monitoring (load balanced: " + 
+    speechrnt::utils::Logger::info("STT instance '" + instanceId + "' registered for health monitoring (load balanced: " + 
                         std::string(autoLoadBalance ? "true" : "false") + ")");
 }
 
@@ -108,7 +108,7 @@ void STTHealthIntegration::unregisterSTTInstance(const std::string& instanceId) 
     // Unregister from health checker
     health_checker_->unregisterSTTInstance(instanceId);
     
-    utils::Logger::info("STT instance '" + instanceId + "' unregistered from health monitoring");
+    speechrnt::utils::Logger::info("STT instance '" + instanceId + "' unregistered from health monitoring");
 }
 
 std::string STTHealthIntegration::getRecommendedSTTInstance() {
@@ -116,7 +116,7 @@ std::string STTHealthIntegration::getRecommendedSTTInstance() {
         try {
             return load_balancing_callback_();
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in custom load balancing callback: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in custom load balancing callback: " + std::string(e.what()));
             // Fall back to default load balancing
         }
     }
@@ -156,12 +156,12 @@ SystemHealthStatus STTHealthIntegration::getSystemHealth(bool detailed) {
 
 void STTHealthIntegration::setLoadBalancingCallback(LoadBalancingCallback callback) {
     load_balancing_callback_ = callback;
-    utils::Logger::info("Custom load balancing callback set");
+    speechrnt::utils::Logger::info("Custom load balancing callback set");
 }
 
 void STTHealthIntegration::setAlertNotificationCallback(AlertNotificationCallback callback) {
     alert_notification_callback_ = callback;
-    utils::Logger::info("Alert notification callback set");
+    speechrnt::utils::Logger::info("Alert notification callback set");
 }
 
 void STTHealthIntegration::forceHealthCheck() {
@@ -172,7 +172,7 @@ void STTHealthIntegration::forceHealthCheck() {
 
 void STTHealthIntegration::updateConfiguration(const HealthCheckConfig& config) {
     health_checker_->updateConfig(config);
-    utils::Logger::info("Health check configuration updated");
+    speechrnt::utils::Logger::info("Health check configuration updated");
 }
 
 std::map<std::string, uint64_t> STTHealthIntegration::getMonitoringStatistics() {
@@ -201,7 +201,7 @@ std::string STTHealthIntegration::exportHealthStatusJSON(bool includeHistory) {
 
 void STTHealthIntegration::setEnabled(bool enabled) {
     health_checker_->setEnabled(enabled);
-    utils::Logger::info("Health monitoring " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Health monitoring " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 bool STTHealthIntegration::isEnabled() const {
@@ -215,7 +215,7 @@ void STTHealthIntegration::onHealthChange(const SystemHealthStatus& status) {
                             status.overall_status == HealthStatus::DEGRADED ? "DEGRADED" :
                             status.overall_status == HealthStatus::UNHEALTHY ? "UNHEALTHY" :
                             status.overall_status == HealthStatus::CRITICAL ? "CRITICAL" : "UNKNOWN");
-    utils::Logger::info("System health changed to: " + statusStr + " - " + status.overall_message);
+    speechrnt::utils::Logger::info("System health changed to: " + statusStr + " - " + status.overall_message);
     
     // Additional health change handling can be added here
     // For example, notifying external monitoring systems
@@ -225,14 +225,14 @@ void STTHealthIntegration::onAlert(const HealthAlert& alert) {
     std::string severityStr = (alert.severity == HealthStatus::CRITICAL ? "CRITICAL" :
                               alert.severity == HealthStatus::UNHEALTHY ? "UNHEALTHY" :
                               alert.severity == HealthStatus::DEGRADED ? "DEGRADED" : "UNKNOWN");
-    utils::Logger::warn("Health alert generated: " + alert.component_name + " - " + severityStr + " - " + alert.message);
+    speechrnt::utils::Logger::warn("Health alert generated: " + alert.component_name + " - " + severityStr + " - " + alert.message);
     
     // Call custom alert notification callback if set
     if (alert_notification_callback_) {
         try {
             alert_notification_callback_(alert);
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in alert notification callback: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in alert notification callback: " + std::string(e.what()));
         }
     }
     
@@ -287,7 +287,7 @@ bool STTHealthManager::initialize(const HealthCheckConfig& config) {
 
 void STTHealthManager::registerSTTInstance(const std::string& instanceId, std::shared_ptr<STTInterface> sttInstance) {
     if (!health_integration_) {
-        utils::Logger::error("STTHealthManager not initialized. Call initialize() first.");
+        speechrnt::utils::Logger::error("STTHealthManager not initialized. Call initialize() first.");
         return;
     }
     
@@ -296,7 +296,7 @@ void STTHealthManager::registerSTTInstance(const std::string& instanceId, std::s
 
 std::string STTHealthManager::getRecommendedInstance() {
     if (!health_integration_) {
-        utils::Logger::error("STTHealthManager not initialized. Call initialize() first.");
+        speechrnt::utils::Logger::error("STTHealthManager not initialized. Call initialize() first.");
         return "";
     }
     

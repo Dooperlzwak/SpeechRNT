@@ -53,14 +53,14 @@ public:
             auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
             outputShape_ = outputTensorInfo.GetShape();
             
-            utils::Logger::info("Silero-VAD ONNX model loaded successfully");
-            utils::Logger::info("Input shape: [" + std::to_string(inputShape_[0]) + ", " + std::to_string(inputShape_[1]) + "]");
-            utils::Logger::info("Output shape: [" + std::to_string(outputShape_[0]) + ", " + std::to_string(outputShape_[1]) + "]");
+            speechrnt::utils::Logger::info("Silero-VAD ONNX model loaded successfully");
+            speechrnt::utils::Logger::info("Input shape: [" + std::to_string(inputShape_[0]) + ", " + std::to_string(inputShape_[1]) + "]");
+            speechrnt::utils::Logger::info("Output shape: [" + std::to_string(outputShape_[0]) + ", " + std::to_string(outputShape_[1]) + "]");
             
             return true;
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Failed to load silero-vad model: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Failed to load silero-vad model: " + std::string(e.what()));
             return false;
         }
     }
@@ -111,7 +111,7 @@ public:
             return 0.0f;
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Silero-VAD inference failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Silero-VAD inference failed: " + std::string(e.what()));
             return 0.0f;
         }
     }
@@ -151,7 +151,7 @@ SileroVadImpl::~SileroVadImpl() {
 
 bool SileroVadImpl::initialize(uint32_t sampleRate, const std::string& modelPath) {
     if (initialized_) {
-        utils::Logger::warn("SileroVadImpl already initialized");
+        speechrnt::utils::Logger::warn("SileroVadImpl already initialized");
         return true;
     }
     
@@ -162,12 +162,12 @@ bool SileroVadImpl::initialize(uint32_t sampleRate, const std::string& modelPath
     sileroModelLoaded_ = loadSileroModel(modelPath_);
     
     if (sileroModelLoaded_) {
-        utils::Logger::info("SileroVadImpl initialized with ML model");
+        speechrnt::utils::Logger::info("SileroVadImpl initialized with ML model");
         if (currentMode_ == VadMode::ENERGY_BASED) {
             currentMode_ = VadMode::HYBRID; // Upgrade to hybrid if model is available
         }
     } else {
-        utils::Logger::warn("SileroVadImpl initialized with energy-based fallback only");
+        speechrnt::utils::Logger::warn("SileroVadImpl initialized with energy-based fallback only");
         if (currentMode_ == VadMode::SILERO) {
             currentMode_ = VadMode::ENERGY_BASED; // Downgrade to energy-based
         }
@@ -186,18 +186,18 @@ void SileroVadImpl::shutdown() {
     energyHistory_.clear();
     
     initialized_ = false;
-    utils::Logger::info("SileroVadImpl shutdown complete");
+    speechrnt::utils::Logger::info("SileroVadImpl shutdown complete");
 }
 
 void SileroVadImpl::setVadMode(VadMode mode) {
     if (mode == VadMode::SILERO && !sileroModelLoaded_) {
-        utils::Logger::warn("Cannot set SILERO mode: model not loaded, using HYBRID instead");
+        speechrnt::utils::Logger::warn("Cannot set SILERO mode: model not loaded, using HYBRID instead");
         currentMode_ = VadMode::HYBRID;
     } else {
         currentMode_ = mode;
     }
     
-    utils::Logger::info("VAD mode set to: " + std::to_string(static_cast<int>(currentMode_)));
+    speechrnt::utils::Logger::info("VAD mode set to: " + std::to_string(static_cast<int>(currentMode_)));
 }
 
 float SileroVadImpl::processSamples(const std::vector<float>& samples) {
@@ -244,7 +244,7 @@ float SileroVadImpl::processSamples(const std::vector<float>& samples) {
         result = std::max(0.0f, std::min(1.0f, result));
         
     } catch (const std::exception& e) {
-        utils::Logger::error("VAD processing error: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("VAD processing error: " + std::string(e.what()));
         result = processEnergyBasedVad(samples); // Emergency fallback
         usedSilero = false;
     }
@@ -282,14 +282,14 @@ bool SileroVadImpl::loadSileroModel(const std::string& modelPath) {
 #ifdef SILERO_VAD_AVAILABLE
     try {
         if (onnxSession_->initialize(modelPath)) {
-            utils::Logger::info("Silero-VAD model loaded from: " + modelPath);
+            speechrnt::utils::Logger::info("Silero-VAD model loaded from: " + modelPath);
             return true;
         }
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load silero-vad model: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to load silero-vad model: " + std::string(e.what()));
     }
 #else
-    utils::Logger::warn("ONNX Runtime not available, cannot load silero-vad model");
+    speechrnt::utils::Logger::warn("ONNX Runtime not available, cannot load silero-vad model");
 #endif
     return false;
 }
@@ -299,7 +299,7 @@ void SileroVadImpl::unloadSileroModel() {
         onnxSession_.reset();
         onnxSession_ = std::make_unique<OnnxSession>();
         sileroModelLoaded_ = false;
-        utils::Logger::info("Silero-VAD model unloaded");
+        speechrnt::utils::Logger::info("Silero-VAD model unloaded");
     }
 }
 
@@ -318,7 +318,7 @@ float SileroVadImpl::processSileroVad(const std::vector<float>& samples) {
         return probability;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Silero-VAD processing failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Silero-VAD processing failed: " + std::string(e.what()));
         return -1.0f; // Indicate failure
     }
 }

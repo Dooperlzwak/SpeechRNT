@@ -38,13 +38,13 @@ bool STTHealthChecker::initialize(const HealthCheckConfig& config) {
     health_history_.clear();
     health_history_.push_back(current_health_);
     
-    utils::Logger::info("STTHealthChecker initialized with check interval: " + std::to_string(config_.health_check_interval_ms) + "ms");
+    speechrnt::utils::Logger::info("STTHealthChecker initialized with check interval: " + std::to_string(config_.health_check_interval_ms) + "ms");
     return true;
 }
 
 bool STTHealthChecker::startMonitoring(bool enableBackgroundMonitoring) {
     if (monitoring_active_.load()) {
-        utils::Logger::warn("Health monitoring is already active");
+        speechrnt::utils::Logger::warn("Health monitoring is already active");
         return true;
     }
     
@@ -62,7 +62,7 @@ bool STTHealthChecker::startMonitoring(bool enableBackgroundMonitoring) {
             resourceMonitorLoop();
         });
         
-        utils::Logger::info("Background health monitoring started");
+        speechrnt::utils::Logger::info("Background health monitoring started");
     }
     
     return true;
@@ -88,7 +88,7 @@ void STTHealthChecker::stopMonitoring() {
     health_monitor_thread_.reset();
     resource_monitor_thread_.reset();
     
-    utils::Logger::info("Health monitoring stopped");
+    speechrnt::utils::Logger::info("Health monitoring stopped");
 }
 
 SystemHealthStatus STTHealthChecker::checkHealth(bool detailed) {
@@ -395,7 +395,7 @@ void STTHealthChecker::registerSTTInstance(const std::string& instanceId, std::s
     // Initialize health status for this instance
     instance_health_[instanceId] = ComponentHealth("STT_Instance_" + instanceId, HealthStatus::UNKNOWN, "Instance registered, health check pending");
     
-    utils::Logger::info("STT instance '" + instanceId + "' registered for health monitoring");
+    speechrnt::utils::Logger::info("STT instance '" + instanceId + "' registered for health monitoring");
 }
 
 void STTHealthChecker::unregisterSTTInstance(const std::string& instanceId) {
@@ -403,7 +403,7 @@ void STTHealthChecker::unregisterSTTInstance(const std::string& instanceId) {
     registered_instances_.erase(instanceId);
     instance_health_.erase(instanceId);
     
-    utils::Logger::info("STT instance '" + instanceId + "' unregistered from health monitoring");
+    speechrnt::utils::Logger::info("STT instance '" + instanceId + "' unregistered from health monitoring");
 }
 
 std::shared_ptr<ComponentHealth> STTHealthChecker::getInstanceHealth(const std::string& instanceId) {
@@ -451,7 +451,7 @@ void STTHealthChecker::setAlertCallback(AlertCallback callback) {
 void STTHealthChecker::updateConfig(const HealthCheckConfig& config) {
     std::lock_guard<std::mutex> lock(health_mutex_);
     config_ = config;
-    utils::Logger::info("Health check configuration updated");
+    speechrnt::utils::Logger::info("Health check configuration updated");
 }
 
 std::vector<SystemHealthStatus> STTHealthChecker::getHealthHistory(int hours) {
@@ -488,7 +488,7 @@ bool STTHealthChecker::acknowledgeAlert(const std::string& alertId) {
     for (auto& alert : active_alerts_) {
         if (alert.alert_id == alertId) {
             alert.acknowledged = true;
-            utils::Logger::info("Alert '" + alertId + "' acknowledged");
+            speechrnt::utils::Logger::info("Alert '" + alertId + "' acknowledged");
             return true;
         }
     }
@@ -628,7 +628,7 @@ std::map<std::string, uint64_t> STTHealthChecker::getMonitoringStats() {
 // Private methods implementation
 
 void STTHealthChecker::healthMonitorLoop() {
-    utils::Logger::info("Health monitor loop started");
+    speechrnt::utils::Logger::info("Health monitor loop started");
     
     while (!should_stop_monitoring_.load()) {
         try {
@@ -647,15 +647,15 @@ void STTHealthChecker::healthMonitorLoop() {
             }
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in health monitor loop: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in health monitor loop: " + std::string(e.what()));
         }
     }
     
-    utils::Logger::info("Health monitor loop stopped");
+    speechrnt::utils::Logger::info("Health monitor loop stopped");
 }
 
 void STTHealthChecker::resourceMonitorLoop() {
-    utils::Logger::info("Resource monitor loop started");
+    speechrnt::utils::Logger::info("Resource monitor loop started");
     
     while (!should_stop_monitoring_.load()) {
         try {
@@ -665,11 +665,11 @@ void STTHealthChecker::resourceMonitorLoop() {
             std::this_thread::sleep_for(std::chrono::milliseconds(config_.resource_check_interval_ms));
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in resource monitor loop: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in resource monitor loop: " + std::string(e.what()));
         }
     }
     
-    utils::Logger::info("Resource monitor loop stopped");
+    speechrnt::utils::Logger::info("Resource monitor loop stopped");
 }
 
 void STTHealthChecker::performHealthCheck(bool detailed) {
@@ -746,7 +746,7 @@ void STTHealthChecker::generateAlert(const std::string& component, HealthStatus 
         alert_callback_(alert);
     }
     
-    utils::Logger::warn("Health alert generated: " + component + " - " + healthStatusToString(severity) + " - " + message);
+    speechrnt::utils::Logger::warn("Health alert generated: " + component + " - " + healthStatusToString(severity) + " - " + message);
 }
 
 bool STTHealthChecker::isAlertCooldownActive(const std::string& alertKey) {
@@ -1113,7 +1113,7 @@ HealthCheckTimer::HealthCheckTimer(const std::string& checkName)
 
 HealthCheckTimer::~HealthCheckTimer() {
     double elapsedMs = getElapsedMs();
-    utils::Logger::debug("Health check '" + check_name_ + "' completed in " + std::to_string(elapsedMs) + "ms");
+    speechrnt::utils::Logger::debug("Health check '" + check_name_ + "' completed in " + std::to_string(elapsedMs) + "ms");
 }
 
 double HealthCheckTimer::getElapsedMs() const {

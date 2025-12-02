@@ -5,7 +5,7 @@
 #include "audio/voice_activity_detector.hpp"
 #include "stt/whisper_stt.hpp"
 #include "mt/marian_translator.hpp"
-#include "tts/coqui_tts.hpp"
+#include "tts/piper_tts.hpp"
 #include "utils/logging.hpp"
 #include <thread>
 #include <chrono>

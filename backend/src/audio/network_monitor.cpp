@@ -43,7 +43,7 @@ bool NetworkMonitor::initialize(int monitoringIntervalMs, size_t historySize) {
     std::lock_guard<std::mutex> lock(metricsMutex_);
     metricsHistory_.reserve(historySize_);
     
-    utils::Logger::info("NetworkMonitor initialized: " + 
+    speechrnt::utils::Logger::info("NetworkMonitor initialized: " + 
                        std::to_string(monitoringIntervalMs) + "ms interval, " +
                        std::to_string(historySize) + " history size");
     
@@ -52,14 +52,14 @@ bool NetworkMonitor::initialize(int monitoringIntervalMs, size_t historySize) {
 
 bool NetworkMonitor::startMonitoring() {
     if (monitoring_.load()) {
-        utils::Logger::warn("Network monitoring already started");
+        speechrnt::utils::Logger::warn("Network monitoring already started");
         return true;
     }
     
     monitoring_ = true;
     monitoringThread_ = std::make_unique<std::thread>(&NetworkMonitor::monitoringLoop, this);
     
-    utils::Logger::info("Network monitoring started");
+    speechrnt::utils::Logger::info("Network monitoring started");
     return true;
 }
 
@@ -74,7 +74,7 @@ void NetworkMonitor::stopMonitoring() {
         monitoringThread_->join();
     }
     
-    utils::Logger::info("Network monitoring stopped");
+    speechrnt::utils::Logger::info("Network monitoring stopped");
 }
 
 NetworkMetrics NetworkMonitor::getCurrentMetrics() const {
@@ -208,7 +208,7 @@ std::map<std::string, double> NetworkMonitor::getMonitoringStats() const {
 }
 
 void NetworkMonitor::monitoringLoop() {
-    utils::Logger::info("Network monitoring loop started");
+    speechrnt::utils::Logger::info("Network monitoring loop started");
     
     while (monitoring_.load()) {
         try {
@@ -216,21 +216,21 @@ void NetworkMonitor::monitoringLoop() {
             updateMetrics(metrics);
             
             // Record performance metrics
-            utils::PerformanceMonitor::getInstance().recordLatency(
+            speechrnt::utils::PerformanceMonitor::getInstance().recordLatency(
                 "network.latency_ms", metrics.latencyMs);
-            utils::PerformanceMonitor::getInstance().recordValue(
+            speechrnt::utils::PerformanceMonitor::getInstance().recordValue(
                 "network.jitter_ms", metrics.jitterMs);
-            utils::PerformanceMonitor::getInstance().recordValue(
+            speechrnt::utils::PerformanceMonitor::getInstance().recordValue(
                 "network.packet_loss_rate", metrics.packetLossRate);
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Network monitoring error: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Network monitoring error: " + std::string(e.what()));
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(monitoringIntervalMs_));
     }
     
-    utils::Logger::info("Network monitoring loop stopped");
+    speechrnt::utils::Logger::info("Network monitoring loop stopped");
 }
 
 NetworkMetrics NetworkMonitor::measureNetworkConditions() {
@@ -325,7 +325,7 @@ void NetworkMonitor::notifyConditionChange(const NetworkMetrics& metrics, Networ
         try {
             callback(metrics, quality);
         } catch (const std::exception& e) {
-            utils::Logger::error("Network condition callback error: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Network condition callback error: " + std::string(e.what()));
         }
     }
 }
@@ -374,11 +374,11 @@ bool NetworkAwareStreamingAdapter::initialize(std::shared_ptr<NetworkMonitor> ne
                 onNetworkConditionChange(metrics, quality);
             });
         
-        utils::Logger::info("NetworkAwareStreamingAdapter initialized with network monitor");
+        speechrnt::utils::Logger::info("NetworkAwareStreamingAdapter initialized with network monitor");
         return true;
     }
     
-    utils::Logger::error("NetworkAwareStreamingAdapter initialization failed: no network monitor");
+    speechrnt::utils::Logger::error("NetworkAwareStreamingAdapter initialization failed: no network monitor");
     return false;
 }
 
@@ -499,7 +499,7 @@ size_t NetworkAwareStreamingAdapter::getRecommendedChunkSize(size_t baseChunkMs)
 
 void NetworkAwareStreamingAdapter::setAdaptiveMode(bool enabled) {
     adaptiveMode_ = enabled;
-    utils::Logger::info("Network-aware streaming adaptation " + 
+    speechrnt::utils::Logger::info("Network-aware streaming adaptation " + 
                        std::string(enabled ? "enabled" : "disabled"));
 }
 
@@ -533,7 +533,7 @@ void NetworkAwareStreamingAdapter::onNetworkConditionChange(const NetworkMetrics
         totalAdaptations_++;
         recordAdaptation(newParams);
         
-        utils::Logger::info("Adapted streaming parameters for network quality change");
+        speechrnt::utils::Logger::info("Adapted streaming parameters for network quality change");
     }
 }
 

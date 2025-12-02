@@ -62,12 +62,12 @@ bool STTErrorRecovery::initialize(const RecoveryConfig& defaultConfig) {
         errorConfigs_[STTErrorType::WHISPER_INFERENCE_ERROR] = inferenceConfig;
         
         initialized_ = true;
-        utils::Logger::info("STTErrorRecovery initialized successfully");
+        speechrnt::utils::Logger::info("STTErrorRecovery initialized successfully");
         return true;
         
     } catch (const std::exception& e) {
         lastError_ = "Failed to initialize STTErrorRecovery: " + std::string(e.what());
-        utils::Logger::error(lastError_);
+        speechrnt::utils::Logger::error(lastError_);
         return false;
     }
 }
@@ -134,9 +134,9 @@ RecoveryResult STTErrorRecovery::handleError(const STTErrorContext& errorContext
                             " (took " + std::to_string(result.recoveryTime.count()) + "ms)";
     
     if (result.success) {
-        utils::Logger::info(logMessage);
+        speechrnt::utils::Logger::info(logMessage);
     } else {
-        utils::Logger::warn(logMessage + " - " + result.resultMessage);
+        speechrnt::utils::Logger::warn(logMessage + " - " + result.resultMessage);
     }
     
     // Notify callback if set
@@ -144,7 +144,7 @@ RecoveryResult STTErrorRecovery::handleError(const STTErrorContext& errorContext
         try {
             notificationCallback_(errorContext, result);
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in notification callback: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in notification callback: " + std::string(e.what()));
         }
     }
     
@@ -206,7 +206,7 @@ void STTErrorRecovery::clearHistory() {
         recoverySuccesses_.clear();
     }
     
-    utils::Logger::info("STTErrorRecovery history and statistics cleared");
+    speechrnt::utils::Logger::info("STTErrorRecovery history and statistics cleared");
 }
 
 bool STTErrorRecovery::isRecoveryInProgress(uint32_t utteranceId) const {
@@ -219,14 +219,14 @@ void STTErrorRecovery::cancelRecovery(uint32_t utteranceId) {
     
     auto it = activeRecoveries_.find(utteranceId);
     if (it != activeRecoveries_.end()) {
-        utils::Logger::info("Cancelling recovery for utterance " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::info("Cancelling recovery for utterance " + std::to_string(utteranceId));
         activeRecoveries_.erase(it);
     }
 }
 
 void STTErrorRecovery::setEnabled(bool enabled) {
     enabled_.store(enabled);
-    utils::Logger::info("STTErrorRecovery " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("STTErrorRecovery " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 bool STTErrorRecovery::isEnabled() const {
@@ -259,7 +259,7 @@ RecoveryResult STTErrorRecovery::attemptRecovery(const STTErrorContext& context,
         RecoveryStrategy strategy = selectRecoveryStrategy(context, attempt);
         activeRecoveries_[context.utteranceId]->currentStrategy = strategy;
         
-        utils::Logger::info("Attempting recovery for utterance " + std::to_string(context.utteranceId) + 
+        speechrnt::utils::Logger::info("Attempting recovery for utterance " + std::to_string(context.utteranceId) + 
                            " (attempt " + std::to_string(attempt) + "/" + std::to_string(config.maxRetryAttempts) + 
                            ") using strategy: " + error_utils::recoveryStrategyToString(strategy));
         
@@ -278,7 +278,7 @@ RecoveryResult STTErrorRecovery::attemptRecovery(const STTErrorContext& context,
             auto delay = calculateBackoffDelay(attempt, config);
             activeRecoveries_[context.utteranceId]->nextRetryDelay = delay;
             
-            utils::Logger::info("Recovery attempt " + std::to_string(attempt) + " failed, waiting " + 
+            speechrnt::utils::Logger::info("Recovery attempt " + std::to_string(attempt) + " failed, waiting " + 
                                std::to_string(delay.count()) + "ms before next attempt");
             
             // Release lock during sleep
@@ -393,7 +393,7 @@ bool STTErrorRecovery::executeRecoveryStrategy(const STTErrorContext& context, R
                 return false;
         }
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception during recovery strategy execution: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception during recovery strategy execution: " + std::string(e.what()));
         return false;
     }
 }
@@ -410,17 +410,17 @@ bool STTErrorRecovery::retryWithBackoff(const STTErrorContext& context, std::chr
     }
     
     // Default retry behavior - just indicate that retry should be attempted
-    utils::Logger::info("Retry with backoff requested for error: " + context.errorMessage);
+    speechrnt::utils::Logger::info("Retry with backoff requested for error: " + context.errorMessage);
     return true; // Assume retry will be handled by caller
 }
 
 bool STTErrorRecovery::fallbackGPUToCPU(const STTErrorContext& context) {
     if (!context.wasUsingGPU) {
-        utils::Logger::warn("GPU fallback requested but GPU was not being used");
+        speechrnt::utils::Logger::warn("GPU fallback requested but GPU was not being used");
         return false;
     }
     
-    utils::Logger::info("Attempting GPU to CPU fallback for utterance " + std::to_string(context.utteranceId));
+    speechrnt::utils::Logger::info("Attempting GPU to CPU fallback for utterance " + std::to_string(context.utteranceId));
     
     // Check if we have a registered callback for this error type
     auto callbackIt = recoveryCallbacks_.find(context.errorType);
@@ -433,14 +433,14 @@ bool STTErrorRecovery::fallbackGPUToCPU(const STTErrorContext& context) {
     if (gpuManager.isCudaAvailable()) {
         // Reset GPU device to free memory
         gpuManager.resetDevice();
-        utils::Logger::info("GPU device reset for fallback to CPU");
+        speechrnt::utils::Logger::info("GPU device reset for fallback to CPU");
     }
     
     return true; // Assume fallback will be handled by caller
 }
 
 bool STTErrorRecovery::fallbackQuantization(const STTErrorContext& context) {
-    utils::Logger::info("Attempting quantization fallback for utterance " + std::to_string(context.utteranceId));
+    speechrnt::utils::Logger::info("Attempting quantization fallback for utterance " + std::to_string(context.utteranceId));
     
     // Determine next quantization level
     QuantizationLevel nextLevel = context.currentQuantization;
@@ -452,7 +452,7 @@ bool STTErrorRecovery::fallbackQuantization(const STTErrorContext& context) {
             nextLevel = QuantizationLevel::INT8;
             break;
         case QuantizationLevel::INT8:
-            utils::Logger::warn("Already at lowest quantization level (INT8), cannot fallback further");
+            speechrnt::utils::Logger::warn("Already at lowest quantization level (INT8), cannot fallback further");
             return false;
         case QuantizationLevel::AUTO:
             nextLevel = QuantizationLevel::FP16; // Conservative fallback
@@ -460,7 +460,7 @@ bool STTErrorRecovery::fallbackQuantization(const STTErrorContext& context) {
     }
     
     QuantizationManager quantManager;
-    utils::Logger::info("Falling back from " + quantManager.levelToString(context.currentQuantization) + 
+    speechrnt::utils::Logger::info("Falling back from " + quantManager.levelToString(context.currentQuantization) + 
                        " to " + quantManager.levelToString(nextLevel));
     
     // Check if we have a registered callback for this error type
@@ -473,7 +473,7 @@ bool STTErrorRecovery::fallbackQuantization(const STTErrorContext& context) {
 }
 
 bool STTErrorRecovery::restartComponent(const STTErrorContext& context) {
-    utils::Logger::info("Attempting component restart for utterance " + std::to_string(context.utteranceId));
+    speechrnt::utils::Logger::info("Attempting component restart for utterance " + std::to_string(context.utteranceId));
     
     // Check if we have a registered callback for this error type
     auto callbackIt = recoveryCallbacks_.find(context.errorType);
@@ -486,7 +486,7 @@ bool STTErrorRecovery::restartComponent(const STTErrorContext& context) {
 }
 
 bool STTErrorRecovery::clearBuffers(const STTErrorContext& context) {
-    utils::Logger::info("Attempting buffer clear for utterance " + std::to_string(context.utteranceId));
+    speechrnt::utils::Logger::info("Attempting buffer clear for utterance " + std::to_string(context.utteranceId));
     
     // Check if we have a registered callback for this error type
     auto callbackIt = recoveryCallbacks_.find(context.errorType);
@@ -499,7 +499,7 @@ bool STTErrorRecovery::clearBuffers(const STTErrorContext& context) {
 }
 
 bool STTErrorRecovery::reduceQuality(const STTErrorContext& context) {
-    utils::Logger::info("Attempting quality reduction for utterance " + std::to_string(context.utteranceId));
+    speechrnt::utils::Logger::info("Attempting quality reduction for utterance " + std::to_string(context.utteranceId));
     
     // Check if we have a registered callback for this error type
     auto callbackIt = recoveryCallbacks_.find(context.errorType);
@@ -567,9 +567,9 @@ void STTErrorRecovery::logRecoveryAttempt(const STTErrorContext& context, Recove
            << ", result: " << (success ? "SUCCESS" : "FAILED") << ")";
     
     if (success) {
-        utils::Logger::info(logMsg.str());
+        speechrnt::utils::Logger::info(logMsg.str());
     } else {
-        utils::Logger::warn(logMsg.str());
+        speechrnt::utils::Logger::warn(logMsg.str());
     }
     
     // Record performance metrics

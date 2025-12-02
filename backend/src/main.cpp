@@ -11,7 +11,7 @@
 int main(int argc, char* argv[]) {
     try {
         // Initialize logging
-        utils::Logger::initialize();
+        speechrnt::utils::Logger::initialize();
         
         // Initialize GPU manager and configuration
         auto& gpuManager = utils::GPUManager::getInstance();

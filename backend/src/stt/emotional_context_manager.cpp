@@ -22,7 +22,7 @@ public:
     bool initialize(const EmotionalContextConfig& config) {
         config_ = config;
         initialized_ = true;
-        utils::Logger::info("EmotionalContextManager initialized successfully");
+        speechrnt::utils::Logger::info("EmotionalContextManager initialized successfully");
         return true;
     }
 
@@ -53,12 +53,12 @@ public:
             state.emotional_stability = calculateEmotionalStability(conversation_id);
             state.overall_sentiment_trend = calculateSentimentTrend(conversation_id);
 
-            utils::Logger::debug("Updated emotional context for conversation " + 
+            speechrnt::utils::Logger::debug("Updated emotional context for conversation " + 
                            std::to_string(conversation_id));
 
         } catch (const std::exception& e) {
             last_error_ = "Error updating emotional context: " + std::string(e.what());
-            utils::Logger::error("EmotionalContextManager error: " + last_error_);
+            speechrnt::utils::Logger::error("EmotionalContextManager error: " + last_error_);
         }
     }
 
@@ -331,7 +331,7 @@ private:
             callback(state.conversation_id, new_segment);
         }
 
-        utils::Logger::debug("Created new emotional segment " + std::to_string(new_segment.segment_id));
+        speechrnt::utils::Logger::debug("Created new emotional segment " + std::to_string(new_segment.segment_id));
     }
 
     void updateCurrentSegment(ConversationEmotionalState& state,
@@ -401,7 +401,7 @@ private:
             callback(state.conversation_id, transition);
         }
 
-        utils::Logger::debug("Created emotional transition " + std::to_string(transition.transition_id));
+        speechrnt::utils::Logger::debug("Created emotional transition " + std::to_string(transition.transition_id));
     }
 
     void updateDistributions(ConversationEmotionalState& state,

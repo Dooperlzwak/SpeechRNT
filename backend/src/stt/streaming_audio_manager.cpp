@@ -19,27 +19,27 @@ StreamingAudioManager::StreamingAudioManager(std::shared_ptr<WhisperSTT> whisper
     
     audioBufferManager_ = std::make_unique<audio::AudioBufferManager>(config);
     
-    utils::Logger::info("StreamingAudioManager created");
+    speechrnt::utils::Logger::info("StreamingAudioManager created");
 }
 
 StreamingAudioManager::~StreamingAudioManager() {
     stopAllTranscriptions();
-    utils::Logger::info("StreamingAudioManager destroyed");
+    speechrnt::utils::Logger::info("StreamingAudioManager destroyed");
 }
 
 bool StreamingAudioManager::initialize() {
     if (!whisperSTT_ || !whisperSTT_->isInitialized()) {
-        utils::Logger::error("WhisperSTT not initialized");
+        speechrnt::utils::Logger::error("WhisperSTT not initialized");
         return false;
     }
     
     if (!audioBufferManager_) {
-        utils::Logger::error("AudioBufferManager not available");
+        speechrnt::utils::Logger::error("AudioBufferManager not available");
         return false;
     }
     
     isInitialized_ = true;
-    utils::Logger::info("StreamingAudioManager initialized successfully");
+    speechrnt::utils::Logger::info("StreamingAudioManager initialized successfully");
     return true;
 }
 
@@ -47,7 +47,7 @@ bool StreamingAudioManager::startStreamingTranscription(uint32_t utteranceId,
                                                        TranscriptionCallback callback,
                                                        const StreamingConfig& config) {
     if (!isInitialized_) {
-        utils::Logger::error("StreamingAudioManager not initialized");
+        speechrnt::utils::Logger::error("StreamingAudioManager not initialized");
         return false;
     }
     
@@ -55,7 +55,7 @@ bool StreamingAudioManager::startStreamingTranscription(uint32_t utteranceId,
     
     // Check if utterance already exists
     if (streamingStates_.find(utteranceId) != streamingStates_.end()) {
-        utils::Logger::warn("Streaming transcription already active for utterance: " + 
+        speechrnt::utils::Logger::warn("Streaming transcription already active for utterance: " + 
                            std::to_string(utteranceId));
         return false;
     }
@@ -63,7 +63,7 @@ bool StreamingAudioManager::startStreamingTranscription(uint32_t utteranceId,
     // Create utterance buffer
     size_t bufferSizeMB = config.maxBufferSizeMB > 0 ? config.maxBufferSizeMB : 8;
     if (!audioBufferManager_->createUtterance(utteranceId, bufferSizeMB)) {
-        utils::Logger::error("Failed to create audio buffer for utterance: " + 
+        speechrnt::utils::Logger::error("Failed to create audio buffer for utterance: " + 
                             std::to_string(utteranceId));
         return false;
     }
@@ -80,7 +80,7 @@ bool StreamingAudioManager::startStreamingTranscription(uint32_t utteranceId,
     
     streamingStates_[utteranceId] = state;
     
-    utils::Logger::info("Started streaming transcription for utterance: " + 
+    speechrnt::utils::Logger::info("Started streaming transcription for utterance: " + 
                        std::to_string(utteranceId));
     return true;
 }
@@ -92,7 +92,7 @@ bool StreamingAudioManager::addAudioChunk(uint32_t utteranceId, const std::vecto
     
     // Add audio to buffer
     if (!audioBufferManager_->addAudioData(utteranceId, audioData)) {
-        utils::Logger::warn("Failed to add audio data to buffer for utterance: " + 
+        speechrnt::utils::Logger::warn("Failed to add audio data to buffer for utterance: " + 
                            std::to_string(utteranceId));
         return false;
     }
@@ -135,7 +135,7 @@ void StreamingAudioManager::finalizeStreamingTranscription(uint32_t utteranceId)
     state.isActive = false;
     audioBufferManager_->finalizeBuffer(utteranceId);
     
-    utils::Logger::info("Finalized streaming transcription for utterance: " + 
+    speechrnt::utils::Logger::info("Finalized streaming transcription for utterance: " + 
                        std::to_string(utteranceId));
 }
 
@@ -148,7 +148,7 @@ void StreamingAudioManager::stopStreamingTranscription(uint32_t utteranceId) {
         audioBufferManager_->removeUtterance(utteranceId);
         streamingStates_.erase(it);
         
-        utils::Logger::info("Stopped streaming transcription for utterance: " + 
+        speechrnt::utils::Logger::info("Stopped streaming transcription for utterance: " + 
                            std::to_string(utteranceId));
     }
 }
@@ -162,7 +162,7 @@ void StreamingAudioManager::stopAllTranscriptions() {
     }
     
     streamingStates_.clear();
-    utils::Logger::info("Stopped all streaming transcriptions");
+    speechrnt::utils::Logger::info("Stopped all streaming transcriptions");
 }
 
 bool StreamingAudioManager::isTranscribing(uint32_t utteranceId) const {
@@ -287,7 +287,7 @@ void StreamingAudioManager::triggerStreamingTranscription(uint32_t utteranceId, 
     state.lastTranscriptionTime = std::chrono::steady_clock::now();
     state.transcriptionCount++;
     
-    utils::Logger::debug("Triggered streaming transcription for utterance: " + 
+    speechrnt::utils::Logger::debug("Triggered streaming transcription for utterance: " + 
                         std::to_string(utteranceId) + 
                         " with " + std::to_string(audioData.size()) + " samples");
 }
@@ -308,7 +308,7 @@ void StreamingAudioManager::triggerFinalTranscription(uint32_t utteranceId, Stre
     // Perform full transcription (final result)
     whisperSTT_->transcribe(audioData, wrappedCallback);
     
-    utils::Logger::info("Triggered final transcription for utterance: " + 
+    speechrnt::utils::Logger::info("Triggered final transcription for utterance: " + 
                        std::to_string(utteranceId) + 
                        " with " + std::to_string(audioData.size()) + " samples");
 }
@@ -327,7 +327,7 @@ void StreamingAudioManager::handleTranscriptionResult(uint32_t utteranceId,
     // Call the original callback
     originalCallback(enhancedResult);
     
-    utils::Logger::debug("Processed transcription result for utterance: " + 
+    speechrnt::utils::Logger::debug("Processed transcription result for utterance: " + 
                         std::to_string(utteranceId) + 
                         " (partial: " + (isPartial ? "true" : "false") + 
                         ", text: \"" + result.text + "\")");

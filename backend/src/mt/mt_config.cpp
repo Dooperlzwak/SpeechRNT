@@ -30,13 +30,13 @@ bool MTConfig::loadFromFile(const std::string &configPath) {
 
   try {
     if (!std::filesystem::exists(configPath)) {
-      utils::Logger::error("Configuration file not found: " + configPath);
+      speechrnt::utils::Logger::error("Configuration file not found: " + configPath);
       return false;
     }
 
     std::ifstream file(configPath);
     if (!file.is_open()) {
-      utils::Logger::error("Failed to open configuration file: " + configPath);
+      speechrnt::utils::Logger::error("Failed to open configuration file: " + configPath);
       return false;
     }
 
@@ -48,14 +48,14 @@ bool MTConfig::loadFromFile(const std::string &configPath) {
     if (result) {
       configSource_ = configPath;
       lastModified_ = std::chrono::system_clock::now();
-      utils::Logger::info("Successfully loaded MT configuration from: " +
+      speechrnt::utils::Logger::info("Successfully loaded MT configuration from: " +
                           configPath);
     }
 
     return result;
 
   } catch (const std::exception &e) {
-    utils::Logger::error("Failed to load configuration file: " +
+    speechrnt::utils::Logger::error("Failed to load configuration file: " +
                          std::string(e.what()));
     return false;
   }
@@ -71,7 +71,7 @@ bool MTConfig::saveToFile(const std::string &configPath) const {
 
     std::ofstream file(configPath);
     if (!file.is_open()) {
-      utils::Logger::error("Failed to create configuration file: " +
+      speechrnt::utils::Logger::error("Failed to create configuration file: " +
                            configPath);
       return false;
     }
@@ -79,12 +79,12 @@ bool MTConfig::saveToFile(const std::string &configPath) const {
     std::string jsonContent = toJson();
     file << jsonContent;
 
-    utils::Logger::info("Successfully saved MT configuration to: " +
+    speechrnt::utils::Logger::info("Successfully saved MT configuration to: " +
                         configPath);
     return true;
 
   } catch (const std::exception &e) {
-    utils::Logger::error("Failed to save configuration file: " +
+    speechrnt::utils::Logger::error("Failed to save configuration file: " +
                          std::string(e.what()));
     return false;
   }
@@ -95,7 +95,7 @@ bool MTConfig::loadFromJson(const std::string &jsonContent) {
     utils::JsonValue root = utils::JsonParser::parse(jsonContent);
 
     if (root.getType() != utils::JsonType::OBJECT) {
-      utils::Logger::error(
+      speechrnt::utils::Logger::error(
           "Invalid JSON configuration: root must be an object");
       return false;
     }
@@ -458,7 +458,7 @@ bool MTConfig::loadFromJson(const std::string &jsonContent) {
     return true;
 
   } catch (const std::exception &e) {
-    utils::Logger::error("Failed to parse JSON configuration: " +
+    speechrnt::utils::Logger::error("Failed to parse JSON configuration: " +
                          std::string(e.what()));
     return false;
   }
@@ -688,7 +688,7 @@ bool MTConfig::updateConfiguration(const std::string &jsonUpdates) {
     utils::JsonValue updates = utils::JsonParser::parse(jsonUpdates);
 
     if (updates.getType() != utils::JsonType::OBJECT) {
-      utils::Logger::error(
+      speechrnt::utils::Logger::error(
           "Invalid configuration update: must be a JSON object");
       return false;
     }
@@ -784,15 +784,15 @@ bool MTConfig::updateConfiguration(const std::string &jsonUpdates) {
 
     // Validate the updated configuration
     if (!validate()) {
-      utils::Logger::error("Configuration validation failed after update");
+      speechrnt::utils::Logger::error("Configuration validation failed after update");
       return false;
     }
 
-    utils::Logger::info("Configuration updated successfully");
+    speechrnt::utils::Logger::info("Configuration updated successfully");
     return true;
 
   } catch (const std::exception &e) {
-    utils::Logger::error("Failed to update configuration: " +
+    speechrnt::utils::Logger::error("Failed to update configuration: " +
                          std::string(e.what()));
     return false;
   }
@@ -890,7 +890,7 @@ bool MTConfig::loadEnvironmentOverrides(const std::string &environment) {
   std::string envConfigPath = getEnvironmentConfigPath(environment);
 
   if (!std::filesystem::exists(envConfigPath)) {
-    utils::Logger::info("No environment-specific configuration found for: " +
+    speechrnt::utils::Logger::info("No environment-specific configuration found for: " +
                         environment);
     return true; // Not an error if no environment config exists
   }
@@ -898,7 +898,7 @@ bool MTConfig::loadEnvironmentOverrides(const std::string &environment) {
   try {
     std::ifstream file(envConfigPath);
     if (!file.is_open()) {
-      utils::Logger::error("Failed to open environment configuration: " +
+      speechrnt::utils::Logger::error("Failed to open environment configuration: " +
                            envConfigPath);
       return false;
     }
@@ -910,13 +910,13 @@ bool MTConfig::loadEnvironmentOverrides(const std::string &environment) {
     // Apply environment overrides
     bool result = updateConfiguration(jsonContent);
     if (result) {
-      utils::Logger::info("Applied environment overrides for: " + environment);
+      speechrnt::utils::Logger::info("Applied environment overrides for: " + environment);
     }
 
     return result;
 
   } catch (const std::exception &e) {
-    utils::Logger::error("Failed to load environment overrides: " +
+    speechrnt::utils::Logger::error("Failed to load environment overrides: " +
                          std::string(e.what()));
     return false;
   }
@@ -1109,7 +1109,7 @@ void MTConfig::notifyConfigChange(const std::string &section,
     try {
       callbackPair.second(section, key);
     } catch (const std::exception &e) {
-      utils::Logger::error("Configuration change callback failed: " +
+      speechrnt::utils::Logger::error("Configuration change callback failed: " +
                            std::string(e.what()));
     }
   }
@@ -1135,10 +1135,10 @@ bool MTConfigManager::initialize(const std::string &configPath) {
 
   bool result = config_->loadFromFile(configPath);
   if (result) {
-    utils::Logger::info("MTConfigManager initialized with config: " +
+    speechrnt::utils::Logger::info("MTConfigManager initialized with config: " +
                         configPath);
   } else {
-    utils::Logger::error("Failed to initialize MTConfigManager with config: " +
+    speechrnt::utils::Logger::error("Failed to initialize MTConfigManager with config: " +
                          configPath);
   }
 
@@ -1149,7 +1149,7 @@ bool MTConfigManager::reload() {
   std::lock_guard<std::mutex> lock(managerMutex_);
 
   if (configPath_.empty() || !config_) {
-    utils::Logger::error("MTConfigManager not initialized");
+    speechrnt::utils::Logger::error("MTConfigManager not initialized");
     return false;
   }
 
@@ -1158,9 +1158,9 @@ bool MTConfigManager::reload() {
 
   if (result) {
     config_ = newConfig;
-    utils::Logger::info("MTConfigManager configuration reloaded");
+    speechrnt::utils::Logger::info("MTConfigManager configuration reloaded");
   } else {
-    utils::Logger::error("Failed to reload MTConfigManager configuration");
+    speechrnt::utils::Logger::error("Failed to reload MTConfigManager configuration");
   }
 
   return result;
@@ -1173,7 +1173,7 @@ void MTConfigManager::shutdown() {
   config_.reset();
   configPath_.clear();
 
-  utils::Logger::info("MTConfigManager shut down");
+  speechrnt::utils::Logger::info("MTConfigManager shut down");
 }
 
 std::shared_ptr<const MTConfig> MTConfigManager::getConfig() const {
@@ -1185,7 +1185,7 @@ bool MTConfigManager::updateConfig(const std::string &jsonUpdates) {
   std::lock_guard<std::mutex> lock(managerMutex_);
 
   if (!config_) {
-    utils::Logger::error("MTConfigManager not initialized");
+    speechrnt::utils::Logger::error("MTConfigManager not initialized");
     return false;
   }
 
@@ -1242,7 +1242,7 @@ void MTConfigManager::startConfigFileWatcher() {
           onConfigFileChanged();
         }
       } catch (const std::exception &e) {
-        utils::Logger::error("Config file watcher error: " +
+        speechrnt::utils::Logger::error("Config file watcher error: " +
                              std::string(e.what()));
       }
     }
@@ -1258,7 +1258,7 @@ void MTConfigManager::stopConfigFileWatcher() {
 }
 
 void MTConfigManager::onConfigFileChanged() {
-  utils::Logger::info("Configuration file changed, reloading...");
+  speechrnt::utils::Logger::info("Configuration file changed, reloading...");
   reload();
 }
 

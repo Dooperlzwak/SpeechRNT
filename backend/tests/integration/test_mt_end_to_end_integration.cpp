@@ -6,7 +6,7 @@
 #include "mt/language_detector.hpp"
 #include "mt/gpu_accelerator.hpp"
 #include "mt/quality_manager.hpp"
-#include "tts/coqui_tts.hpp"
+#include "tts/piper_tts.hpp"
 #include "utils/logging.hpp"
 #include "utils/performance_monitor.hpp"
 #include <chrono>

@@ -140,7 +140,7 @@ public:
 };
 
 /**
- * Factory function for creating Coqui TTS instances
+ * Factory function for creating Piper TTS instances
  */
 std::unique_ptr<TTSInterface> createPiperTTS();
 

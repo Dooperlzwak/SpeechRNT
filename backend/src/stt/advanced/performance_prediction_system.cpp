@@ -72,11 +72,11 @@ bool AdvancedPerformancePredictor::initialize() {
         };
         
         initialized_ = true;
-        utils::Logger::info("AdvancedPerformancePredictor initialized successfully");
+        speechrnt::utils::Logger::info("AdvancedPerformancePredictor initialized successfully");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to initialize AdvancedPerformancePredictor: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to initialize AdvancedPerformancePredictor: " + std::string(e.what()));
         return false;
     }
 }Perfo
@@ -128,7 +128,7 @@ rmancePrediction AdvancedPerformancePredictor::predictPerformanceAdvanced(
         prediction.confidenceInPrediction = std::clamp(prediction.confidenceInPrediction, 0.1f, 0.95f);
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Prediction failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Prediction failed: " + std::string(e.what()));
         // Return conservative prediction
         prediction.predictedLatencyMs = 1500.0f;
         prediction.predictedAccuracy = 0.8f;
@@ -239,7 +239,7 @@ std::vector<OptimizationRecommendation> AdvancedPerformancePredictor::getOptimiz
                  });
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to generate optimization recommendations: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to generate optimization recommendations: " + std::string(e.what()));
     }
     
     return recommendations;
@@ -303,15 +303,15 @@ bool AdvancedPerformancePredictor::recalibrate() {
             calibrationData_.isCalibrated = true;
             calibrationData_.lastCalibration = std::chrono::steady_clock::now();
             
-            utils::Logger::info("Performance predictor recalibrated successfully");
+            speechrnt::utils::Logger::info("Performance predictor recalibrated successfully");
             return true;
         }
         
-        utils::Logger::warning("Insufficient data for recalibration");
+        speechrnt::utils::Logger::warning("Insufficient data for recalibration");
         return false;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Recalibration failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Recalibration failed: " + std::string(e.what()));
         return false;
     }
 }
@@ -338,7 +338,7 @@ std::string AdvancedPerformancePredictor::getPredictionAccuracyStats() const {
 
 void AdvancedPerformancePredictor::setLearningMode(bool enabled) {
     learningMode_ = enabled;
-    utils::Logger::info("Learning mode " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Learning mode " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 std::string AdvancedPerformancePredictor::exportModel() const {
@@ -376,7 +376,7 @@ std::string AdvancedPerformancePredictor::exportModel() const {
 
 bool AdvancedPerformancePredictor::importModel(const std::string& modelData) {
     // Simplified implementation - would need proper JSON parsing
-    utils::Logger::info("Model import requested - feature not fully implemented");
+    speechrnt::utils::Logger::info("Model import requested - feature not fully implemented");
     return false;
 }
 
@@ -487,7 +487,7 @@ void AdvancedPerformancePredictor::trainModel() {
             return;
         }
         
-        utils::Logger::info("Starting model training with " + std::to_string(trainingData_.size()) + " samples");
+        speechrnt::utils::Logger::info("Starting model training with " + std::to_string(trainingData_.size()) + " samples");
         
         // Update linear model
         updateLinearModel();
@@ -495,10 +495,10 @@ void AdvancedPerformancePredictor::trainModel() {
         lastTraining_ = std::chrono::steady_clock::now();
         trainingActive_ = false;
         
-        utils::Logger::info("Model training completed");
+        speechrnt::utils::Logger::info("Model training completed");
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Model training failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Model training failed: " + std::string(e.what()));
         trainingActive_ = false;
     }
 }
@@ -538,7 +538,7 @@ void AdvancedPerformancePredictor::updateLinearModel() {
 
 void AdvancedPerformancePredictor::updateNeuralNetwork() {
     // Simplified neural network training placeholder
-    utils::Logger::info("Neural network training not fully implemented - using linear model");
+    speechrnt::utils::Logger::info("Neural network training not fully implemented - using linear model");
     
     neuralModel_.trainingDataSize = trainingData_.size();
     neuralModel_.lastTraining = std::chrono::steady_clock::now();
@@ -562,11 +562,11 @@ bool PerformancePredictionSystem::initialize() {
         }
         
         initialized_ = true;
-        utils::Logger::info("PerformancePredictionSystem initialized successfully");
+        speechrnt::utils::Logger::info("PerformancePredictionSystem initialized successfully");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to initialize PerformancePredictionSystem: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to initialize PerformancePredictionSystem: " + std::string(e.what()));
         return false;
     }
 }

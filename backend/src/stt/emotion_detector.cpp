@@ -16,7 +16,7 @@ public:
         // For now, implement a rule-based emotion detector
         // In production, this would load a trained ML model
         initialized_ = true;
-        utils::Logger::info("SimpleEmotionModel initialized");
+        speechrnt::utils::Logger::info("SimpleEmotionModel initialized");
         return true;
     }
 
@@ -139,7 +139,7 @@ public:
         // Load sentiment keywords
         loadSentimentKeywords();
         initialized_ = true;
-        utils::Logger::info("SimpleSentimentModel initialized");
+        speechrnt::utils::Logger::info("SimpleSentimentModel initialized");
         return true;
     }
 
@@ -469,7 +469,7 @@ public:
         }
 
         initialized_ = true;
-        utils::Logger::info("EmotionDetector initialized successfully");
+        speechrnt::utils::Logger::info("EmotionDetector initialized successfully");
         return true;
     }
 
@@ -515,7 +515,7 @@ public:
 
         } catch (const std::exception& e) {
             last_error_ = "Error during emotion analysis: " + std::string(e.what());
-            utils::Logger::error("EmotionDetector error: " + last_error_);
+            speechrnt::utils::Logger::error("EmotionDetector error: " + last_error_);
         }
 
         return result;

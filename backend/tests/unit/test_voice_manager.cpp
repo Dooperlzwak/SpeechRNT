@@ -1,4 +1,4 @@
-#include "tts/coqui_tts.hpp"
+#include "tts/piper_tts.hpp"
 #include "tts/voice_manager.hpp"
 #include <cassert>
 #include <iostream>

@@ -11,10 +11,10 @@
 #include <sstream>
 
 // Logging macros for convenience
-#define LOG_INFO(msg) utils::Logger::info(msg)
-#define LOG_WARNING(msg) utils::Logger::warn(msg)
-#define LOG_ERROR(msg) utils::Logger::error(msg)
-#define LOG_DEBUG(msg) utils::Logger::debug(msg)
+#define LOG_INFO(msg) speechrnt::utils::Logger::info(msg)
+#define LOG_WARNING(msg) speechrnt::utils::Logger::warn(msg)
+#define LOG_ERROR(msg) speechrnt::utils::Logger::error(msg)
+#define LOG_DEBUG(msg) speechrnt::utils::Logger::debug(msg)
 
 namespace stt {
 namespace advanced {

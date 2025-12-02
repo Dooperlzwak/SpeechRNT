@@ -9,7 +9,7 @@ STTTranslationIntegration::STTTranslationIntegration(const STTTranslationConfig&
     : config_(config)
     , initialized_(false)
     , statistics_{} {
-    utils::Logger::info("STTTranslationIntegration created");
+    speechrnt::utils::Logger::info("STTTranslationIntegration created");
 }
 
 STTTranslationIntegration::~STTTranslationIntegration() {
@@ -21,12 +21,12 @@ bool STTTranslationIntegration::initialize(
     std::shared_ptr<speechrnt::core::TranslationPipeline> translationPipeline
 ) {
     if (!sttEngine || !translationPipeline) {
-        utils::Logger::error("STTTranslationIntegration: Invalid parameters for initialization");
+        speechrnt::utils::Logger::error("STTTranslationIntegration: Invalid parameters for initialization");
         return false;
     }
     
     if (!sttEngine->isInitialized() || !translationPipeline->isReady()) {
-        utils::Logger::error("STTTranslationIntegration: STT engine or translation pipeline not ready");
+        speechrnt::utils::Logger::error("STTTranslationIntegration: STT engine or translation pipeline not ready");
         return false;
     }
     
@@ -42,7 +42,7 @@ bool STTTranslationIntegration::initialize(
     
     initialized_ = true;
     
-    utils::Logger::info("STTTranslationIntegration initialized successfully");
+    speechrnt::utils::Logger::info("STTTranslationIntegration initialized successfully");
     return true;
 }
 
@@ -56,13 +56,13 @@ bool STTTranslationIntegration::initializeWithStreaming(
     }
     
     if (!streamingTranscriber) {
-        utils::Logger::error("STTTranslationIntegration: Invalid streaming transcriber");
+        speechrnt::utils::Logger::error("STTTranslationIntegration: Invalid streaming transcriber");
         return false;
     }
     
     streamingTranscriber_ = streamingTranscriber;
     
-    utils::Logger::info("STTTranslationIntegration initialized with streaming support");
+    speechrnt::utils::Logger::info("STTTranslationIntegration initialized with streaming support");
     return true;
 }
 
@@ -83,7 +83,7 @@ void STTTranslationIntegration::shutdown() {
     
     initialized_ = false;
     
-    utils::Logger::info("STTTranslationIntegration shutdown completed");
+    speechrnt::utils::Logger::info("STTTranslationIntegration shutdown completed");
 }
 
 void STTTranslationIntegration::processTranscriptionWithTranslation(
@@ -93,12 +93,12 @@ void STTTranslationIntegration::processTranscriptionWithTranslation(
     bool generateCandidates
 ) {
     if (!isReady()) {
-        utils::Logger::error("STTTranslationIntegration not ready for processing");
+        speechrnt::utils::Logger::error("STTTranslationIntegration not ready for processing");
         return;
     }
     
     if (audioData.empty()) {
-        utils::Logger::warn("Empty audio data provided for transcription");
+        speechrnt::utils::Logger::warn("Empty audio data provided for transcription");
         return;
     }
     
@@ -117,7 +117,7 @@ void STTTranslationIntegration::processTranscriptionWithTranslation(
         updateStatistics(result, shouldTriggerTranslation(result), candidates.size());
     });
     
-    utils::Logger::debug("Started transcription with translation for utterance " + std::to_string(utteranceId));
+    speechrnt::utils::Logger::debug("Started transcription with translation for utterance " + std::to_string(utteranceId));
 }
 
 void STTTranslationIntegration::processStreamingTranscription(
@@ -126,14 +126,14 @@ void STTTranslationIntegration::processStreamingTranscription(
     const std::vector<float>& audioData
 ) {
     if (!isReady() || !streamingTranscriber_) {
-        utils::Logger::error("STTTranslationIntegration not ready for streaming processing");
+        speechrnt::utils::Logger::error("STTTranslationIntegration not ready for streaming processing");
         return;
     }
     
     // Start streaming transcription
     streamingTranscriber_->startTranscription(utteranceId, audioData, true);
     
-    utils::Logger::debug("Started streaming transcription for utterance " + std::to_string(utteranceId));
+    speechrnt::utils::Logger::debug("Started streaming transcription for utterance " + std::to_string(utteranceId));
 }
 
 void STTTranslationIntegration::triggerManualTranslation(
@@ -143,7 +143,7 @@ void STTTranslationIntegration::triggerManualTranslation(
     bool forceTranslation
 ) {
     if (!isReady()) {
-        utils::Logger::error("STTTranslationIntegration not ready for manual translation");
+        speechrnt::utils::Logger::error("STTTranslationIntegration not ready for manual translation");
         return;
     }
     
@@ -159,7 +159,7 @@ void STTTranslationIntegration::triggerManualTranslation(
     // Notify callback
     notifyTranslationTriggered(utteranceId, sessionId, false);
     
-    utils::Logger::debug("Manually triggered translation for utterance " + std::to_string(utteranceId));
+    speechrnt::utils::Logger::debug("Manually triggered translation for utterance " + std::to_string(utteranceId));
 }
 
 void STTTranslationIntegration::updateConfiguration(const STTTranslationConfig& config) {
@@ -178,7 +178,7 @@ void STTTranslationIntegration::updateConfiguration(const STTTranslationConfig& 
         translationPipeline_->updateConfiguration(pipelineConfig);
     }
     
-    utils::Logger::info("STTTranslationIntegration configuration updated");
+    speechrnt::utils::Logger::info("STTTranslationIntegration configuration updated");
 }
 
 void STTTranslationIntegration::setTranscriptionReadyCallback(TranscriptionReadyCallback callback) {
@@ -231,13 +231,13 @@ void STTTranslationIntegration::handleTranscriptionComplete(
         // Notify callback
         notifyTranslationTriggered(utteranceId, sessionId, true);
         
-        utils::Logger::debug("Automatically triggered translation for utterance " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Automatically triggered translation for utterance " + std::to_string(utteranceId));
     } else if (config_.enable_confidence_gating && !shouldTriggerTranslation(result)) {
         // Update statistics for confidence gate rejection
         std::lock_guard<std::mutex> lock(statisticsMutex_);
         statistics_.confidence_gate_rejections++;
         
-        utils::Logger::debug("Translation not triggered due to confidence gating for utterance " + std::to_string(utteranceId) + 
+        speechrnt::utils::Logger::debug("Translation not triggered due to confidence gating for utterance " + std::to_string(utteranceId) + 
                            " (confidence: " + std::to_string(result.confidence) + ")");
     }
 }
@@ -263,7 +263,7 @@ void STTTranslationIntegration::generateAndProcessCandidates(
         translationPipeline_->processTranscriptionResult(utteranceId, sessionId, primaryResult, filteredCandidates);
     }
     
-    utils::Logger::debug("Generated and processed " + std::to_string(filteredCandidates.size()) + 
+    speechrnt::utils::Logger::debug("Generated and processed " + std::to_string(filteredCandidates.size()) + 
                          " candidates for utterance " + std::to_string(utteranceId));
 }
 
@@ -346,7 +346,7 @@ void STTTranslationIntegration::notifyTranscriptionReady(
         try {
             transcriptionReadyCallback_(utteranceId, result, candidates);
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in transcription ready callback: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in transcription ready callback: " + std::string(e.what()));
         }
     }
 }
@@ -361,7 +361,7 @@ void STTTranslationIntegration::notifyTranslationTriggered(
         try {
             translationTriggeredCallback_(utteranceId, sessionId, automatic);
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in translation triggered callback: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in translation triggered callback: " + std::string(e.what()));
         }
     }
 }

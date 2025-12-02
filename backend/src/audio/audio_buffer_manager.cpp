@@ -157,7 +157,7 @@ AudioBufferManager::AudioBufferManager(const BufferConfig& config)
     , totalDroppedSamples_(0)
     , lastCleanupTime_(std::chrono::steady_clock::now()) {
     
-    utils::Logger::info("AudioBufferManager initialized with max " + 
+    speechrnt::utils::Logger::info("AudioBufferManager initialized with max " + 
                        std::to_string(config_.maxBufferSizeMB) + "MB per utterance, " +
                        std::to_string(config_.maxUtterances) + " max utterances");
 }
@@ -165,7 +165,7 @@ AudioBufferManager::AudioBufferManager(const BufferConfig& config)
 AudioBufferManager::~AudioBufferManager() {
     std::lock_guard<std::mutex> lock(bufferMutex_);
     utteranceBuffers_.clear();
-    utils::Logger::info("AudioBufferManager destroyed");
+    speechrnt::utils::Logger::info("AudioBufferManager destroyed");
 }
 
 bool AudioBufferManager::addAudioData(uint32_t utteranceId, const std::vector<float>& audio) {
@@ -179,7 +179,7 @@ bool AudioBufferManager::addAudioData(uint32_t utteranceId, const std::vector<fl
     if (it == utteranceBuffers_.end()) {
         // Auto-create utterance buffer if it doesn't exist
         if (!createUtterance(utteranceId)) {
-            utils::Logger::warn("Failed to create utterance buffer for ID: " + std::to_string(utteranceId));
+            speechrnt::utils::Logger::warn("Failed to create utterance buffer for ID: " + std::to_string(utteranceId));
             totalDroppedSamples_ += audio.size();
             return false;
         }
@@ -187,7 +187,7 @@ bool AudioBufferManager::addAudioData(uint32_t utteranceId, const std::vector<fl
     }
     
     if (!it->second->isActive) {
-        utils::Logger::debug("Attempted to add audio to inactive utterance: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Attempted to add audio to inactive utterance: " + std::to_string(utteranceId));
         totalDroppedSamples_ += audio.size();
         return false;
     }
@@ -195,7 +195,7 @@ bool AudioBufferManager::addAudioData(uint32_t utteranceId, const std::vector<fl
     bool success = it->second->addAudioData(audio);
     if (!success) {
         totalDroppedSamples_ += audio.size();
-        utils::Logger::warn("Audio buffer full for utterance: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::warn("Audio buffer full for utterance: " + std::to_string(utteranceId));
     }
     
     // Update statistics
@@ -214,7 +214,7 @@ std::vector<float> AudioBufferManager::getBufferedAudio(uint32_t utteranceId) {
     
     auto it = utteranceBuffers_.find(utteranceId);
     if (it == utteranceBuffers_.end()) {
-        utils::Logger::debug("No buffer found for utterance: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("No buffer found for utterance: " + std::to_string(utteranceId));
         return {};
     }
     
@@ -226,7 +226,7 @@ std::vector<float> AudioBufferManager::getRecentAudio(uint32_t utteranceId, size
     
     auto it = utteranceBuffers_.find(utteranceId);
     if (it == utteranceBuffers_.end()) {
-        utils::Logger::debug("No buffer found for utterance: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("No buffer found for utterance: " + std::to_string(utteranceId));
         return {};
     }
     
@@ -243,13 +243,13 @@ bool AudioBufferManager::createUtterance(uint32_t utteranceId, size_t maxSizeMB)
     
     // Check if utterance already exists
     if (utteranceBuffers_.find(utteranceId) != utteranceBuffers_.end()) {
-        utils::Logger::debug("Utterance already exists: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Utterance already exists: " + std::to_string(utteranceId));
         return true;
     }
     
     // Check utterance limit
     if (utteranceBuffers_.size() >= config_.maxUtterances) {
-        utils::Logger::warn("Maximum utterance limit reached (" + 
+        speechrnt::utils::Logger::warn("Maximum utterance limit reached (" + 
                            std::to_string(config_.maxUtterances) + "), cleaning up old buffers");
         
         // Force cleanup of oldest utterances
@@ -266,7 +266,7 @@ bool AudioBufferManager::createUtterance(uint32_t utteranceId, size_t maxSizeMB)
     auto buffer = std::make_unique<UtteranceBuffer>(maxSamples, config_.enableCircularBuffer);
     utteranceBuffers_[utteranceId] = std::move(buffer);
     
-    utils::Logger::debug("Created utterance buffer for ID: " + std::to_string(utteranceId) + 
+    speechrnt::utils::Logger::debug("Created utterance buffer for ID: " + std::to_string(utteranceId) + 
                         " with max " + std::to_string(bufferSizeMB) + "MB (" + 
                         std::to_string(maxSamples) + " samples)");
     
@@ -280,7 +280,7 @@ void AudioBufferManager::finalizeBuffer(uint32_t utteranceId) {
     auto it = utteranceBuffers_.find(utteranceId);
     if (it != utteranceBuffers_.end()) {
         it->second->isActive = false;
-        utils::Logger::debug("Finalized utterance buffer: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Finalized utterance buffer: " + std::to_string(utteranceId));
         updateStatistics();
     }
 }
@@ -296,7 +296,7 @@ void AudioBufferManager::setUtteranceActive(uint32_t utteranceId, bool active) {
     auto it = utteranceBuffers_.find(utteranceId);
     if (it != utteranceBuffers_.end()) {
         it->second->isActive = active;
-        utils::Logger::debug("Set utterance " + std::to_string(utteranceId) + 
+        speechrnt::utils::Logger::debug("Set utterance " + std::to_string(utteranceId) + 
                            " active: " + (active ? "true" : "false"));
         updateStatistics();
     }
@@ -326,12 +326,12 @@ void AudioBufferManager::cleanupOldBuffers() {
     
     for (uint32_t utteranceId : toRemove) {
         removeUtteranceInternal(utteranceId);
-        utils::Logger::debug("Cleaned up old utterance buffer: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Cleaned up old utterance buffer: " + std::to_string(utteranceId));
     }
     
     if (!toRemove.empty()) {
         updateStatistics();
-        utils::Logger::info("Cleaned up " + std::to_string(toRemove.size()) + " old utterance buffers");
+        speechrnt::utils::Logger::info("Cleaned up " + std::to_string(toRemove.size()) + " old utterance buffers");
     }
 }
 
@@ -352,7 +352,7 @@ void AudioBufferManager::cleanupInactiveBuffers() {
     
     if (!toRemove.empty()) {
         updateStatistics();
-        utils::Logger::info("Cleaned up " + std::to_string(toRemove.size()) + " inactive utterance buffers");
+        speechrnt::utils::Logger::info("Cleaned up " + std::to_string(toRemove.size()) + " inactive utterance buffers");
     }
 }
 
@@ -363,7 +363,7 @@ void AudioBufferManager::forceCleanup() {
     utteranceBuffers_.clear();
     
     updateStatistics();
-    utils::Logger::info("Force cleanup removed " + std::to_string(initialCount) + " utterance buffers");
+    speechrnt::utils::Logger::info("Force cleanup removed " + std::to_string(initialCount) + " utterance buffers");
 }
 
 size_t AudioBufferManager::getCurrentMemoryUsage() const {
@@ -385,7 +385,7 @@ void AudioBufferManager::updateConfig(const BufferConfig& config) {
     std::lock_guard<std::mutex> lock(bufferMutex_);
     
     config_ = config;
-    utils::Logger::info("AudioBufferManager configuration updated");
+    speechrnt::utils::Logger::info("AudioBufferManager configuration updated");
 }
 
 AudioBufferManager::BufferStatistics AudioBufferManager::getStatistics() const {
@@ -426,7 +426,7 @@ void AudioBufferManager::resetStatistics() {
     peakMemoryUsage_ = 0;
     totalDroppedSamples_ = 0;
     
-    utils::Logger::info("AudioBufferManager statistics reset");
+    speechrnt::utils::Logger::info("AudioBufferManager statistics reset");
 }
 
 std::vector<uint32_t> AudioBufferManager::getActiveUtterances() const {
@@ -496,7 +496,7 @@ void AudioBufferManager::performCleanup() {
         for (uint32_t utteranceId : oldestUtterances) {
             removeUtteranceInternal(utteranceId);
         }
-        utils::Logger::warn("Performed aggressive cleanup due to memory pressure");
+        speechrnt::utils::Logger::warn("Performed aggressive cleanup due to memory pressure");
     }
 }
 
@@ -551,7 +551,7 @@ void AudioBufferManager::removeUtteranceInternal(uint32_t utteranceId) {
     auto it = utteranceBuffers_.find(utteranceId);
     if (it != utteranceBuffers_.end()) {
         utteranceBuffers_.erase(it);
-        utils::Logger::debug("Removed utterance buffer: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Removed utterance buffer: " + std::to_string(utteranceId));
     }
 }
 

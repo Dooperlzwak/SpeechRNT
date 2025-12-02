@@ -24,7 +24,7 @@ bool StreamingAudioBuffer::addChunk(const AudioChunk& chunk) {
     if (buffer_.size() >= maxChunks_) {
         // Buffer full, remove oldest chunk
         buffer_.pop();
-        utils::Logger::warn("Audio buffer overflow, dropping oldest chunk");
+        speechrnt::utils::Logger::warn("Audio buffer overflow, dropping oldest chunk");
     }
     
     AudioChunk newChunk = chunk;
@@ -138,7 +138,7 @@ bool StreamingOptimizer::initialize(int sampleRate, int channels, int targetLate
     // Clamp to valid range
     currentChunkSize_ = std::max(minChunkSize_, std::min(maxChunkSize_, currentChunkSize_));
     
-    utils::Logger::info("StreamingOptimizer initialized: " + 
+    speechrnt::utils::Logger::info("StreamingOptimizer initialized: " + 
                        std::to_string(sampleRate) + "Hz, " +
                        std::to_string(channels) + " channels, " +
                        std::to_string(targetLatencyMs) + "ms target latency");
@@ -217,9 +217,9 @@ bool StreamingOptimizer::processStream(const std::vector<float>& audioData,
     updateStats(processedSamples, totalLatency);
     
     // Record performance metrics
-    utils::PerformanceMonitor::getInstance().recordLatency(
+    speechrnt::utils::PerformanceMonitor::getInstance().recordLatency(
         "audio.streaming_processing_latency_ms", totalLatency);
-    utils::PerformanceMonitor::getInstance().recordThroughput(
+    speechrnt::utils::PerformanceMonitor::getInstance().recordThroughput(
         "audio.streaming_throughput_samples_per_sec", 
         processedSamples / (totalLatency / 1000.0));
     
@@ -243,7 +243,7 @@ size_t StreamingOptimizer::optimizeChunkSize(float currentLatencyMs, float targe
     newChunkSize = std::max(minChunkSize_, std::min(maxChunkSize_, newChunkSize));
     
     if (newChunkSize != currentChunkSize_) {
-        utils::Logger::debug("Adjusted chunk size from " + std::to_string(currentChunkSize_) + 
+        speechrnt::utils::Logger::debug("Adjusted chunk size from " + std::to_string(currentChunkSize_) + 
                            " to " + std::to_string(newChunkSize) + 
                            " (latency: " + std::to_string(currentLatencyMs) + "ms)");
     }
@@ -253,13 +253,13 @@ size_t StreamingOptimizer::optimizeChunkSize(float currentLatencyMs, float targe
 
 void StreamingOptimizer::setAdaptiveChunking(bool enabled) {
     adaptiveChunking_ = enabled;
-    utils::Logger::info("Adaptive chunking " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Adaptive chunking " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 void StreamingOptimizer::setChunkOverlap(size_t overlapSamples) {
     chunkOverlap_ = overlapSamples;
     overlapBuffer_.reserve(overlapSamples);
-    utils::Logger::info("Chunk overlap set to " + std::to_string(overlapSamples) + " samples");
+    speechrnt::utils::Logger::info("Chunk overlap set to " + std::to_string(overlapSamples) + " samples");
 }
 
 bool StreamingOptimizer::preprocessAudio(std::vector<float>& audioData) {
@@ -325,7 +325,7 @@ void StreamingOptimizer::resetStats() {
     averageThroughput_ = 0.0;
     lastStatsUpdate_ = std::chrono::steady_clock::now();
     
-    utils::Logger::info("Streaming optimizer statistics reset");
+    speechrnt::utils::Logger::info("Streaming optimizer statistics reset");
 }
 
 size_t StreamingOptimizer::getRecommendedBufferSize() const {
@@ -368,14 +368,14 @@ void StreamingOptimizer::updateStats(size_t samplesProcessed, double latencyMs) 
 
 bool StreamingOptimizer::validateAudioData(const std::vector<float>& audioData) const {
     if (audioData.empty()) {
-        utils::Logger::warn("Empty audio data provided to streaming optimizer");
+        speechrnt::utils::Logger::warn("Empty audio data provided to streaming optimizer");
         return false;
     }
     
     // Check for invalid values
     for (float sample : audioData) {
         if (!std::isfinite(sample)) {
-            utils::Logger::error("Invalid audio sample detected (NaN or Inf)");
+            speechrnt::utils::Logger::error("Invalid audio sample detected (NaN or Inf)");
             return false;
         }
     }
@@ -411,7 +411,7 @@ bool WebSocketOptimizer::initialize(size_t maxMessageSize, bool compressionEnabl
     maxMessageSize_ = maxMessageSize;
     compressionEnabled_ = compressionEnabled;
     
-    utils::Logger::info("WebSocketOptimizer initialized: max message size " + 
+    speechrnt::utils::Logger::info("WebSocketOptimizer initialized: max message size " + 
                        std::to_string(maxMessageSize) + " bytes, compression " +
                        (compressionEnabled ? "enabled" : "disabled"));
     
@@ -497,12 +497,12 @@ bool WebSocketOptimizer::batchChunks(const std::vector<AudioChunk>& chunks,
 
 void WebSocketOptimizer::setCompressionEnabled(bool enabled) {
     compressionEnabled_ = enabled;
-    utils::Logger::info("WebSocket compression " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("WebSocket compression " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 void WebSocketOptimizer::setMaxMessageSize(size_t maxSize) {
     maxMessageSize_ = maxSize;
-    utils::Logger::info("WebSocket max message size set to " + std::to_string(maxSize) + " bytes");
+    speechrnt::utils::Logger::info("WebSocket max message size set to " + std::to_string(maxSize) + " bytes");
 }
 
 std::map<std::string, double> WebSocketOptimizer::getTransmissionStats() const {

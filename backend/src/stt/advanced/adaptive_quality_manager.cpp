@@ -47,10 +47,10 @@ bool ResourceMonitorImpl::initialize() {
         currentResources_ = collectSystemResources();
         initialized_ = true;
         
-        utils::Logger::info("ResourceMonitor initialized successfully");
+        speechrnt::utils::Logger::info("ResourceMonitor initialized successfully");
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to initialize ResourceMonitor: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to initialize ResourceMonitor: " + std::string(e.what()));
         return false;
     }
 }
@@ -76,12 +76,12 @@ SystemResources ResourceMonitorImpl::getCurrentResources() {
 
 bool ResourceMonitorImpl::startMonitoring(int intervalMs) {
     if (!initialized_) {
-        utils::Logger::error("ResourceMonitor not initialized");
+        speechrnt::utils::Logger::error("ResourceMonitor not initialized");
         return false;
     }
     
     if (monitoring_) {
-        utils::Logger::warning("ResourceMonitor already monitoring");
+        speechrnt::utils::Logger::warning("ResourceMonitor already monitoring");
         return true;
     }
     
@@ -90,7 +90,7 @@ bool ResourceMonitorImpl::startMonitoring(int intervalMs) {
     
     monitoringThread_ = std::thread(&ResourceMonitorImpl::monitoringLoop, this);
     
-    utils::Logger::info("ResourceMonitor started with interval: " + std::to_string(intervalMs) + "ms");
+    speechrnt::utils::Logger::info("ResourceMonitor started with interval: " + std::to_string(intervalMs) + "ms");
     return true;
 }
 
@@ -106,7 +106,7 @@ void ResourceMonitorImpl::stopMonitoring() {
         monitoringThread_.join();
     }
     
-    utils::Logger::info("ResourceMonitor stopped");
+    speechrnt::utils::Logger::info("ResourceMonitor stopped");
 }
 
 void ResourceMonitorImpl::setResourceThresholds(float cpuThreshold, float memoryThreshold, float gpuThreshold) {
@@ -114,7 +114,7 @@ void ResourceMonitorImpl::setResourceThresholds(float cpuThreshold, float memory
     memoryThreshold_ = std::clamp(memoryThreshold, 0.0f, 1.0f);
     gpuThreshold_ = std::clamp(gpuThreshold, 0.0f, 1.0f);
     
-    utils::Logger::info("Resource thresholds updated - CPU: " + std::to_string(cpuThreshold_) +
+    speechrnt::utils::Logger::info("Resource thresholds updated - CPU: " + std::to_string(cpuThreshold_) +
                        ", Memory: " + std::to_string(memoryThreshold_) +
                        ", GPU: " + std::to_string(gpuThreshold_));
 }
@@ -362,7 +362,7 @@ bool PerformancePredictorImpl::initialize() {
     predictionModel_ = PredictionModel{};
     initialized_ = true;
     
-    utils::Logger::info("PerformancePredictor initialized successfully");
+    speechrnt::utils::Logger::info("PerformancePredictor initialized successfully");
     return true;
 }
 
@@ -559,7 +559,7 @@ void PerformancePredictorImpl::updatePredictionModels() {
         predictionModel_.baseAccuracy = totalAccuracy / count;
     }
     
-    utils::Logger::info("Prediction model updated - Base latency: " + 
+    speechrnt::utils::Logger::info("Prediction model updated - Base latency: " + 
                        std::to_string(predictionModel_.baseLatency) + 
                        "ms, Base accuracy: " + 
                        std::to_string(predictionModel_.baseAccuracy));
@@ -580,7 +580,7 @@ bool QualityAdaptationEngineImpl::initialize() {
     std::lock_guard<std::mutex> lock(adaptationMutex_);
     
     initialized_ = true;
-    utils::Logger::info("QualityAdaptationEngine initialized successfully");
+    speechrnt::utils::Logger::info("QualityAdaptationEngine initialized successfully");
     return true;
 }
 
@@ -624,20 +624,20 @@ void QualityAdaptationEngineImpl::setAdaptationStrategy(const std::string& strat
         strategy_ = AdaptationStrategy::AGGRESSIVE;
     }
     
-    utils::Logger::info("Adaptation strategy set to: " + strategy);
+    speechrnt::utils::Logger::info("Adaptation strategy set to: " + strategy);
 }
 
 void QualityAdaptationEngineImpl::setQualityConstraints(QualityLevel minQuality, QualityLevel maxQuality) {
     minQuality_ = minQuality;
     maxQuality_ = maxQuality;
     
-    utils::Logger::info("Quality constraints set - Min: " + std::to_string(static_cast<int>(minQuality)) +
+    speechrnt::utils::Logger::info("Quality constraints set - Min: " + std::to_string(static_cast<int>(minQuality)) +
                        ", Max: " + std::to_string(static_cast<int>(maxQuality)));
 }
 
 void QualityAdaptationEngineImpl::setPredictiveAdaptationEnabled(bool enabled) {
     predictiveAdaptationEnabled_ = enabled;
-    utils::Logger::info("Predictive adaptation " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Predictive adaptation " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 std::vector<std::pair<SystemResources, QualitySettings>> QualityAdaptationEngineImpl::getAdaptationHistory(size_t samples) const {
@@ -836,12 +836,12 @@ bool AdaptiveQualityManager::initialize(const AdaptiveQualityConfig& config) {
         initialized_ = true;
         stats_.startTime = std::chrono::steady_clock::now();
         
-        utils::Logger::info("AdaptiveQualityManager initialized successfully");
+        speechrnt::utils::Logger::info("AdaptiveQualityManager initialized successfully");
         return true;
         
     } catch (const std::exception& e) {
         lastError_ = "Initialization failed: " + std::string(e.what());
-        utils::Logger::error(lastError_);
+        speechrnt::utils::Logger::error(lastError_);
         return false;
     }
 }
@@ -874,7 +874,7 @@ QualitySettings AdaptiveQualityManager::adaptQuality(const SystemResources& reso
         
     } catch (const std::exception& e) {
         lastError_ = "Adaptation failed: " + std::string(e.what());
-        utils::Logger::error(lastError_);
+        speechrnt::utils::Logger::error(lastError_);
         return currentSettings_;
     }
 }
@@ -883,7 +883,7 @@ void AdaptiveQualityManager::setQualityLevel(QualityLevel level) {
     std::lock_guard<std::mutex> lock(managerMutex_);
     
     currentSettings_.level = level;
-    utils::Logger::info("Quality level manually set to: " + std::to_string(static_cast<int>(level)));
+    speechrnt::utils::Logger::info("Quality level manually set to: " + std::to_string(static_cast<int>(level)));
 }
 
 void AdaptiveQualityManager::setAdaptiveMode(bool enabled) {
@@ -895,7 +895,7 @@ void AdaptiveQualityManager::setAdaptiveMode(bool enabled) {
         stopAdaptationLoop();
     }
     
-    utils::Logger::info("Adaptive mode " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Adaptive mode " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 SystemResources AdaptiveQualityManager::getCurrentResources() const {
@@ -978,7 +978,7 @@ void AdaptiveQualityManager::setAdaptationInterval(float intervalMs) {
     std::lock_guard<std::mutex> lock(managerMutex_);
     config_.adaptationIntervalMs = intervalMs;
     
-    utils::Logger::info("Adaptation interval set to: " + std::to_string(intervalMs) + "ms");
+    speechrnt::utils::Logger::info("Adaptation interval set to: " + std::to_string(intervalMs) + "ms");
 }
 
 void AdaptiveQualityManager::setPredictiveScalingEnabled(bool enabled) {
@@ -1038,12 +1038,12 @@ bool AdaptiveQualityManager::updateConfiguration(const AdaptiveQualityConfig& co
         
         adaptationIntervalMs_ = config_.adaptationIntervalMs;
         
-        utils::Logger::info("AdaptiveQualityManager configuration updated");
+        speechrnt::utils::Logger::info("AdaptiveQualityManager configuration updated");
         return true;
         
     } catch (const std::exception& e) {
         lastError_ = "Configuration update failed: " + std::string(e.what());
-        utils::Logger::error(lastError_);
+        speechrnt::utils::Logger::error(lastError_);
         return false;
     }
 }
@@ -1079,7 +1079,7 @@ void AdaptiveQualityManager::reset() {
     
     lastError_.clear();
     
-    utils::Logger::info("AdaptiveQualityManager reset");
+    speechrnt::utils::Logger::info("AdaptiveQualityManager reset");
 }
 
 void AdaptiveQualityManager::startAdaptationLoop() {
@@ -1090,7 +1090,7 @@ void AdaptiveQualityManager::startAdaptationLoop() {
     adaptationLoopRunning_ = true;
     adaptationThread_ = std::thread(&AdaptiveQualityManager::adaptationLoop, this);
     
-    utils::Logger::info("Adaptation loop started");
+    speechrnt::utils::Logger::info("Adaptation loop started");
 }
 
 void AdaptiveQualityManager::stopAdaptationLoop() {
@@ -1105,7 +1105,7 @@ void AdaptiveQualityManager::stopAdaptationLoop() {
         adaptationThread_.join();
     }
     
-    utils::Logger::info("Adaptation loop stopped");
+    speechrnt::utils::Logger::info("Adaptation loop stopped");
 }
 
 void AdaptiveQualityManager::adaptationLoop() {
@@ -1140,7 +1140,7 @@ void AdaptiveQualityManager::adaptationLoop() {
             
         } catch (const std::exception& e) {
             lastError_ = "Adaptation loop error: " + std::string(e.what());
-            utils::Logger::error(lastError_);
+            speechrnt::utils::Logger::error(lastError_);
         }
         
         // Wait for next adaptation interval
@@ -1171,7 +1171,7 @@ bool AdaptiveQualityManager::shouldAdapt(const SystemResources& resources) {
 void AdaptiveQualityManager::logAdaptation(const QualitySettings& oldSettings, 
                                           const QualitySettings& newSettings, 
                                           const std::string& reason) {
-    utils::Logger::info("Quality adaptation: " + 
+    speechrnt::utils::Logger::info("Quality adaptation: " + 
                        std::to_string(static_cast<int>(oldSettings.level)) + " -> " +
                        std::to_string(static_cast<int>(newSettings.level)) + " (" + reason + ")");
 }

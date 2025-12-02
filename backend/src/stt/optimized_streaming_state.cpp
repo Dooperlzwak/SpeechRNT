@@ -30,7 +30,7 @@ bool OptimizedStreamingState::initialize() {
         config_.resultPoolSize, config_.resultPoolSize * 2);
     
     if (!audioBufferPool_ || !resultPool_) {
-        utils::Logger::error("Failed to initialize memory pools for streaming state");
+        speechrnt::utils::Logger::error("Failed to initialize memory pools for streaming state");
         return false;
     }
     
@@ -42,7 +42,7 @@ bool OptimizedStreamingState::initialize() {
             workerThreads_.emplace_back(&OptimizedStreamingState::workerThreadFunction, this);
         }
         
-        utils::Logger::info("Started " + std::to_string(config_.workerThreadCount) + 
+        speechrnt::utils::Logger::info("Started " + std::to_string(config_.workerThreadCount) + 
                            " worker threads for streaming state processing");
     }
     
@@ -50,7 +50,7 @@ bool OptimizedStreamingState::initialize() {
     cleanupThread_ = std::thread(&OptimizedStreamingState::cleanupThreadFunction, this);
     
     initialized_ = true;
-    utils::Logger::info("OptimizedStreamingState initialized successfully");
+    speechrnt::utils::Logger::info("OptimizedStreamingState initialized successfully");
     
     return true;
 }
@@ -89,7 +89,7 @@ void OptimizedStreamingState::shutdown() {
     resultPool_.reset();
     
     initialized_ = false;
-    utils::Logger::info("OptimizedStreamingState shutdown completed");
+    speechrnt::utils::Logger::info("OptimizedStreamingState shutdown completed");
 }
 
 bool OptimizedStreamingState::createUtterance(uint32_t utteranceId) {
@@ -101,13 +101,13 @@ bool OptimizedStreamingState::createUtterance(uint32_t utteranceId) {
     
     // Check if utterance already exists
     if (utteranceStates_.find(utteranceId) != utteranceStates_.end()) {
-        utils::Logger::debug("Utterance already exists: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Utterance already exists: " + std::to_string(utteranceId));
         return true;
     }
     
     // Check utterance limit
     if (utteranceStates_.size() >= config_.maxConcurrentUtterances) {
-        utils::Logger::warn("Maximum concurrent utterance limit reached (" + 
+        speechrnt::utils::Logger::warn("Maximum concurrent utterance limit reached (" + 
                            std::to_string(config_.maxConcurrentUtterances) + ")");
         
         // Find and remove oldest idle utterances
@@ -125,7 +125,7 @@ bool OptimizedStreamingState::createUtterance(uint32_t utteranceId) {
     
     updateStatistics();
     
-    utils::Logger::debug("Created optimized utterance state for ID: " + 
+    speechrnt::utils::Logger::debug("Created optimized utterance state for ID: " + 
                         std::to_string(utteranceId));
     
     return true;
@@ -168,7 +168,7 @@ bool OptimizedStreamingState::addAudioChunk(uint32_t utteranceId,
     // Get audio buffer from pool
     auto buffer = audioBufferPool_->acquireBuffer(audioData.size());
     if (!buffer) {
-        utils::Logger::warn("Failed to acquire audio buffer from pool");
+        speechrnt::utils::Logger::warn("Failed to acquire audio buffer from pool");
         return false;
     }
     
@@ -221,7 +221,7 @@ bool OptimizedStreamingState::finalizeAudioBuffer(uint32_t utteranceId) {
     state->isActive = false;
     state->updateLastActivity();
     
-    utils::Logger::debug("Finalized audio buffer for utterance: " + 
+    speechrnt::utils::Logger::debug("Finalized audio buffer for utterance: " + 
                         std::to_string(utteranceId));
     
     return true;
@@ -239,7 +239,7 @@ bool OptimizedStreamingState::setTranscriptionResult(uint32_t utteranceId,
     // Get result from pool
     auto result = resultPool_->acquireResult();
     if (!result) {
-        utils::Logger::warn("Failed to acquire transcription result from pool");
+        speechrnt::utils::Logger::warn("Failed to acquire transcription result from pool");
         return false;
     }
     
@@ -314,7 +314,7 @@ void OptimizedStreamingState::performCleanup() {
     lastCleanupTime_ = now;
     
     if (!idleUtterances.empty()) {
-        utils::Logger::info("Cleaned up " + std::to_string(idleUtterances.size()) + 
+        speechrnt::utils::Logger::info("Cleaned up " + std::to_string(idleUtterances.size()) + 
                            " idle utterance states");
     }
     
@@ -338,7 +338,7 @@ void OptimizedStreamingState::forceCleanup() {
     
     updateStatistics();
     
-    utils::Logger::info("Force cleanup removed " + std::to_string(initialCount) + 
+    speechrnt::utils::Logger::info("Force cleanup removed " + std::to_string(initialCount) + 
                        " utterance states");
 }
 
@@ -354,7 +354,7 @@ void OptimizedStreamingState::optimizeMemoryUsage() {
         // Additional optimization: defragment memory pools if supported
         // This would be implemented in a more advanced memory pool
         
-        utils::Logger::debug("Memory usage optimization completed");
+        speechrnt::utils::Logger::debug("Memory usage optimization completed");
     });
 }
 
@@ -480,12 +480,12 @@ std::string OptimizedStreamingState::getHealthStatus() const {
 
 void OptimizedStreamingState::updateConfig(const OptimizationConfig& config) {
     config_ = config;
-    utils::Logger::info("OptimizedStreamingState configuration updated");
+    speechrnt::utils::Logger::info("OptimizedStreamingState configuration updated");
 }
 
 // Private helper methods
 void OptimizedStreamingState::workerThreadFunction() {
-    utils::Logger::debug("Worker thread started for streaming state processing");
+    speechrnt::utils::Logger::debug("Worker thread started for streaming state processing");
     
     while (!shutdownRequested_) {
         std::function<void()> task;
@@ -510,16 +510,16 @@ void OptimizedStreamingState::workerThreadFunction() {
             try {
                 task();
             } catch (const std::exception& e) {
-                utils::Logger::error("Worker thread task failed: " + std::string(e.what()));
+                speechrnt::utils::Logger::error("Worker thread task failed: " + std::string(e.what()));
             }
         }
     }
     
-    utils::Logger::debug("Worker thread stopped");
+    speechrnt::utils::Logger::debug("Worker thread stopped");
 }
 
 void OptimizedStreamingState::cleanupThreadFunction() {
-    utils::Logger::debug("Cleanup thread started for streaming state");
+    speechrnt::utils::Logger::debug("Cleanup thread started for streaming state");
     
     while (!shutdownRequested_) {
         std::this_thread::sleep_for(std::chrono::milliseconds(config_.stateCleanupIntervalMs));
@@ -529,7 +529,7 @@ void OptimizedStreamingState::cleanupThreadFunction() {
         }
     }
     
-    utils::Logger::debug("Cleanup thread stopped");
+    speechrnt::utils::Logger::debug("Cleanup thread stopped");
 }
 
 void OptimizedStreamingState::updateStatistics() {
@@ -565,7 +565,7 @@ bool OptimizedStreamingState::removeUtteranceInternal(uint32_t utteranceId) {
     auto it = utteranceStates_.find(utteranceId);
     if (it != utteranceStates_.end()) {
         utteranceStates_.erase(it);
-        utils::Logger::debug("Removed utterance state: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::debug("Removed utterance state: " + std::to_string(utteranceId));
         return true;
     }
     return false;

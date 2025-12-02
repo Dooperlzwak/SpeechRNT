@@ -36,7 +36,7 @@ std::string WebSocketServer::generateSessionId() {
 }
 
 void WebSocketServer::start() {
-    utils::Logger::info("Starting WebSocket server on port " + std::to_string(port_));
+    speechrnt::utils::Logger::info("Starting WebSocket server on port " + std::to_string(port_));
     running_ = true;
     
     app_ = std::make_unique<uWS::App>();
@@ -45,7 +45,7 @@ void WebSocketServer::start() {
     uWS::App::WebSocketBehavior behavior;
     behavior.upgrade = [this](uWS::HttpResponse* res, uWS::HttpRequest* req, void* context) {
         std::string sessionId = generateSessionId();
-        utils::Logger::info("WebSocket upgrade request, assigning session ID: " + sessionId);
+        speechrnt::utils::Logger::info("WebSocket upgrade request, assigning session ID: " + sessionId);
         
         res->upgrade(
             new PerSocketData{sessionId, nullptr},
@@ -109,28 +109,28 @@ void WebSocketServer::start() {
 
 void WebSocketServer::run() {
     if (!app_) {
-        utils::Logger::error("Server not started. Call start() first.");
+        speechrnt::utils::Logger::error("Server not started. Call start() first.");
         return;
     }
     
     app_->listen(port_, [this](auto* listen_socket) {
         if (listen_socket) {
-            utils::Logger::info("WebSocket server listening on port " + std::to_string(port_));
+            speechrnt::utils::Logger::info("WebSocket server listening on port " + std::to_string(port_));
         } else {
-            utils::Logger::error("Failed to listen on port " + std::to_string(port_));
+            speechrnt::utils::Logger::error("Failed to listen on port " + std::to_string(port_));
             running_ = false;
         }
     });
     
     if (running_) {
-        utils::Logger::info("Server started successfully. Press Ctrl+C to stop.");
+        speechrnt::utils::Logger::info("Server started successfully. Press Ctrl+C to stop.");
         app_->run();
     }
 }
 
 void WebSocketServer::stop() {
     if (running_) {
-        utils::Logger::info("Stopping WebSocket server");
+        speechrnt::utils::Logger::info("Stopping WebSocket server");
         running_ = false;
         sessions_.clear();
         websockets_.clear();
@@ -140,16 +140,16 @@ void WebSocketServer::stop() {
 
 void WebSocketServer::setHealthChecker(std::shared_ptr<stt::STTHealthChecker> healthChecker) {
     health_checker_ = healthChecker;
-    utils::Logger::info("Health checker integrated with WebSocket server");
+    speechrnt::utils::Logger::info("Health checker integrated with WebSocket server");
 }
 
 void WebSocketServer::sendMessage(const std::string& sessionId, const std::string& message) {
     auto wsIt = websockets_.find(sessionId);
     if (wsIt != websockets_.end()) {
         wsIt->second->send(message, uWS::OpCode::TEXT);
-        utils::Logger::debug("Sent JSON message to " + sessionId + ": " + message);
+        speechrnt::utils::Logger::debug("Sent JSON message to " + sessionId + ": " + message);
     } else {
-        utils::Logger::warn("Attempted to send message to unknown session: " + sessionId);
+        speechrnt::utils::Logger::warn("Attempted to send message to unknown session: " + sessionId);
     }
 }
 
@@ -158,48 +158,48 @@ void WebSocketServer::sendBinaryMessage(const std::string& sessionId, const std:
     if (wsIt != websockets_.end()) {
         std::string_view binaryData(reinterpret_cast<const char*>(data.data()), data.size());
         wsIt->second->send(binaryData, uWS::OpCode::BINARY);
-        utils::Logger::debug("Sent binary message to " + sessionId + ", size: " + std::to_string(data.size()));
+        speechrnt::utils::Logger::debug("Sent binary message to " + sessionId + ", size: " + std::to_string(data.size()));
     } else {
-        utils::Logger::warn("Attempted to send binary data to unknown session: " + sessionId);
+        speechrnt::utils::Logger::warn("Attempted to send binary data to unknown session: " + sessionId);
     }
 }
 
 void WebSocketServer::handleNewConnection(const std::string& sessionId, uWS::WebSocket<false>* ws) {
-    utils::Logger::info("New client connection: " + sessionId);
+    speechrnt::utils::Logger::info("New client connection: " + sessionId);
     
     auto session = std::make_shared<ClientSession>(sessionId);
     session->setWebSocketServer(this);
     sessions_[sessionId] = session;
     websockets_[sessionId] = ws;
     
-    utils::Logger::info("Created new session. Total active sessions: " + 
+    speechrnt::utils::Logger::info("Created new session. Total active sessions: " + 
                        std::to_string(sessions_.size()));
 }
 
 void WebSocketServer::handleMessage(const std::string& sessionId, const std::string& message) {
-    utils::Logger::debug("JSON message from " + sessionId + ": " + message);
+    speechrnt::utils::Logger::debug("JSON message from " + sessionId + ": " + message);
     
     auto it = sessions_.find(sessionId);
     if (it != sessions_.end()) {
         it->second->handleMessage(message);
     } else {
-        utils::Logger::warn("Message from unknown session: " + sessionId);
+        speechrnt::utils::Logger::warn("Message from unknown session: " + sessionId);
     }
 }
 
 void WebSocketServer::handleBinaryMessage(const std::string& sessionId, std::string_view data) {
-    utils::Logger::debug("Binary message from " + sessionId + ", size: " + std::to_string(data.size()));
+    speechrnt::utils::Logger::debug("Binary message from " + sessionId + ", size: " + std::to_string(data.size()));
     
     auto it = sessions_.find(sessionId);
     if (it != sessions_.end()) {
         it->second->handleBinaryMessage(data);
     } else {
-        utils::Logger::warn("Binary message from unknown session: " + sessionId);
+        speechrnt::utils::Logger::warn("Binary message from unknown session: " + sessionId);
     }
 }
 
 void WebSocketServer::handleDisconnection(const std::string& sessionId) {
-    utils::Logger::info("Client disconnected: " + sessionId);
+    speechrnt::utils::Logger::info("Client disconnected: " + sessionId);
     
     auto sessionIt = sessions_.find(sessionId);
     if (sessionIt != sessions_.end()) {
@@ -211,7 +211,7 @@ void WebSocketServer::handleDisconnection(const std::string& sessionId) {
         websockets_.erase(wsIt);
     }
     
-    utils::Logger::info("Session removed. Remaining active sessions: " + 
+    speechrnt::utils::Logger::info("Session removed. Remaining active sessions: " + 
                        std::to_string(sessions_.size()));
 }
 
@@ -267,7 +267,7 @@ void WebSocketServer::handleHealthCheck(uWS::HttpResponse<false>* res, uWS::Http
            ->end(json.str());
            
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception in health check endpoint: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception in health check endpoint: " + std::string(e.what()));
         res->writeStatus("500 Internal Server Error")
            ->writeHeader("Content-Type", "application/json")
            ->end("{\"status\":\"error\",\"message\":\"Internal server error\"}");
@@ -298,7 +298,7 @@ void WebSocketServer::handleDetailedHealthCheck(uWS::HttpResponse<false>* res, u
            ->end(jsonResponse);
            
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception in detailed health check endpoint: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception in detailed health check endpoint: " + std::string(e.what()));
         res->writeStatus("500 Internal Server Error")
            ->writeHeader("Content-Type", "application/json")
            ->end("{\"status\":\"error\",\"message\":\"Internal server error\"}");
@@ -358,7 +358,7 @@ void WebSocketServer::handleHealthMetrics(uWS::HttpResponse<false>* res, uWS::Ht
            ->end(json.str());
            
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception in health metrics endpoint: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception in health metrics endpoint: " + std::string(e.what()));
         res->writeStatus("500 Internal Server Error")
            ->writeHeader("Content-Type", "application/json")
            ->end("{\"status\":\"error\",\"message\":\"Internal server error\"}");
@@ -422,7 +422,7 @@ void WebSocketServer::handleHealthHistory(uWS::HttpResponse<false>* res, uWS::Ht
            ->end(json.str());
            
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception in health history endpoint: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception in health history endpoint: " + std::string(e.what()));
         res->writeStatus("500 Internal Server Error")
            ->writeHeader("Content-Type", "application/json")
            ->end("{\"status\":\"error\",\"message\":\"Internal server error\"}");
@@ -483,7 +483,7 @@ void WebSocketServer::handleHealthAlerts(uWS::HttpResponse<false>* res, uWS::Htt
            ->end(json.str());
            
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception in health alerts endpoint: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception in health alerts endpoint: " + std::string(e.what()));
         res->writeStatus("500 Internal Server Error")
            ->writeHeader("Content-Type", "application/json")
            ->end("{\"status\":\"error\",\"message\":\"Internal server error\"}");

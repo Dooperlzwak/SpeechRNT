@@ -18,7 +18,7 @@ AdvancedModelManager::AdvancedModelManager(std::shared_ptr<models::ModelManager>
     // Start background processing thread
     backgroundThread_ = std::thread(&AdvancedModelManager::backgroundProcessingLoop, this);
     
-    utils::Logger::info("AdvancedModelManager initialized");
+    speechrnt::utils::Logger::info("AdvancedModelManager initialized");
 }
 
 AdvancedModelManager::~AdvancedModelManager() {
@@ -27,7 +27,7 @@ AdvancedModelManager::~AdvancedModelManager() {
         backgroundThread_.join();
     }
     
-    utils::Logger::info("AdvancedModelManager destroyed");
+    speechrnt::utils::Logger::info("AdvancedModelManager destroyed");
 }
 
 void AdvancedModelManager::recordTranscriptionMetrics(const std::string& modelId,
@@ -92,7 +92,7 @@ void AdvancedModelManager::recordTranscriptionMetrics(const std::string& modelId
         performanceCallback_(metrics);
     }
     
-    utils::Logger::debug("Recorded metrics for model " + modelId + " (" + languagePair + 
+    speechrnt::utils::Logger::debug("Recorded metrics for model " + modelId + " (" + languagePair + 
                         "): latency=" + std::to_string(latencyMs) + "ms, WER=" + 
                         std::to_string(wordErrorRate) + ", confidence=" + std::to_string(confidenceScore));
 }
@@ -320,32 +320,32 @@ bool AdvancedModelManager::createABTest(const ABTestConfig& config) {
     
     // Validate configuration
     if (config.testId.empty() || config.modelIds.empty()) {
-        utils::Logger::error("Invalid A/B test configuration: missing test ID or models");
+        speechrnt::utils::Logger::error("Invalid A/B test configuration: missing test ID or models");
         return false;
     }
     
     if (config.modelIds.size() != config.trafficSplitPercentages.size()) {
-        utils::Logger::error("A/B test configuration error: model count doesn't match traffic split count");
+        speechrnt::utils::Logger::error("A/B test configuration error: model count doesn't match traffic split count");
         return false;
     }
     
     float totalPercentage = std::accumulate(config.trafficSplitPercentages.begin(),
                                            config.trafficSplitPercentages.end(), 0.0f);
     if (std::abs(totalPercentage - 100.0f) > 0.01f) {
-        utils::Logger::error("A/B test configuration error: traffic split percentages don't sum to 100%");
+        speechrnt::utils::Logger::error("A/B test configuration error: traffic split percentages don't sum to 100%");
         return false;
     }
     
     // Check if test ID already exists
     if (activeABTests_.find(config.testId) != activeABTests_.end()) {
-        utils::Logger::error("A/B test with ID " + config.testId + " already exists");
+        speechrnt::utils::Logger::error("A/B test with ID " + config.testId + " already exists");
         return false;
     }
     
     // Store the test configuration
     activeABTests_[config.testId] = config;
     
-    utils::Logger::info("Created A/B test: " + config.testId + " with " + 
+    speechrnt::utils::Logger::info("Created A/B test: " + config.testId + " with " + 
                        std::to_string(config.modelIds.size()) + " models");
     return true;
 }
@@ -355,13 +355,13 @@ bool AdvancedModelManager::startABTest(const std::string& testId) {
     
     auto it = activeABTests_.find(testId);
     if (it == activeABTests_.end()) {
-        utils::Logger::error("A/B test not found: " + testId);
+        speechrnt::utils::Logger::error("A/B test not found: " + testId);
         return false;
     }
     
     auto& config = it->second;
     if (config.active) {
-        utils::Logger::warn("A/B test " + testId + " is already active");
+        speechrnt::utils::Logger::warn("A/B test " + testId + " is already active");
         return true;
     }
     
@@ -369,7 +369,7 @@ bool AdvancedModelManager::startABTest(const std::string& testId) {
     config.startTime = std::chrono::system_clock::now();
     config.endTime = config.startTime + config.testDuration;
     
-    utils::Logger::info("Started A/B test: " + testId);
+    speechrnt::utils::Logger::info("Started A/B test: " + testId);
     return true;
 }
 
@@ -378,7 +378,7 @@ bool AdvancedModelManager::stopABTest(const std::string& testId) {
     
     auto it = activeABTests_.find(testId);
     if (it == activeABTests_.end()) {
-        utils::Logger::error("A/B test not found: " + testId);
+        speechrnt::utils::Logger::error("A/B test not found: " + testId);
         return false;
     }
     
@@ -389,7 +389,7 @@ bool AdvancedModelManager::stopABTest(const std::string& testId) {
     // Process final results
     processABTestResults();
     
-    utils::Logger::info("Stopped A/B test: " + testId);
+    speechrnt::utils::Logger::info("Stopped A/B test: " + testId);
     return true;
 }
 
@@ -587,7 +587,7 @@ void AdvancedModelManager::processABTestResults() {
                 abTestCallback_(results);
             }
             
-            utils::Logger::info("A/B test " + config.testId + " completed. Winner: " + results.winningModelId);
+            speechrnt::utils::Logger::info("A/B test " + config.testId + " completed. Winner: " + results.winningModelId);
         }
     }
 }
@@ -610,7 +610,7 @@ void AdvancedModelManager::backgroundProcessingLoop() {
             // Sleep for 60 seconds before next iteration
             std::this_thread::sleep_for(std::chrono::seconds(60));
         } catch (const std::exception& e) {
-            utils::Logger::error("Error in background processing: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Error in background processing: " + std::string(e.what()));
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
     }
@@ -632,7 +632,7 @@ void AdvancedModelManager::checkPerformanceDegradation() {
         if (metrics.wordErrorRate > 0.5f || // 50% error rate is clearly degraded
             metrics.averageLatencyMs > 5000.0f) { // 5 second latency is too high
             
-            utils::Logger::warn("Performance degradation detected for model " + metrics.modelId);
+            speechrnt::utils::Logger::warn("Performance degradation detected for model " + metrics.modelId);
             
             // In a real implementation, you would trigger rollback here
             // rollbackModel(metrics.modelId, metrics.languagePair);
@@ -648,7 +648,7 @@ void AdvancedModelManager::cleanupOldMetrics() {
     auto it = modelMetrics_.begin();
     while (it != modelMetrics_.end()) {
         if (it->second.lastUsed < cutoffTime) {
-            utils::Logger::debug("Cleaning up old metrics for " + it->first);
+            speechrnt::utils::Logger::debug("Cleaning up old metrics for " + it->first);
             it = modelMetrics_.erase(it);
         } else {
             ++it;

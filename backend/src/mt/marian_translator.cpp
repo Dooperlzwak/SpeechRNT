@@ -54,23 +54,23 @@ MarianTranslator::MarianTranslator(std::shared_ptr<const MTConfig> config)
     
     // Initialize quality manager
     if (qualityManager_->initialize()) {
-        utils::Logger::info("QualityManager initialized successfully");
+        speechrnt::utils::Logger::info("QualityManager initialized successfully");
     } else {
-        utils::Logger::warn("Failed to initialize QualityManager, quality assessment will be limited");
+        speechrnt::utils::Logger::warn("Failed to initialize QualityManager, quality assessment will be limited");
     }
     
     // Initialize error handler
     if (errorHandler_->initialize()) {
-        utils::Logger::info("MarianErrorHandler initialized successfully");
+        speechrnt::utils::Logger::info("MarianErrorHandler initialized successfully");
     } else {
-        utils::Logger::warn("Failed to initialize MarianErrorHandler, using basic error handling");
+        speechrnt::utils::Logger::warn("Failed to initialize MarianErrorHandler, using basic error handling");
     }
     
     // Initialize GPU resources if available
     if (initializeGPUResources()) {
-        utils::Logger::info("GPU resources initialized for MarianTranslator");
+        speechrnt::utils::Logger::info("GPU resources initialized for MarianTranslator");
     } else {
-        utils::Logger::info("GPU resources not available, using CPU-only mode");
+        speechrnt::utils::Logger::info("GPU resources not available, using CPU-only mode");
     }
 }
 
@@ -88,7 +88,7 @@ bool MarianTranslator::initialize(const std::string& sourceLang, const std::stri
     currentTargetLang_.clear();
     
     if (!supportsLanguagePair(sourceLang, targetLang)) {
-        utils::Logger::error("Unsupported language pair: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::error("Unsupported language pair: " + sourceLang + " -> " + targetLang);
         return false;
     }
     
@@ -97,7 +97,7 @@ bool MarianTranslator::initialize(const std::string& sourceLang, const std::stri
         std::string modelPath = getModelPath(sourceLang, targetLang);
         std::string errorMsg = MarianErrorHandler::handleModelLoadingError(
             "Model loading failed", modelPath);
-        utils::Logger::error(errorMsg);
+        speechrnt::utils::Logger::error(errorMsg);
         return false;
     }
     
@@ -105,17 +105,17 @@ bool MarianTranslator::initialize(const std::string& sourceLang, const std::stri
     currentTargetLang_ = targetLang;
     initialized_ = true;
     
-    utils::Logger::info("MarianTranslator initialized for " + sourceLang + " -> " + targetLang);
+    speechrnt::utils::Logger::info("MarianTranslator initialized for " + sourceLang + " -> " + targetLang);
     return true;
 }
 
 bool MarianTranslator::initializeWithGPU(const std::string& sourceLang, const std::string& targetLang, int gpuDeviceId) {
-    utils::Logger::info("Initializing MarianTranslator with GPU acceleration (device " + std::to_string(gpuDeviceId) + ")");
+    speechrnt::utils::Logger::info("Initializing MarianTranslator with GPU acceleration (device " + std::to_string(gpuDeviceId) + ")");
     
     // Validate GPU device first
     if (!validateGPUDevice(gpuDeviceId)) {
         std::string error = "GPU device " + std::to_string(gpuDeviceId) + " is not available or invalid";
-        utils::Logger::error(error);
+        speechrnt::utils::Logger::error(error);
         gpuInitializationError_ = error;
         
         // Fall back to CPU
@@ -129,7 +129,7 @@ bool MarianTranslator::initializeWithGPU(const std::string& sourceLang, const st
     // Set the GPU device
     if (!gpuManager_->setDevice(gpuDeviceId)) {
         std::string error = "Failed to set GPU device " + std::to_string(gpuDeviceId);
-        utils::Logger::error(error);
+        speechrnt::utils::Logger::error(error);
         gpuInitializationError_ = error;
         
         // Fall back to CPU
@@ -143,7 +143,7 @@ bool MarianTranslator::initializeWithGPU(const std::string& sourceLang, const st
     if (!hasSufficientGPUMemory(requiredMemoryMB)) {
         std::string error = "Insufficient GPU memory. Required: " + std::to_string(requiredMemoryMB) + 
                            "MB, Available: " + std::to_string(gpuManager_->getFreeMemoryMB()) + "MB";
-        utils::Logger::error(error);
+        speechrnt::utils::Logger::error(error);
         gpuInitializationError_ = error;
         
         // Fall back to CPU
@@ -154,9 +154,9 @@ bool MarianTranslator::initializeWithGPU(const std::string& sourceLang, const st
     bool result = initialize(sourceLang, targetLang);
     
     if (result) {
-        utils::Logger::info("Successfully initialized MarianTranslator with GPU acceleration");
+        speechrnt::utils::Logger::info("Successfully initialized MarianTranslator with GPU acceleration");
     } else {
-        utils::Logger::error("Failed to initialize with GPU, falling back to CPU");
+        speechrnt::utils::Logger::error("Failed to initialize with GPU, falling back to CPU");
         return fallbackToCPU("GPU initialization failed");
     }
     
@@ -169,23 +169,23 @@ void MarianTranslator::setGPUAcceleration(bool enabled, int deviceId) {
     if (enabled) {
         // Validate GPU device before enabling
         if (!validateGPUDevice(deviceId)) {
-            utils::Logger::error("Cannot enable GPU acceleration: device " + std::to_string(deviceId) + " is not valid");
+            speechrnt::utils::Logger::error("Cannot enable GPU acceleration: device " + std::to_string(deviceId) + " is not valid");
             return;
         }
         
         // Set the GPU device
         if (!gpuManager_->setDevice(deviceId)) {
-            utils::Logger::error("Cannot enable GPU acceleration: failed to set device " + std::to_string(deviceId));
+            speechrnt::utils::Logger::error("Cannot enable GPU acceleration: failed to set device " + std::to_string(deviceId));
             return;
         }
         
         gpuAccelerationEnabled_ = true;
         defaultGpuDeviceId_ = deviceId;
-        utils::Logger::info("GPU acceleration enabled for device " + std::to_string(deviceId));
+        speechrnt::utils::Logger::info("GPU acceleration enabled for device " + std::to_string(deviceId));
         
     } else {
         gpuAccelerationEnabled_ = false;
-        utils::Logger::info("GPU acceleration disabled");
+        speechrnt::utils::Logger::info("GPU acceleration disabled");
         
         // Free any GPU memory allocations for existing models
         for (auto& pair : modelInfoMap_) {
@@ -340,7 +340,7 @@ void MarianTranslator::cleanup() {
     
     initialized_ = false;
     
-    utils::Logger::info("MarianTranslator cleaned up");
+    speechrnt::utils::Logger::info("MarianTranslator cleaned up");
 }
 
 void MarianTranslator::setModelsPath(const std::string& modelsPath) {
@@ -352,7 +352,7 @@ void MarianTranslator::setModelsPath(const std::string& modelsPath) {
 
 bool MarianTranslator::updateConfiguration(std::shared_ptr<const MTConfig> config) {
     if (!config) {
-        utils::Logger::error("Cannot update MarianTranslator with null configuration");
+        speechrnt::utils::Logger::error("Cannot update MarianTranslator with null configuration");
         return false;
     }
     
@@ -379,7 +379,7 @@ bool MarianTranslator::updateConfiguration(std::shared_ptr<const MTConfig> confi
         if (oldGpuEnabled != gpuAccelerationEnabled_ || oldGpuDevice != defaultGpuDeviceId_) {
             if (gpuAccelerationEnabled_) {
                 if (!initializeGPUResources()) {
-                    utils::Logger::warning("Failed to initialize GPU resources with new configuration");
+                    speechrnt::utils::Logger::warning("Failed to initialize GPU resources with new configuration");
                     if (!gpuConfig.fallbackToCPU) {
                         // Rollback configuration if fallback is not allowed
                         config_ = oldConfig;
@@ -447,11 +447,11 @@ bool MarianTranslator::updateConfiguration(std::shared_ptr<const MTConfig> confi
             errorHandler_->setDegradedModeEnabled(errorConfig.enableDegradedMode);
         }
         
-        utils::Logger::info("MarianTranslator configuration updated successfully");
+        speechrnt::utils::Logger::info("MarianTranslator configuration updated successfully");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to update MarianTranslator configuration: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to update MarianTranslator configuration: " + std::string(e.what()));
         return false;
     }
 }
@@ -468,7 +468,7 @@ bool MarianTranslator::loadModel(const std::string& sourceLang, const std::strin
     
     // Validate model files exist and check for corruption
     if (!validateModelFiles(sourceLang, targetLang)) {
-        utils::Logger::error("Model files not found for language pair: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::error("Model files not found for language pair: " + sourceLang + " -> " + targetLang);
         return false;
     }
     
@@ -483,7 +483,7 @@ bool MarianTranslator::loadModel(const std::string& sourceLang, const std::strin
         RecoveryResult corruptionCheck = errorHandler_->checkAndHandleModelCorruption(modelPath, errorContext);
         
         if (!corruptionCheck.successful && corruptionCheck.requiresUserIntervention) {
-            utils::Logger::error("Model corruption detected and recovery failed: " + modelPath);
+            speechrnt::utils::Logger::error("Model corruption detected and recovery failed: " + modelPath);
             return false;
         }
     }
@@ -498,23 +498,23 @@ bool MarianTranslator::loadModel(const std::string& sourceLang, const std::strin
             if (allocateGPUMemoryForModel(sourceLang, targetLang, requiredMemoryMB)) {
                 // Load model to GPU
                 if (loadModelToGPU(sourceLang, targetLang)) {
-                    utils::Logger::info("Loaded model for language pair " + sourceLang + " -> " + targetLang + " to GPU");
+                    speechrnt::utils::Logger::info("Loaded model for language pair " + sourceLang + " -> " + targetLang + " to GPU");
                 } else {
-                    utils::Logger::warning("Failed to load model to GPU, falling back to CPU");
+                    speechrnt::utils::Logger::warning("Failed to load model to GPU, falling back to CPU");
                     freeGPUMemoryForModel(sourceLang, targetLang);
                 }
             } else {
-                utils::Logger::warning("Failed to allocate GPU memory for model, using CPU");
+                speechrnt::utils::Logger::warning("Failed to allocate GPU memory for model, using CPU");
             }
         } else {
-            utils::Logger::warning("Insufficient GPU memory (" + std::to_string(requiredMemoryMB) + 
+            speechrnt::utils::Logger::warning("Insufficient GPU memory (" + std::to_string(requiredMemoryMB) + 
                                  "MB required), using CPU for model " + sourceLang + " -> " + targetLang);
         }
     }
     
     // Initialize Marian model (CPU or GPU depending on configuration)
     if (!initializeMarianModel(sourceLang, targetLang)) {
-        utils::Logger::warning("Failed to initialize Marian model, using fallback");
+        speechrnt::utils::Logger::warning("Failed to initialize Marian model, using fallback");
     }
     
     // Use ModelManager to load the model
@@ -523,7 +523,7 @@ bool MarianTranslator::loadModel(const std::string& sourceLang, const std::strin
     if (success) {
         std::string deviceInfo = gpuAccelerationEnabled_ && gpuInitialized_ ? 
                                 " (GPU device " + std::to_string(defaultGpuDeviceId_) + ")" : " (CPU)";
-        utils::Logger::info("Loaded model for language pair: " + sourceLang + " -> " + targetLang + deviceInfo);
+        speechrnt::utils::Logger::info("Loaded model for language pair: " + sourceLang + " -> " + targetLang + deviceInfo);
     }
     
     return success;
@@ -541,7 +541,7 @@ void MarianTranslator::unloadModel(const std::string& sourceLang, const std::str
     bool success = modelManager_->unloadModel(sourceLang, targetLang);
     
     if (success) {
-        utils::Logger::info("Unloaded model for language pair: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::info("Unloaded model for language pair: " + sourceLang + " -> " + targetLang);
     }
 }
 
@@ -564,7 +564,7 @@ bool MarianTranslator::validateModelFiles(const std::string& sourceLang, const s
     
     // Check if model directory exists
     if (!std::filesystem::exists(modelDir)) {
-        utils::Logger::debug("Model directory does not exist: " + modelDir);
+        speechrnt::utils::Logger::debug("Model directory does not exist: " + modelDir);
         return false;
     }
     
@@ -574,7 +574,7 @@ bool MarianTranslator::validateModelFiles(const std::string& sourceLang, const s
     for (const auto& file : requiredFiles) {
         std::string filePath = modelDir + "/" + file;
         if (!std::filesystem::exists(filePath)) {
-            utils::Logger::debug("Required model file missing: " + filePath);
+            speechrnt::utils::Logger::debug("Required model file missing: " + filePath);
             return false;
         }
     }
@@ -601,7 +601,7 @@ TranslationResult MarianTranslator::performTranslation(const std::string& text,
     try {
         // Check if we're in degraded mode
         if (errorHandler_ && errorHandler_->isInDegradedMode()) {
-            utils::Logger::info("Operating in degraded mode, using fallback translation");
+            speechrnt::utils::Logger::info("Operating in degraded mode, using fallback translation");
             result = performFallbackTranslation(text, sourceLang, targetLang);
             result.errorMessage = "Operating in degraded mode";
             return result;
@@ -640,7 +640,7 @@ TranslationResult MarianTranslator::performTranslation(const std::string& text,
             result = performMarianTranslation(text, sourceLang, targetLang);
 #else
             result = performFallbackTranslation(text, sourceLang, targetLang);
-            utils::Logger::warning("Using fallback translation - Marian NMT not available");
+            speechrnt::utils::Logger::warning("Using fallback translation - Marian NMT not available");
 #endif
         }
         
@@ -668,24 +668,24 @@ TranslationResult MarianTranslator::performTranslation(const std::string& text,
                     result.alternativeTranslations.push_back(candidates[i].translatedText);
                 }
                 
-                utils::Logger::debug("Generated " + std::to_string(result.alternativeTranslations.size()) + 
+                speechrnt::utils::Logger::debug("Generated " + std::to_string(result.alternativeTranslations.size()) + 
                                    " alternative translations due to low quality");
             }
             
             auto endTime = std::chrono::high_resolution_clock::now();
             result.processingTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
             
-            utils::Logger::debug("Quality assessment completed: confidence=" + 
+            speechrnt::utils::Logger::debug("Quality assessment completed: confidence=" + 
                                std::to_string(result.confidence) + ", level=" + 
                                result.qualityMetrics->qualityLevel);
         }
         
-        utils::Logger::debug("Translated '" + text + "' from " + sourceLang + " to " + targetLang + ": '" + result.translatedText + "'");
+        speechrnt::utils::Logger::debug("Translated '" + text + "' from " + sourceLang + " to " + targetLang + ": '" + result.translatedText + "'");
         
     } catch (const std::exception& e) {
         result.success = false;
         result.errorMessage = "Translation failed: " + std::string(e.what());
-        utils::Logger::error("Translation error: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Translation error: " + std::string(e.what()));
     }
     
     return result;
@@ -721,14 +721,14 @@ TranslationResult MarianTranslator::performMarianTranslation(const std::string& 
             if (it != modelInfoMap_.end() && it->second.gpuEnabled && it->second.gpuMemoryPtr) {
                 options->set("device-list", std::vector<size_t>{static_cast<size_t>(it->second.gpuDeviceId)});
                 options->set("cpu-threads", 1);
-                utils::Logger::debug("Using GPU device " + std::to_string(it->second.gpuDeviceId) + " for translation");
+                speechrnt::utils::Logger::debug("Using GPU device " + std::to_string(it->second.gpuDeviceId) + " for translation");
             } else {
                 options->set("cpu-threads", std::thread::hardware_concurrency());
-                utils::Logger::debug("GPU memory not available for model, using CPU");
+                speechrnt::utils::Logger::debug("GPU memory not available for model, using CPU");
             }
         } else {
             options->set("cpu-threads", std::thread::hardware_concurrency());
-            utils::Logger::debug("Using CPU for translation");
+            speechrnt::utils::Logger::debug("Using CPU for translation");
         }
         
         // Create translator
@@ -752,7 +752,7 @@ TranslationResult MarianTranslator::performMarianTranslation(const std::string& 
             auto it = modelInfoMap_.find(modelKey);
             bool usedGPU = (it != modelInfoMap_.end() && it->second.gpuEnabled && it->second.gpuMemoryPtr);
             
-            utils::Logger::debug("Marian translation successful: confidence = " + std::to_string(result.confidence) + 
+            speechrnt::utils::Logger::debug("Marian translation successful: confidence = " + std::to_string(result.confidence) + 
                                ", GPU used: " + (usedGPU ? "yes" : "no"));
         } else {
             throw std::runtime_error("Marian translation returned empty result");
@@ -760,13 +760,13 @@ TranslationResult MarianTranslator::performMarianTranslation(const std::string& 
         
     } catch (const MarianException& e) {
         std::string errorMsg = MarianErrorHandler::handleTranslationError(e.what(), text);
-        utils::Logger::error("Marian translation failed: " + errorMsg);
+        speechrnt::utils::Logger::error("Marian translation failed: " + errorMsg);
         // Fall back to mock translation
         result = performFallbackTranslation(text, sourceLang, targetLang);
         result.errorMessage = "Marian translation failed, using fallback: " + std::string(e.what());
     } catch (const std::exception& e) {
         std::string errorMsg = MarianErrorHandler::handleTranslationError(e.what(), text);
-        utils::Logger::error("Translation failed: " + errorMsg);
+        speechrnt::utils::Logger::error("Translation failed: " + errorMsg);
         // Fall back to mock translation
         result = performFallbackTranslation(text, sourceLang, targetLang);
         result.errorMessage = "Translation failed, using fallback: " + std::string(e.what());
@@ -817,7 +817,7 @@ TranslationResult MarianTranslator::performMarianTranslationWithTimeout(const st
         auto elapsed = std::chrono::steady_clock::now() - startTime;
         result.processingTime = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
         
-        utils::Logger::warning("Translation timeout: " + std::string(e.what()));
+        speechrnt::utils::Logger::warning("Translation timeout: " + std::string(e.what()));
         throw; // Re-throw to be handled by retry mechanism
         
     } catch (const std::exception& e) {
@@ -965,22 +965,22 @@ bool MarianTranslator::initializeMarianModel(const std::string& sourceLang, cons
         
         // Check if config file exists
         if (!std::filesystem::exists(configPath)) {
-            utils::Logger::warning("Marian config file not found: " + configPath);
+            speechrnt::utils::Logger::warning("Marian config file not found: " + configPath);
             return false;
         }
         
         // Initialize Marian logging
         marian::createLoggers();
         
-        utils::Logger::info("Initialized Marian model for " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::info("Initialized Marian model for " + sourceLang + " -> " + targetLang);
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to initialize Marian model: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to initialize Marian model: " + std::string(e.what()));
         return false;
     }
 #else
-    utils::Logger::debug("Marian NMT not available, skipping model initialization");
+    speechrnt::utils::Logger::debug("Marian NMT not available, skipping model initialization");
     return false;
 #endif
 }
@@ -989,9 +989,9 @@ void MarianTranslator::cleanupMarianModel(const std::string& sourceLang, const s
 #ifdef MARIAN_AVAILABLE
     try {
         // Cleanup Marian resources for this language pair
-        utils::Logger::debug("Cleaned up Marian model for " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::debug("Cleaned up Marian model for " + sourceLang + " -> " + targetLang);
     } catch (const std::exception& e) {
-        utils::Logger::error("Error cleaning up Marian model: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error cleaning up Marian model: " + std::string(e.what()));
     }
 #endif
 }
@@ -1069,12 +1069,12 @@ void MarianTranslator::initializeSupportedLanguages() {
             maxConcurrentModels_ = marianConfig["maxConcurrentModels"].get<size_t>();
         }
         
-        utils::Logger::info("Initialized " + std::to_string(supportedSourceLanguages_.size()) + 
+        speechrnt::utils::Logger::info("Initialized " + std::to_string(supportedSourceLanguages_.size()) + 
                            " source languages with " + std::to_string(supportedTargetLanguages_.size()) + 
                            " language pair mappings");
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load language configuration: " + std::string(e.what()) + 
+        speechrnt::utils::Logger::error("Failed to load language configuration: " + std::string(e.what()) + 
                            ", using default configuration");
         
         // Fallback to hardcoded defaults
@@ -1166,7 +1166,7 @@ bool MarianTranslator::allocateGPUMemoryForModel(const std::string& sourceLang, 
     
     void* gpuPtr = gpuMemoryPool_->allocate(requiredBytes, tag);
     if (!gpuPtr) {
-        utils::Logger::error("Failed to allocate " + std::to_string(requiredMB) + "MB GPU memory for model " + modelKey);
+        speechrnt::utils::Logger::error("Failed to allocate " + std::to_string(requiredMB) + "MB GPU memory for model " + modelKey);
         return false;
     }
     
@@ -1175,7 +1175,7 @@ bool MarianTranslator::allocateGPUMemoryForModel(const std::string& sourceLang, 
     it->second.gpuEnabled = true;
     it->second.gpuDeviceId = defaultGpuDeviceId_;
     
-    utils::Logger::info("Allocated " + std::to_string(requiredMB) + "MB GPU memory for model " + modelKey);
+    speechrnt::utils::Logger::info("Allocated " + std::to_string(requiredMB) + "MB GPU memory for model " + modelKey);
     return true;
 }
 
@@ -1190,7 +1190,7 @@ void MarianTranslator::freeGPUMemoryForModel(const std::string& sourceLang, cons
     if (it != modelInfoMap_.end() && it->second.gpuMemoryPtr) {
         gpuMemoryPool_->deallocate(it->second.gpuMemoryPtr);
         
-        utils::Logger::info("Freed " + std::to_string(it->second.gpuMemorySizeMB) + "MB GPU memory for model " + modelKey);
+        speechrnt::utils::Logger::info("Freed " + std::to_string(it->second.gpuMemorySizeMB) + "MB GPU memory for model " + modelKey);
         
         it->second.gpuMemoryPtr = nullptr;
         it->second.gpuMemorySizeMB = 0;
@@ -1208,7 +1208,7 @@ bool MarianTranslator::loadModelToGPU(const std::string& sourceLang, const std::
     auto it = modelInfoMap_.find(modelKey);
     
     if (it == modelInfoMap_.end() || !it->second.gpuMemoryPtr) {
-        utils::Logger::error("GPU memory not allocated for model " + modelKey);
+        speechrnt::utils::Logger::error("GPU memory not allocated for model " + modelKey);
         return false;
     }
     
@@ -1229,28 +1229,28 @@ bool MarianTranslator::loadModelToGPU(const std::string& sourceLang, const std::
         options->set("cpu-threads", 1);
         
         // Load model to GPU (simplified simulation)
-        utils::Logger::info("Loading Marian model " + modelKey + " to GPU device " + std::to_string(it->second.gpuDeviceId));
+        speechrnt::utils::Logger::info("Loading Marian model " + modelKey + " to GPU device " + std::to_string(it->second.gpuDeviceId));
         
         // In real implementation, model would be loaded here
         it->second.marianModel = reinterpret_cast<void*>(0x1); // Placeholder
         
 #else
-        utils::Logger::debug("Marian not available, simulating GPU model loading for " + modelKey);
+        speechrnt::utils::Logger::debug("Marian not available, simulating GPU model loading for " + modelKey);
         it->second.marianModel = reinterpret_cast<void*>(0x1); // Placeholder
 #endif
         
         it->second.loaded = true;
-        utils::Logger::info("Successfully loaded model " + modelKey + " to GPU");
+        speechrnt::utils::Logger::info("Successfully loaded model " + modelKey + " to GPU");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load model " + modelKey + " to GPU: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to load model " + modelKey + " to GPU: " + std::string(e.what()));
         return false;
     }
 }
 
 bool MarianTranslator::fallbackToCPU(const std::string& reason) {
-    utils::Logger::warn("Falling back to CPU processing: " + reason);
+    speechrnt::utils::Logger::warn("Falling back to CPU processing: " + reason);
     
     // Set up error context for the fallback
     ErrorContext errorContext;
@@ -1265,7 +1265,7 @@ bool MarianTranslator::fallbackToCPU(const std::string& reason) {
             RecoveryResult recovery = errorHandler_->handleGPUErrorWithFallback(reason, errorContext);
             
             if (!recovery.successful) {
-                utils::Logger::error("GPU fallback handling failed: " + recovery.message);
+                speechrnt::utils::Logger::error("GPU fallback handling failed: " + recovery.message);
             }
         }
         
@@ -1282,16 +1282,16 @@ bool MarianTranslator::fallbackToCPU(const std::string& reason) {
         // Try to initialize with CPU
         if (initialized_) {
             // Already initialized, just switch to CPU mode
-            utils::Logger::info("Switched to CPU mode successfully");
+            speechrnt::utils::Logger::info("Switched to CPU mode successfully");
             return true;
         } else {
             // Initialize with CPU
             bool success = initialize(currentSourceLang_, currentTargetLang_);
             
             if (success) {
-                utils::Logger::info("Successfully fell back to CPU processing");
+                speechrnt::utils::Logger::info("Successfully fell back to CPU processing");
             } else {
-                utils::Logger::error("CPU fallback initialization failed");
+                speechrnt::utils::Logger::error("CPU fallback initialization failed");
                 
                 // Enter degraded mode if CPU fallback fails
                 if (errorHandler_) {
@@ -1303,7 +1303,7 @@ bool MarianTranslator::fallbackToCPU(const std::string& reason) {
         }
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception during CPU fallback: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception during CPU fallback: " + std::string(e.what()));
         
         // Enter degraded mode if fallback fails completely
         if (errorHandler_) {
@@ -1342,7 +1342,7 @@ std::vector<TranslationResult> MarianTranslator::getTranslationCandidates(const 
     std::vector<TranslationResult> candidates;
     
     if (!isReady() || !qualityManager_ || !qualityManager_->isReady()) {
-        utils::Logger::warn("Cannot generate translation candidates: translator or quality manager not ready");
+        speechrnt::utils::Logger::warn("Cannot generate translation candidates: translator or quality manager not ready");
         return candidates;
     }
     
@@ -1376,7 +1376,7 @@ std::vector<TranslationResult> MarianTranslator::getTranslationCandidates(const 
         }
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Error generating translation candidates: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error generating translation candidates: " + std::string(e.what()));
     }
     
     return candidates;
@@ -1386,7 +1386,7 @@ std::vector<std::string> MarianTranslator::getFallbackTranslations(const std::st
     std::vector<std::string> fallbacks;
     
     if (!isReady() || !qualityManager_ || !qualityManager_->isReady()) {
-        utils::Logger::warn("Cannot generate fallback translations: translator or quality manager not ready");
+        speechrnt::utils::Logger::warn("Cannot generate fallback translations: translator or quality manager not ready");
         return fallbacks;
     }
     
@@ -1400,7 +1400,7 @@ std::vector<std::string> MarianTranslator::getFallbackTranslations(const std::st
             currentSourceLang_, currentTargetLang_);
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Error generating fallback translations: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error generating fallback translations: " + std::string(e.what()));
     }
     
     return fallbacks;
@@ -1409,15 +1409,15 @@ std::vector<std::string> MarianTranslator::getFallbackTranslations(const std::st
 void MarianTranslator::setQualityThresholds(float high, float medium, float low) {
     if (qualityManager_ && qualityManager_->isReady()) {
         qualityManager_->setQualityThresholds(high, medium, low);
-        utils::Logger::info("Quality thresholds updated in MarianTranslator");
+        speechrnt::utils::Logger::info("Quality thresholds updated in MarianTranslator");
     } else {
-        utils::Logger::warn("Cannot set quality thresholds: quality manager not ready");
+        speechrnt::utils::Logger::warn("Cannot set quality thresholds: quality manager not ready");
     }
 }
 
 bool MarianTranslator::meetsQualityThreshold(const TranslationResult& result, const std::string& requiredLevel) const {
     if (!qualityManager_ || !qualityManager_->isReady() || !result.qualityMetrics) {
-        utils::Logger::warn("Cannot check quality threshold: quality manager or metrics not available");
+        speechrnt::utils::Logger::warn("Cannot check quality threshold: quality manager or metrics not available");
         return false;
     }
     
@@ -1428,12 +1428,12 @@ bool MarianTranslator::meetsQualityThreshold(const TranslationResult& result, co
 
 std::vector<TranslationResult> MarianTranslator::translateBatch(const std::vector<std::string>& texts) {
     if (texts.empty()) {
-        utils::Logger::warn("Empty batch translation request");
+        speechrnt::utils::Logger::warn("Empty batch translation request");
         return {};
     }
     
     if (texts.size() > maxBatchSize_) {
-        utils::Logger::warn("Batch size (" + std::to_string(texts.size()) + 
+        speechrnt::utils::Logger::warn("Batch size (" + std::to_string(texts.size()) + 
                            ") exceeds maximum (" + std::to_string(maxBatchSize_) + ")");
         
         // Process in chunks
@@ -1509,12 +1509,12 @@ bool MarianTranslator::startStreamingTranslation(const std::string& sessionId, c
     std::lock_guard<std::mutex> lock(streamingMutex_);
     
     if (streamingSessions_.find(sessionId) != streamingSessions_.end()) {
-        utils::Logger::warn("Streaming session already exists: " + sessionId);
+        speechrnt::utils::Logger::warn("Streaming session already exists: " + sessionId);
         return false;
     }
     
     if (!supportsLanguagePair(sourceLang, targetLang)) {
-        utils::Logger::error("Unsupported language pair for streaming: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::error("Unsupported language pair for streaming: " + sourceLang + " -> " + targetLang);
         return false;
     }
     
@@ -1522,7 +1522,7 @@ bool MarianTranslator::startStreamingTranslation(const std::string& sessionId, c
     cleanupExpiredSessions();
     
     streamingSessions_[sessionId] = StreamingSession(sessionId, sourceLang, targetLang);
-    utils::Logger::info("Started streaming translation session: " + sessionId + " (" + sourceLang + " -> " + targetLang + ")");
+    speechrnt::utils::Logger::info("Started streaming translation session: " + sessionId + " (" + sourceLang + " -> " + targetLang + ")");
     
     return true;
 }
@@ -1595,7 +1595,7 @@ TranslationResult MarianTranslator::finalizeStreamingTranslation(const std::stri
     // Clean up session
     streamingSessions_.erase(it);
     
-    utils::Logger::info("Finalized streaming translation session: " + sessionId);
+    speechrnt::utils::Logger::info("Finalized streaming translation session: " + sessionId);
     return finalResult;
 }
 
@@ -1605,7 +1605,7 @@ void MarianTranslator::cancelStreamingTranslation(const std::string& sessionId) 
     auto it = streamingSessions_.find(sessionId);
     if (it != streamingSessions_.end()) {
         streamingSessions_.erase(it);
-        utils::Logger::info("Cancelled streaming translation session: " + sessionId);
+        speechrnt::utils::Logger::info("Cancelled streaming translation session: " + sessionId);
     }
 }
 
@@ -1620,7 +1620,7 @@ void MarianTranslator::cleanupExpiredSessions() {
     
     while (it != streamingSessions_.end()) {
         if (now - it->second.lastActivity > sessionTimeout_) {
-            utils::Logger::info("Cleaning up expired streaming session: " + it->first);
+            speechrnt::utils::Logger::info("Cleaning up expired streaming session: " + it->first);
             it = streamingSessions_.erase(it);
         } else {
             ++it;
@@ -1632,7 +1632,7 @@ void MarianTranslator::cleanupExpiredSessions() {
 
 void MarianTranslator::setMaxBatchSize(size_t maxBatchSize) {
     maxBatchSize_ = maxBatchSize;
-    utils::Logger::info("Maximum batch size set to: " + std::to_string(maxBatchSize));
+    speechrnt::utils::Logger::info("Maximum batch size set to: " + std::to_string(maxBatchSize));
 }
 
 void MarianTranslator::setTranslationCaching(bool enabled, size_t maxCacheSize) {
@@ -1648,7 +1648,7 @@ void MarianTranslator::setTranslationCaching(bool enabled, size_t maxCacheSize) 
         evictOldestCacheEntries();
     }
     
-    utils::Logger::info("Translation caching " + std::string(enabled ? "enabled" : "disabled") + 
+    speechrnt::utils::Logger::info("Translation caching " + std::string(enabled ? "enabled" : "disabled") + 
                        " with max size: " + std::to_string(maxCacheSize));
 }
 
@@ -1656,7 +1656,7 @@ void MarianTranslator::clearTranslationCache() {
     std::lock_guard<std::mutex> lock(cacheMutex_);
     translationCache_.clear();
     cacheStats_ = CacheStats();
-    utils::Logger::info("Translation cache cleared");
+    speechrnt::utils::Logger::info("Translation cache cleared");
 }
 
 float MarianTranslator::getCacheHitRate() const {
@@ -1799,7 +1799,7 @@ TranslationResult MarianTranslator::translateWithContext(const std::string& text
 bool MarianTranslator::initializeMultipleLanguagePairs(const std::vector<std::pair<std::string, std::string>>& languagePairs) {
     std::lock_guard<std::mutex> lock(languagePairMutex_);
     
-    utils::Logger::info("Initializing " + std::to_string(languagePairs.size()) + " language pairs");
+    speechrnt::utils::Logger::info("Initializing " + std::to_string(languagePairs.size()) + " language pairs");
     
     bool allSuccessful = true;
     size_t successfulPairs = 0;
@@ -1811,7 +1811,7 @@ bool MarianTranslator::initializeMultipleLanguagePairs(const std::vector<std::pa
         // Validate language pair first
         auto validation = validateLanguagePairDetailed(sourceLang, targetLang);
         if (!validation.isValid) {
-            utils::Logger::error("Invalid language pair " + sourceLang + " -> " + targetLang + ": " + validation.errorMessage);
+            speechrnt::utils::Logger::error("Invalid language pair " + sourceLang + " -> " + targetLang + ": " + validation.errorMessage);
             allSuccessful = false;
             continue;
         }
@@ -1826,14 +1826,14 @@ bool MarianTranslator::initializeMultipleLanguagePairs(const std::vector<std::pa
             loadedLanguagePairs_.push_back(pair);
             updateModelUsageStatistics(sourceLang, targetLang);
             successfulPairs++;
-            utils::Logger::info("Successfully loaded language pair: " + sourceLang + " -> " + targetLang);
+            speechrnt::utils::Logger::info("Successfully loaded language pair: " + sourceLang + " -> " + targetLang);
         } else {
-            utils::Logger::error("Failed to load language pair: " + sourceLang + " -> " + targetLang);
+            speechrnt::utils::Logger::error("Failed to load language pair: " + sourceLang + " -> " + targetLang);
             allSuccessful = false;
         }
     }
     
-    utils::Logger::info("Loaded " + std::to_string(successfulPairs) + " out of " + 
+    speechrnt::utils::Logger::info("Loaded " + std::to_string(successfulPairs) + " out of " + 
                        std::to_string(languagePairs.size()) + " language pairs");
     
     return allSuccessful;
@@ -1845,7 +1845,7 @@ bool MarianTranslator::switchLanguagePair(const std::string& sourceLang, const s
     // Validate the language pair
     auto validation = validateLanguagePairDetailed(sourceLang, targetLang);
     if (!validation.isValid) {
-        utils::Logger::error("Cannot switch to invalid language pair " + sourceLang + " -> " + targetLang + ": " + validation.errorMessage);
+        speechrnt::utils::Logger::error("Cannot switch to invalid language pair " + sourceLang + " -> " + targetLang + ": " + validation.errorMessage);
         return false;
     }
     
@@ -1853,7 +1853,7 @@ bool MarianTranslator::switchLanguagePair(const std::string& sourceLang, const s
     if (!isModelLoaded(sourceLang, targetLang)) {
         // Load the model if not already loaded
         if (!loadLanguagePairModel(sourceLang, targetLang)) {
-            utils::Logger::error("Failed to load model for language pair: " + sourceLang + " -> " + targetLang);
+            speechrnt::utils::Logger::error("Failed to load model for language pair: " + sourceLang + " -> " + targetLang);
             return false;
         }
     }
@@ -1866,7 +1866,7 @@ bool MarianTranslator::switchLanguagePair(const std::string& sourceLang, const s
     // Update usage statistics
     updateModelUsageStatistics(sourceLang, targetLang);
     
-    utils::Logger::info("Switched to language pair: " + sourceLang + " -> " + targetLang);
+    speechrnt::utils::Logger::info("Switched to language pair: " + sourceLang + " -> " + targetLang);
     return true;
 }
 
@@ -2025,12 +2025,12 @@ size_t MarianTranslator::preloadLanguagePairs(const std::vector<std::pair<std::s
     maxConcurrentModels_ = maxConcurrentModels;
     size_t successfullyLoaded = 0;
     
-    utils::Logger::info("Preloading " + std::to_string(languagePairs.size()) + " language pairs (max concurrent: " + 
+    speechrnt::utils::Logger::info("Preloading " + std::to_string(languagePairs.size()) + " language pairs (max concurrent: " + 
                        std::to_string(maxConcurrentModels) + ")");
     
     for (const auto& pair : languagePairs) {
         if (loadedLanguagePairs_.size() >= maxConcurrentModels_) {
-            utils::Logger::info("Reached maximum concurrent models limit (" + std::to_string(maxConcurrentModels_) + ")");
+            speechrnt::utils::Logger::info("Reached maximum concurrent models limit (" + std::to_string(maxConcurrentModels_) + ")");
             break;
         }
         
@@ -2040,7 +2040,7 @@ size_t MarianTranslator::preloadLanguagePairs(const std::vector<std::pair<std::s
         // Skip if already loaded
         auto existingIt = std::find(loadedLanguagePairs_.begin(), loadedLanguagePairs_.end(), pair);
         if (existingIt != loadedLanguagePairs_.end()) {
-            utils::Logger::debug("Language pair already loaded: " + sourceLang + " -> " + targetLang);
+            speechrnt::utils::Logger::debug("Language pair already loaded: " + sourceLang + " -> " + targetLang);
             successfullyLoaded++;
             continue;
         }
@@ -2051,13 +2051,13 @@ size_t MarianTranslator::preloadLanguagePairs(const std::vector<std::pair<std::s
             loadedLanguagePairs_.push_back(pair);
             updateModelUsageStatistics(sourceLang, targetLang);
             successfullyLoaded++;
-            utils::Logger::info("Preloaded language pair: " + sourceLang + " -> " + targetLang);
+            speechrnt::utils::Logger::info("Preloaded language pair: " + sourceLang + " -> " + targetLang);
         } else {
-            utils::Logger::warning("Failed to preload language pair: " + sourceLang + " -> " + targetLang);
+            speechrnt::utils::Logger::warning("Failed to preload language pair: " + sourceLang + " -> " + targetLang);
         }
     }
     
-    utils::Logger::info("Successfully preloaded " + std::to_string(successfullyLoaded) + " language pairs");
+    speechrnt::utils::Logger::info("Successfully preloaded " + std::to_string(successfullyLoaded) + " language pairs");
     return successfullyLoaded;
 }
 
@@ -2178,7 +2178,7 @@ void MarianTranslator::unloadLeastRecentlyUsedModel() {
     }
     
     if (foundLRU) {
-        utils::Logger::info("Unloading least recently used model: " + lruPair.first + " -> " + lruPair.second);
+        speechrnt::utils::Logger::info("Unloading least recently used model: " + lruPair.first + " -> " + lruPair.second);
         unloadModel(lruPair.first, lruPair.second);
         
         // Remove from loaded pairs
@@ -2306,7 +2306,7 @@ void MarianTranslator::initializeLanguagePairMappings() {
         {"de-en", {"marian-de-en", "https://models.speechrnt.com/marian/de-en/latest", "200 MB", "German to English translation model", true}}
     };
     
-    utils::Logger::info("Initialized language pair mappings for " + std::to_string(allSupportedLanguages_.size()) + " languages");
+    speechrnt::utils::Logger::info("Initialized language pair mappings for " + std::to_string(allSupportedLanguages_.size()) + " languages");
 }
 
 bool MarianTranslator::validateLanguageCode(const std::string& languageCode) const {
@@ -2345,9 +2345,9 @@ bool MarianTranslator::forceExitDegradedMode() {
     if (errorHandler_) {
         bool success = errorHandler_->exitDegradedMode();
         if (success) {
-            utils::Logger::info("Forced exit from degraded mode");
+            speechrnt::utils::Logger::info("Forced exit from degraded mode");
         } else {
-            utils::Logger::error("Failed to force exit from degraded mode");
+            speechrnt::utils::Logger::error("Failed to force exit from degraded mode");
         }
         return success;
     }

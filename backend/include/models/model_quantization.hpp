@@ -164,12 +164,12 @@ private:
 };
 
 /**
- * Coqui TTS model quantizer
+ * Piper TTS model quantizer
  */
-class CoquiQuantizer : public ModelQuantizer {
+class PiperQuantizer : public ModelQuantizer {
 public:
-    CoquiQuantizer();
-    ~CoquiQuantizer() override;
+    PiperQuantizer();
+    ~PiperQuantizer() override;
     
     bool quantizeModel(const std::string& modelPath,
                       const std::string& outputPath,
@@ -189,7 +189,7 @@ private:
     QuantizationConfig currentConfig_;
     
     // Private methods
-    bool quantizeCoquiModel(const std::string& inputPath, const std::string& outputPath,
+    bool quantizePiperModel(const std::string& inputPath, const std::string& outputPath,
                           QuantizationPrecision precision);
     float evaluateAudioQuality(const std::string& originalAudio, 
                               const std::string& quantizedAudio) const;
@@ -218,7 +218,7 @@ public:
     
     /**
      * Quantize a model
-     * @param modelType Model type (whisper, marian, coqui)
+     * @param modelType Model type (whisper, marian, piper)
      * @param modelPath Path to original model
      * @param outputPath Path for quantized model
      * @param config Quantization configuration

@@ -74,7 +74,7 @@ TEST_F(ErrorHandlerTest, SpecificExceptions) {
     EXPECT_EQ(mt_ex.getErrorInfo().category, ErrorCategory::TRANSLATION);
     
     // Test TTSException
-    TTSException tts_ex("Coqui synthesis error");
+    TTSException tts_ex("Piper synthesis error");
     EXPECT_EQ(tts_ex.getErrorInfo().category, ErrorCategory::TTS);
     
     // Test ModelLoadingException

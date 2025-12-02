@@ -3,7 +3,7 @@
 #include "utils/performance_monitor.hpp"
 #include "stt/whisper_stt.hpp"
 #include "mt/marian_translator.hpp"
-#include "tts/coqui_tts.hpp"
+#include "tts/piper_tts.hpp"
 #include <chrono>
 #include <vector>
 #include <random>

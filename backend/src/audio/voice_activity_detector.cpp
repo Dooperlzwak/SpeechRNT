@@ -31,7 +31,7 @@ VoiceActivityDetector::VoiceActivityDetector(const VadConfig& config)
     stats_ = {};
     stats_.lastActivity = std::chrono::steady_clock::now();
     
-    utils::Logger::info("VoiceActivityDetector created with speech threshold: " + 
+    speechrnt::utils::Logger::info("VoiceActivityDetector created with speech threshold: " + 
                        std::to_string(config_.speechThreshold));
 }
 
@@ -41,7 +41,7 @@ VoiceActivityDetector::~VoiceActivityDetector() {
 
 bool VoiceActivityDetector::initialize() {
     if (initialized_) {
-        utils::Logger::warn("VoiceActivityDetector already initialized");
+        speechrnt::utils::Logger::warn("VoiceActivityDetector already initialized");
         return true;
     }
     
@@ -53,17 +53,17 @@ bool VoiceActivityDetector::initialize() {
 #endif
         
         if (!sileroVad_->initialize(config_.sampleRate, modelPath)) {
-            utils::Logger::warn("Silero-VAD initialization failed, using energy-based fallback");
+            speechrnt::utils::Logger::warn("Silero-VAD initialization failed, using energy-based fallback");
             // Continue with energy-based fallback - this is not a fatal error
         }
         
         // Set VAD mode based on what's available
         if (sileroVad_->isSileroModelLoaded()) {
             sileroVad_->setVadMode(SileroVadImpl::VadMode::HYBRID);
-            utils::Logger::info("VAD initialized with silero-vad ML model and energy-based fallback");
+            speechrnt::utils::Logger::info("VAD initialized with silero-vad ML model and energy-based fallback");
         } else {
             sileroVad_->setVadMode(SileroVadImpl::VadMode::ENERGY_BASED);
-            utils::Logger::info("VAD initialized with energy-based detection only");
+            speechrnt::utils::Logger::info("VAD initialized with energy-based detection only");
         }
         
         // Reset state
@@ -75,11 +75,11 @@ bool VoiceActivityDetector::initialize() {
         initialized_ = true;
         setError(ErrorCode::NONE);
         
-        utils::Logger::info("VoiceActivityDetector initialized successfully");
+        speechrnt::utils::Logger::info("VoiceActivityDetector initialized successfully");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("VoiceActivityDetector initialization failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("VoiceActivityDetector initialization failed: " + std::string(e.what()));
         setError(ErrorCode::MODEL_LOAD_ERROR);
         return false;
     }
@@ -98,7 +98,7 @@ void VoiceActivityDetector::shutdown() {
     sileroVad_->shutdown();
     initialized_ = false;
     
-    utils::Logger::info("VoiceActivityDetector shutdown complete");
+    speechrnt::utils::Logger::info("VoiceActivityDetector shutdown complete");
 }
 
 void VoiceActivityDetector::setConfig(const VadConfig& config) {
@@ -128,7 +128,7 @@ void VoiceActivityDetector::setConfig(const VadConfig& config) {
         energyBasedVad_->configure(energyConfig);
     }
     
-    utils::Logger::info("VoiceActivityDetector configuration updated");
+    speechrnt::utils::Logger::info("VoiceActivityDetector configuration updated");
 }
 
 void VoiceActivityDetector::setVadCallback(VadCallback callback) {
@@ -227,7 +227,7 @@ void VoiceActivityDetector::processAudioChunk(const std::vector<float>& audioDat
         setError(ErrorCode::NONE);
         
     } catch (const std::exception& e) {
-        utils::Logger::error("VoiceActivityDetector processing error: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("VoiceActivityDetector processing error: " + std::string(e.what()));
         setError(ErrorCode::PROCESSING_ERROR);
     }
 }
@@ -253,7 +253,7 @@ void VoiceActivityDetector::reset() {
     std::lock_guard<std::mutex> lock(audioMutex_);
     currentUtteranceAudio_.clear();
     
-    utils::Logger::info("VoiceActivityDetector reset to IDLE state");
+    speechrnt::utils::Logger::info("VoiceActivityDetector reset to IDLE state");
 }
 
 VoiceActivityDetector::Statistics VoiceActivityDetector::getStatistics() const {
@@ -273,7 +273,7 @@ void VoiceActivityDetector::resetStatistics() {
     stats_ = {};
     stats_.lastActivity = std::chrono::steady_clock::now();
     
-    utils::Logger::info("VoiceActivityDetector statistics reset");
+    speechrnt::utils::Logger::info("VoiceActivityDetector statistics reset");
 }
 
 std::string VoiceActivityDetector::getErrorMessage() const {
@@ -317,7 +317,7 @@ void VoiceActivityDetector::setVadMode(int mode) {
     }
     
     sileroVad_->setVadMode(vadMode);
-    utils::Logger::info("VAD mode set to: " + std::to_string(mode));
+    speechrnt::utils::Logger::info("VAD mode set to: " + std::to_string(mode));
 }
 
 int VoiceActivityDetector::getCurrentVadMode() const {
@@ -357,9 +357,9 @@ void VoiceActivityDetector::transitionToState(VadState newState, float confidenc
             if (currentUtteranceId_ == 0) {
                 currentUtteranceId_ = nextUtteranceId_++;
                 utteranceStartTime_ = stateChangeTime_;
-                utils::Logger::debug("Started utterance " + std::to_string(currentUtteranceId_));
+                speechrnt::utils::Logger::debug("Started utterance " + std::to_string(currentUtteranceId_));
             } else {
-                utils::Logger::debug("Continuing utterance " + std::to_string(currentUtteranceId_));
+                speechrnt::utils::Logger::debug("Continuing utterance " + std::to_string(currentUtteranceId_));
             }
             break;
             
@@ -381,7 +381,7 @@ void VoiceActivityDetector::transitionToState(VadState newState, float confidenc
         vadCallback_(event);
     }
     
-    utils::Logger::debug("VAD state transition: " + std::to_string(static_cast<int>(previousState)) + 
+    speechrnt::utils::Logger::debug("VAD state transition: " + std::to_string(static_cast<int>(previousState)) + 
                         " -> " + std::to_string(static_cast<int>(newState)) + 
                         " (confidence: " + std::to_string(confidence) + ")");
 }
@@ -424,7 +424,7 @@ void VoiceActivityDetector::finalizeUtterance() {
         utteranceCallback_(currentUtteranceId_, utteranceAudio);
     }
     
-    utils::Logger::info("Finalized utterance " + std::to_string(currentUtteranceId_) + 
+    speechrnt::utils::Logger::info("Finalized utterance " + std::to_string(currentUtteranceId_) + 
                        " with " + std::to_string(utteranceAudio.size()) + " samples");
     
     currentUtteranceId_ = 0;
@@ -457,7 +457,7 @@ void VoiceActivityDetector::setError(ErrorCode error) {
     lastError_ = error;
     
     if (error != ErrorCode::NONE) {
-        utils::Logger::warn("VoiceActivityDetector error: " + getErrorMessage());
+        speechrnt::utils::Logger::warn("VoiceActivityDetector error: " + getErrorMessage());
     }
 }
 

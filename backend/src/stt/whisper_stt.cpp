@@ -2516,7 +2516,7 @@ sperSTT::generateTranscriptionCandidates(const std::vector<float>& audioData, st
                   });
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception during candidate generation: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception during candidate generation: " + std::string(e.what()));
     }
 #else
     // Simulation mode - generate mock candidates
@@ -2535,7 +2535,7 @@ sperSTT::generateTranscriptionCandidates(const std::vector<float>& audioData, st
     }
 #endif
     
-    utils::Logger::debug("Generated " + std::to_string(candidates.size()) + " transcription candidates");
+    speechrnt::utils::Logger::debug("Generated " + std::to_string(candidates.size()) + " transcription candidates");
 }
 
 void WhisperSTT::triggerTranslationPipeline(uint32_t utteranceId, const TranscriptionResult& result, const std::vector<TranscriptionResult>& candidates) {
@@ -2543,7 +2543,7 @@ void WhisperSTT::triggerTranslationPipeline(uint32_t utteranceId, const Transcri
         try {
             transcriptionCompleteCallback_(utteranceId, result, candidates);
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in transcription complete callback: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in transcription complete callback: " + std::string(e.what()));
         }
     }
 }

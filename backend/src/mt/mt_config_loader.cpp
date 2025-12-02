@@ -17,7 +17,7 @@ std::shared_ptr<MTConfig> MTConfigLoader::loadConfiguration(
         
         // Load main configuration file
         if (!config->loadFromFile(configPath)) {
-            utils::Logger::error("Failed to load main configuration from: " + configPath);
+            speechrnt::utils::Logger::error("Failed to load main configuration from: " + configPath);
             return nullptr;
         }
         
@@ -26,7 +26,7 @@ std::shared_ptr<MTConfig> MTConfigLoader::loadConfiguration(
         
         // Apply environment-specific overrides
         if (!applyEnvironmentOverrides(*config, environment)) {
-            utils::Logger::warning("Failed to apply environment overrides for: " + environment);
+            speechrnt::utils::Logger::warning("Failed to apply environment overrides for: " + environment);
             // Continue with base configuration
         }
         
@@ -36,18 +36,18 @@ std::shared_ptr<MTConfig> MTConfigLoader::loadConfiguration(
         // Validate the final configuration
         auto errors = validateConfiguration(*config);
         if (!errors.empty()) {
-            utils::Logger::error("Configuration validation failed:");
+            speechrnt::utils::Logger::error("Configuration validation failed:");
             for (const auto& error : errors) {
-                utils::Logger::error("  - " + error);
+                speechrnt::utils::Logger::error("  - " + error);
             }
             return nullptr;
         }
         
-        utils::Logger::info("Successfully loaded MT configuration for environment: " + environment);
+        speechrnt::utils::Logger::info("Successfully loaded MT configuration for environment: " + environment);
         return config;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception while loading configuration: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception while loading configuration: " + std::string(e.what()));
         return nullptr;
     }
 }
@@ -61,7 +61,7 @@ std::shared_ptr<MTConfig> MTConfigLoader::loadConfigurationFromJson(
         
         // Load from JSON content
         if (!config->loadFromJson(jsonContent)) {
-            utils::Logger::error("Failed to parse JSON configuration");
+            speechrnt::utils::Logger::error("Failed to parse JSON configuration");
             return nullptr;
         }
         
@@ -77,9 +77,9 @@ std::shared_ptr<MTConfig> MTConfigLoader::loadConfigurationFromJson(
         // Validate configuration
         auto errors = validateConfiguration(*config);
         if (!errors.empty()) {
-            utils::Logger::error("Configuration validation failed:");
+            speechrnt::utils::Logger::error("Configuration validation failed:");
             for (const auto& error : errors) {
-                utils::Logger::error("  - " + error);
+                speechrnt::utils::Logger::error("  - " + error);
             }
             return nullptr;
         }
@@ -87,7 +87,7 @@ std::shared_ptr<MTConfig> MTConfigLoader::loadConfigurationFromJson(
         return config;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception while loading configuration from JSON: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception while loading configuration from JSON: " + std::string(e.what()));
         return nullptr;
     }
 }
@@ -104,7 +104,7 @@ std::shared_ptr<MTConfig> MTConfigLoader::createDefaultConfiguration(const std::
     // Optimize for environment
     optimizeForEnvironment(*config, environment);
     
-    utils::Logger::info("Created default MT configuration for environment: " + environment);
+    speechrnt::utils::Logger::info("Created default MT configuration for environment: " + environment);
     return config;
 }
 
@@ -123,14 +123,14 @@ std::shared_ptr<MTConfig> MTConfigLoader::mergeConfigurations(
         // Convert overlay to JSON and apply as updates
         std::string overlayJson = overlay.toJson();
         if (!merged->updateConfiguration(overlayJson)) {
-            utils::Logger::error("Failed to merge configurations");
+            speechrnt::utils::Logger::error("Failed to merge configurations");
             return nullptr;
         }
         
         return merged;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Exception while merging configurations: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Exception while merging configurations: " + std::string(e.what()));
         return nullptr;
     }
 }
@@ -199,7 +199,7 @@ bool MTConfigLoader::applyTuningParameters(
         return config.updateConfiguration(jsonUpdate.str());
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to apply tuning parameters: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to apply tuning parameters: " + std::string(e.what()));
         return false;
     }
 }
@@ -556,11 +556,11 @@ bool MTConfigTuner::autoTuneForSystem(
         // Tune caching settings based on available RAM
         tuneCachingSettings(config, availableRAMMB);
         
-        utils::Logger::info("Auto-tuned MT configuration for system resources");
+        speechrnt::utils::Logger::info("Auto-tuned MT configuration for system resources");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to auto-tune configuration: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to auto-tune configuration: " + std::string(e.what()));
         return false;
     }
 }
@@ -602,11 +602,11 @@ bool MTConfigTuner::tuneForPerformance(
         cachingConfig.maxCacheSize = std::min(static_cast<size_t>(5000), maxMemoryUsageMB / 10);
         config.updateCachingConfig(cachingConfig);
         
-        utils::Logger::info("Tuned MT configuration for performance targets");
+        speechrnt::utils::Logger::info("Tuned MT configuration for performance targets");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to tune configuration for performance: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to tune configuration for performance: " + std::string(e.what()));
         return false;
     }
 }
@@ -668,11 +668,11 @@ bool MTConfigTuner::tuneForUseCase(MTConfig& config, const std::string& useCase)
             config.updateErrorHandlingConfig(errorConfig);
         }
         
-        utils::Logger::info("Tuned MT configuration for use case: " + useCase);
+        speechrnt::utils::Logger::info("Tuned MT configuration for use case: " + useCase);
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to tune configuration for use case: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to tune configuration for use case: " + std::string(e.what()));
         return false;
     }
 }

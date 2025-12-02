@@ -74,7 +74,7 @@ void UtteranceManager::initializeWithPipeline(
             }
         );
         
-        utils::Logger::info("UtteranceManager initialized with translation pipeline integration");
+        speechrnt::utils::Logger::info("UtteranceManager initialized with translation pipeline integration");
     }
 }
 
@@ -454,7 +454,7 @@ void UtteranceManager::processTranscriptionResult(
     const std::vector<stt::TranscriptionResult>& candidates
 ) {
     if (!translation_pipeline_) {
-        utils::Logger::warn("Translation pipeline not available for utterance " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::warn("Translation pipeline not available for utterance " + std::to_string(utterance_id));
         // Fallback to old processing method
         setTranscription(utterance_id, result.text, result.confidence);
         
@@ -469,7 +469,7 @@ void UtteranceManager::processTranscriptionResult(
     // Get session ID for the utterance
     auto utterance = getUtterance(utterance_id);
     if (!utterance) {
-        utils::Logger::error("Utterance not found: " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::error("Utterance not found: " + std::to_string(utterance_id));
         return;
     }
     
@@ -560,7 +560,7 @@ void UtteranceManager::processSTT(uint32_t utterance_id) {
     // Get utterance data
     std::shared_ptr<UtteranceData> utterance = getUtterance(utterance_id);
     if (!utterance) {
-        utils::Logger::error("Utterance not found: " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::error("Utterance not found: " + std::to_string(utterance_id));
         setUtteranceError(utterance_id, "Utterance not found");
         return;
     }
@@ -569,13 +569,13 @@ void UtteranceManager::processSTT(uint32_t utterance_id) {
     if (stt_engine_ && !utterance->audio_buffer.empty() && stt_engine_->isInitialized()) {
         auto audio = utterance->audio_buffer; // copy for thread safety
         
-        utils::Logger::info("Processing STT for utterance " + std::to_string(utterance_id) + 
+        speechrnt::utils::Logger::info("Processing STT for utterance " + std::to_string(utterance_id) + 
                            " with " + std::to_string(audio.size()) + " audio samples using real Whisper engine");
         
         try {
             // Use the real STT engine
             stt_engine_->transcribe(audio, [this, utterance_id](const stt::TranscriptionResult& result) {
-                utils::Logger::info("STT completed for utterance " + std::to_string(utterance_id) + 
+                speechrnt::utils::Logger::info("STT completed for utterance " + std::to_string(utterance_id) + 
                                    ": \"" + result.text + "\" (confidence: " + std::to_string(result.confidence) + ")");
                 
                 if (translation_pipeline_) {
@@ -593,11 +593,11 @@ void UtteranceManager::processSTT(uint32_t utterance_id) {
             });
             return;
         } catch (const std::exception& e) {
-            utils::Logger::error("STT engine transcription failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("STT engine transcription failed: " + std::string(e.what()));
             setUtteranceError(utterance_id, "STT transcription failed: " + std::string(e.what()));
             return;
         } catch (...) {
-            utils::Logger::error("STT engine transcription failed with unknown exception");
+            speechrnt::utils::Logger::error("STT engine transcription failed with unknown exception");
             setUtteranceError(utterance_id, "STT transcription failed with unknown error");
             return;
         }
@@ -605,15 +605,15 @@ void UtteranceManager::processSTT(uint32_t utterance_id) {
     
     // Log why we're falling back to simulation
     if (!stt_engine_) {
-        utils::Logger::warn("No STT engine available for utterance " + std::to_string(utterance_id) + ", using simulation");
+        speechrnt::utils::Logger::warn("No STT engine available for utterance " + std::to_string(utterance_id) + ", using simulation");
     } else if (!stt_engine_->isInitialized()) {
-        utils::Logger::warn("STT engine not initialized for utterance " + std::to_string(utterance_id) + ", using simulation");
+        speechrnt::utils::Logger::warn("STT engine not initialized for utterance " + std::to_string(utterance_id) + ", using simulation");
     } else if (utterance->audio_buffer.empty()) {
-        utils::Logger::warn("No audio data available for utterance " + std::to_string(utterance_id) + ", using simulation");
+        speechrnt::utils::Logger::warn("No audio data available for utterance " + std::to_string(utterance_id) + ", using simulation");
     }
 
     // Fallback: simulate STT quickly to preserve previous behavior
-    utils::Logger::info("Using STT simulation for utterance " + std::to_string(utterance_id));
+    speechrnt::utils::Logger::info("Using STT simulation for utterance " + std::to_string(utterance_id));
     std::this_thread::sleep_for(std::chrono::milliseconds(50)); // Slightly longer for realism
     
     stt::TranscriptionResult fallback;
@@ -648,21 +648,21 @@ void UtteranceManager::processMT(uint32_t utterance_id) {
     // Get utterance data
     std::shared_ptr<UtteranceData> utterance = getUtterance(utterance_id);
     if (!utterance) {
-        utils::Logger::error("Utterance not found for MT processing: " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::error("Utterance not found for MT processing: " + std::to_string(utterance_id));
         setUtteranceError(utterance_id, "Utterance not found");
         return;
     }
     
     // Check if we have transcription to translate
     if (utterance->transcript.empty()) {
-        utils::Logger::warn("No transcript available for MT processing: " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::warn("No transcript available for MT processing: " + std::to_string(utterance_id));
         setUtteranceError(utterance_id, "No transcript available for translation");
         return;
     }
     
     // If a real MT engine is available, use it
     if (mt_engine_ && !utterance->source_language.empty() && !utterance->target_language.empty()) {
-        utils::Logger::info("Processing MT for utterance " + std::to_string(utterance_id) + 
+        speechrnt::utils::Logger::info("Processing MT for utterance " + std::to_string(utterance_id) + 
                            " with real Marian engine: \"" + utterance->transcript + "\" (" + 
                            utterance->source_language + " -> " + utterance->target_language + ")");
         
@@ -671,7 +671,7 @@ void UtteranceManager::processMT(uint32_t utterance_id) {
             if (!mt_engine_->isReady() || 
                 !mt_engine_->supportsLanguagePair(utterance->source_language, utterance->target_language)) {
                 
-                utils::Logger::info("Initializing MT engine for language pair: " + 
+                speechrnt::utils::Logger::info("Initializing MT engine for language pair: " + 
                                    utterance->source_language + " -> " + utterance->target_language);
                 
                 if (!mt_engine_->initialize(utterance->source_language, utterance->target_language)) {
@@ -683,7 +683,7 @@ void UtteranceManager::processMT(uint32_t utterance_id) {
             auto translation_result = mt_engine_->translate(utterance->transcript);
             
             if (translation_result.success) {
-                utils::Logger::info("MT completed for utterance " + std::to_string(utterance_id) + 
+                speechrnt::utils::Logger::info("MT completed for utterance " + std::to_string(utterance_id) + 
                                    ": \"" + translation_result.translatedText + "\" (confidence: " + 
                                    std::to_string(translation_result.confidence) + ")");
                 
@@ -703,11 +703,11 @@ void UtteranceManager::processMT(uint32_t utterance_id) {
             return;
             
         } catch (const std::exception& e) {
-            utils::Logger::error("MT engine translation failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("MT engine translation failed: " + std::string(e.what()));
             setUtteranceError(utterance_id, "MT translation failed: " + std::string(e.what()));
             return;
         } catch (...) {
-            utils::Logger::error("MT engine translation failed with unknown exception");
+            speechrnt::utils::Logger::error("MT engine translation failed with unknown exception");
             setUtteranceError(utterance_id, "MT translation failed with unknown error");
             return;
         }
@@ -715,16 +715,16 @@ void UtteranceManager::processMT(uint32_t utterance_id) {
     
     // Log why we're falling back to simulation
     if (!mt_engine_) {
-        utils::Logger::warn("No MT engine available for utterance " + std::to_string(utterance_id) + ", using simulation");
+        speechrnt::utils::Logger::warn("No MT engine available for utterance " + std::to_string(utterance_id) + ", using simulation");
     } else if (utterance->source_language.empty() || utterance->target_language.empty()) {
-        utils::Logger::warn("Language configuration missing for utterance " + std::to_string(utterance_id) + ", using simulation");
+        speechrnt::utils::Logger::warn("Language configuration missing for utterance " + std::to_string(utterance_id) + ", using simulation");
     } else if (!mt_engine_->supportsLanguagePair(utterance->source_language, utterance->target_language)) {
-        utils::Logger::warn("Unsupported language pair " + utterance->source_language + " -> " + 
+        speechrnt::utils::Logger::warn("Unsupported language pair " + utterance->source_language + " -> " + 
                            utterance->target_language + " for utterance " + std::to_string(utterance_id) + ", using simulation");
     }
     
     // Fallback: simulate MT processing
-    utils::Logger::info("Using MT simulation for utterance " + std::to_string(utterance_id));
+    speechrnt::utils::Logger::info("Using MT simulation for utterance " + std::to_string(utterance_id));
     std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Realistic processing time
     
     // Create simulated translation
@@ -756,22 +756,22 @@ void UtteranceManager::processTTS(uint32_t utterance_id) {
     // Get utterance data
     std::shared_ptr<UtteranceData> utterance = getUtterance(utterance_id);
     if (!utterance) {
-        utils::Logger::error("Utterance not found for TTS processing: " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::error("Utterance not found for TTS processing: " + std::to_string(utterance_id));
         setUtteranceError(utterance_id, "Utterance not found");
         return;
     }
     
     // Check if we have translation to synthesize
     if (utterance->translation.empty()) {
-        utils::Logger::warn("No translation available for TTS processing: " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::warn("No translation available for TTS processing: " + std::to_string(utterance_id));
         setUtteranceError(utterance_id, "No translation available for synthesis");
         return;
     }
     
     // If a real TTS engine is available, use it
     if (tts_engine_ && tts_engine_->isReady()) {
-        utils::Logger::info("Processing TTS for utterance " + std::to_string(utterance_id) + 
-                           " with real Coqui TTS engine: \"" + utterance->translation + "\"" +
+        speechrnt::utils::Logger::info("Processing TTS for utterance " + std::to_string(utterance_id) + 
+                           " with real Piper TTS engine: \"" + utterance->translation + "\"" +
                            (utterance->voice_id.empty() ? "" : " (voice: " + utterance->voice_id + ")"));
         
         try {
@@ -789,7 +789,7 @@ void UtteranceManager::processTTS(uint32_t utterance_id) {
             }
             
             if (!voice_found && !utterance->voice_id.empty()) {
-                utils::Logger::warn("Requested voice '" + utterance->voice_id + "' not available for utterance " + 
+                speechrnt::utils::Logger::warn("Requested voice '" + utterance->voice_id + "' not available for utterance " + 
                                    std::to_string(utterance_id) + ", using default voice");
                 voice_to_use = tts_engine_->getDefaultVoice();
             }
@@ -798,7 +798,7 @@ void UtteranceManager::processTTS(uint32_t utterance_id) {
             auto synthesis_result = tts_engine_->synthesize(utterance->translation, voice_to_use);
             
             if (synthesis_result.success) {
-                utils::Logger::info("TTS completed for utterance " + std::to_string(utterance_id) + 
+                speechrnt::utils::Logger::info("TTS completed for utterance " + std::to_string(utterance_id) + 
                                    ": " + std::to_string(synthesis_result.audioData.size()) + " bytes, " +
                                    std::to_string(synthesis_result.duration) + "s duration");
                 
@@ -811,11 +811,11 @@ void UtteranceManager::processTTS(uint32_t utterance_id) {
             return;
             
         } catch (const std::exception& e) {
-            utils::Logger::error("TTS engine synthesis failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("TTS engine synthesis failed: " + std::string(e.what()));
             setUtteranceError(utterance_id, "TTS synthesis failed: " + std::string(e.what()));
             return;
         } catch (...) {
-            utils::Logger::error("TTS engine synthesis failed with unknown exception");
+            speechrnt::utils::Logger::error("TTS engine synthesis failed with unknown exception");
             setUtteranceError(utterance_id, "TTS synthesis failed with unknown error");
             return;
         }
@@ -823,13 +823,13 @@ void UtteranceManager::processTTS(uint32_t utterance_id) {
     
     // Log why we're falling back to simulation
     if (!tts_engine_) {
-        utils::Logger::warn("No TTS engine available for utterance " + std::to_string(utterance_id) + ", using simulation");
+        speechrnt::utils::Logger::warn("No TTS engine available for utterance " + std::to_string(utterance_id) + ", using simulation");
     } else if (!tts_engine_->isReady()) {
-        utils::Logger::warn("TTS engine not ready for utterance " + std::to_string(utterance_id) + ", using simulation");
+        speechrnt::utils::Logger::warn("TTS engine not ready for utterance " + std::to_string(utterance_id) + ", using simulation");
     }
     
     // Fallback: simulate TTS processing
-    utils::Logger::info("Using TTS simulation for utterance " + std::to_string(utterance_id));
+    speechrnt::utils::Logger::info("Using TTS simulation for utterance " + std::to_string(utterance_id));
     std::this_thread::sleep_for(std::chrono::milliseconds(200)); // Realistic synthesis time
     
     // Create simulated audio data (larger than before to be more realistic)

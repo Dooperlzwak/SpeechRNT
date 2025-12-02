@@ -30,14 +30,14 @@ StreamingTranscriber::~StreamingTranscriber() {
 
 bool StreamingTranscriber::initialize(std::shared_ptr<TranscriptionManager> transcriptionManager, MessageSender messageSender) {
     if (!transcriptionManager || !messageSender) {
-        utils::Logger::error("StreamingTranscriber: Invalid parameters for initialization");
+        speechrnt::utils::Logger::error("StreamingTranscriber: Invalid parameters for initialization");
         return false;
     }
     
     transcriptionManager_ = transcriptionManager;
     messageSender_ = messageSender;
     
-    utils::Logger::info("StreamingTranscriber initialized successfully");
+    speechrnt::utils::Logger::info("StreamingTranscriber initialized successfully");
     return true;
 }
 
@@ -47,7 +47,7 @@ bool StreamingTranscriber::initializeWithTranslationPipeline(
     std::shared_ptr<::speechrnt::core::TranslationPipeline> translationPipeline
 ) {
     if (!transcriptionManager || !messageSender || !translationPipeline) {
-        utils::Logger::error("StreamingTranscriber: Invalid parameters for translation pipeline initialization");
+        speechrnt::utils::Logger::error("StreamingTranscriber: Invalid parameters for translation pipeline initialization");
         return false;
     }
     
@@ -58,13 +58,13 @@ bool StreamingTranscriber::initializeWithTranslationPipeline(
     // Generate a session ID for this transcriber instance
     sessionId_ = "streaming_session_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
     
-    utils::Logger::info("StreamingTranscriber initialized with translation pipeline integration");
+    speechrnt::utils::Logger::info("StreamingTranscriber initialized with translation pipeline integration");
     return true;
 }
 
 void StreamingTranscriber::startTranscription(uint32_t utteranceId, const std::vector<float>& audioData, bool isLive) {
     if (!transcriptionManager_) {
-        utils::Logger::error("StreamingTranscriber not initialized");
+        speechrnt::utils::Logger::error("StreamingTranscriber not initialized");
         return;
     }
     
@@ -123,7 +123,7 @@ void StreamingTranscriber::startTranscription(uint32_t utteranceId, const std::v
         }
     }
     
-    utils::Logger::debug("Started streaming transcription for utterance " + std::to_string(utteranceId));
+    speechrnt::utils::Logger::debug("Started streaming transcription for utterance " + std::to_string(utteranceId));
 }
 
 void StreamingTranscriber::addAudioData(uint32_t utteranceId, const std::vector<float>& audioData) {
@@ -134,13 +134,13 @@ void StreamingTranscriber::addAudioData(uint32_t utteranceId, const std::vector<
     std::lock_guard<std::mutex> lock(stateMutex_);
     auto it = transcriptionStates_.find(utteranceId);
     if (it == transcriptionStates_.end() || !it->second.isActive) {
-        utils::Logger::warn("Attempted to add audio data to inactive transcription: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::warn("Attempted to add audio data to inactive transcription: " + std::to_string(utteranceId));
         return;
     }
     
     // For simulation, we'll just trigger another transcription
     // In real implementation, this would be handled by the streaming STT engine
-    utils::Logger::debug("Added audio data to utterance " + std::to_string(utteranceId) + 
+    speechrnt::utils::Logger::debug("Added audio data to utterance " + std::to_string(utteranceId) + 
                          " (" + std::to_string(audioData.size()) + " samples)");
 }
 
@@ -149,13 +149,13 @@ void StreamingTranscriber::finalizeTranscription(uint32_t utteranceId) {
     
     auto it = transcriptionStates_.find(utteranceId);
     if (it == transcriptionStates_.end()) {
-        utils::Logger::warn("Attempted to finalize unknown transcription: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::warn("Attempted to finalize unknown transcription: " + std::to_string(utteranceId));
         return;
     }
     
     TranscriptionState& state = it->second;
     if (!state.isActive) {
-        utils::Logger::warn("Attempted to finalize inactive transcription: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::warn("Attempted to finalize inactive transcription: " + std::to_string(utteranceId));
         return;
     }
     
@@ -183,11 +183,11 @@ void StreamingTranscriber::finalizeTranscription(uint32_t utteranceId) {
             // Trigger translation
             translationPipeline_->processTranscriptionResult(utteranceId, sessionId_, finalResult, candidates);
             
-            utils::Logger::debug("Triggered translation pipeline for utterance " + std::to_string(utteranceId));
+            speechrnt::utils::Logger::debug("Triggered translation pipeline for utterance " + std::to_string(utteranceId));
         }
     }
     
-    utils::Logger::debug("Finalized transcription for utterance " + std::to_string(utteranceId));
+    speechrnt::utils::Logger::debug("Finalized transcription for utterance " + std::to_string(utteranceId));
 }
 
 void StreamingTranscriber::cancelTranscription(uint32_t utteranceId) {
@@ -200,7 +200,7 @@ void StreamingTranscriber::cancelTranscription(uint32_t utteranceId) {
         transcriptionStates_.erase(it);
     }
     
-    utils::Logger::debug("Cancelled transcription for utterance " + std::to_string(utteranceId));
+    speechrnt::utils::Logger::debug("Cancelled transcription for utterance " + std::to_string(utteranceId));
 }
 
 bool StreamingTranscriber::isTranscribing(uint32_t utteranceId) const {
@@ -222,7 +222,7 @@ void StreamingTranscriber::handleTranscriptionResult(uint32_t utteranceId, const
     
     auto it = transcriptionStates_.find(utteranceId);
     if (it == transcriptionStates_.end() || !it->second.isActive) {
-        utils::Logger::warn("Received transcription result for inactive utterance: " + std::to_string(utteranceId));
+        speechrnt::utils::Logger::warn("Received transcription result for inactive utterance: " + std::to_string(utteranceId));
         return;
     }
     
@@ -290,14 +290,14 @@ void StreamingTranscriber::handleTranscriptionResult(uint32_t utteranceId, const
         state.updateCount++;
     }
     
-    utils::Logger::debug("Handled transcription result for utterance " + std::to_string(utteranceId) + 
+    speechrnt::utils::Logger::debug("Handled transcription result for utterance " + std::to_string(utteranceId) + 
                          ": '" + result.text + "' (confidence: " + std::to_string(result.confidence) + 
                          ", partial: " + (isPartial ? "true" : "false") + ")");
 }
 
 void StreamingTranscriber::sendTranscriptionUpdate(uint32_t utteranceId, const TranscriptionState& state, bool isPartial) {
     if (!messageSender_) {
-        utils::Logger::error("No message sender available");
+        speechrnt::utils::Logger::error("No message sender available");
         return;
     }
     
@@ -322,7 +322,7 @@ void StreamingTranscriber::sendTranscriptionUpdate(uint32_t utteranceId, const T
     messageSender_(serialized);
     
     // Log with additional information about the update
-    utils::Logger::debug("Sent transcription update for utterance " + std::to_string(utteranceId) + 
+    speechrnt::utils::Logger::debug("Sent transcription update for utterance " + std::to_string(utteranceId) + 
                          ": '" + state.currentText + "' (partial: " + (isPartial ? "true" : "false") + 
                          ", update #" + std::to_string(state.updateCount + 1) + 
                          ", similarity: " + std::to_string(calculateTextSimilarity(state.lastSentText, state.currentText)) + ")");

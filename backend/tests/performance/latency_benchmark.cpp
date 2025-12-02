@@ -4,7 +4,7 @@
 #include "models/model_quantization.hpp"
 #include "stt/whisper_stt.hpp"
 #include "mt/marian_translator.hpp"
-#include "tts/coqui_tts.hpp"
+#include "tts/piper_tts.hpp"
 #include <chrono>
 #include <vector>
 #include <random>
@@ -180,7 +180,7 @@ TEST_F(LatencyBenchmark, ModelQuantizationPerformance) {
         models::QuantizationPrecision::INT8
     };
     
-    std::vector<std::string> modelTypes = {"whisper", "marian", "coqui"};
+    std::vector<std::string> modelTypes = {"whisper", "marian", "piper"};
     
     for (const std::string& modelType : modelTypes) {
         for (models::QuantizationPrecision precision : precisions) {

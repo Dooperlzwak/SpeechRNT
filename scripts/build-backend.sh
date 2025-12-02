@@ -12,7 +12,7 @@ cd backend/build
 
 # Configure with CMake
 echo "Configuring with CMake..."
-cmake ..
+cmake .. "$@"
 
 # Build with make
 echo "Compiling..."

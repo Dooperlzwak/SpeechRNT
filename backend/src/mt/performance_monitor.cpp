@@ -50,7 +50,7 @@ bool PerformanceMonitor::initialize(const std::string& configPath) {
             if (configFile.is_open()) {
                 // Parse configuration JSON
                 // For now, use default configuration
-                utils::Logger::info("Using default performance monitor configuration");
+                speechrnt::utils::Logger::info("Using default performance monitor configuration");
             }
         }
         
@@ -63,11 +63,11 @@ bool PerformanceMonitor::initialize(const std::string& configPath) {
         warnings_.reserve(config_.maxWarningsInMemory);
         
         initialized_ = true;
-        utils::Logger::info("Performance monitor initialized successfully");
+        speechrnt::utils::Logger::info("Performance monitor initialized successfully");
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to initialize performance monitor: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to initialize performance monitor: " + std::string(e.what()));
         return false;
     }
 }
@@ -111,7 +111,7 @@ void PerformanceMonitor::cleanup() {
     }
     
     initialized_ = false;
-    utils::Logger::info("Performance monitor cleaned up");
+    speechrnt::utils::Logger::info("Performance monitor cleaned up");
 }
 
 void PerformanceMonitor::recordTranslationMetrics(const TranslationMetrics& metrics) {
@@ -132,7 +132,7 @@ void PerformanceMonitor::recordTranslationMetrics(const TranslationMetrics& metr
     // Check thresholds and emit warnings if necessary
     checkThresholds(metrics);
     
-    utils::Logger::debug("Recorded translation metrics: latency=" + 
+    speechrnt::utils::Logger::debug("Recorded translation metrics: latency=" + 
               std::to_string(metrics.latency.count()) + "ms, " +
               "confidence=" + std::to_string(metrics.confidence));
 }
@@ -155,7 +155,7 @@ void PerformanceMonitor::recordResourceMetrics(const ResourceMetrics& metrics) {
     // Check resource thresholds
     checkResourceThresholds(metrics);
     
-    utils::Logger::debug("Recorded resource metrics: CPU=" + 
+    speechrnt::utils::Logger::debug("Recorded resource metrics: CPU=" + 
               std::to_string(metrics.cpuUsagePercent) + "%, " +
               "Memory=" + std::to_string(metrics.memoryUsageMB) + "MB");
 }
@@ -181,7 +181,7 @@ void PerformanceMonitor::recordError(const std::string& errorType, const std::st
     
     emitWarning(warning);
     
-    utils::Logger::warn("Recorded error: " + errorType + " - " + details);
+    speechrnt::utils::Logger::warn("Recorded error: " + errorType + " - " + details);
 }
 
 PerformanceStatistics PerformanceMonitor::getStatistics(std::chrono::seconds period) const {
@@ -362,7 +362,7 @@ std::vector<ResourceMetrics> PerformanceMonitor::getRecentResourceMetrics(size_t
 
 void PerformanceMonitor::setThresholds(const PerformanceThresholds& thresholds) {
     thresholds_ = thresholds;
-    utils::Logger::info("Performance thresholds updated");
+    speechrnt::utils::Logger::info("Performance thresholds updated");
 }
 
 PerformanceThresholds PerformanceMonitor::getThresholds() const {
@@ -443,7 +443,7 @@ void PerformanceMonitor::enqueueTranslation(const QueuedTranslation& translation
     
     queueCondition_.notify_one();
     
-    utils::Logger::debug("Translation enqueued: " + translation.sessionId + 
+    speechrnt::utils::Logger::debug("Translation enqueued: " + translation.sessionId + 
               " (priority: " + std::to_string(translation.priority) + ")");
 }
 
@@ -461,7 +461,7 @@ bool PerformanceMonitor::dequeueTranslation(QueuedTranslation& translation) {
     translation = translationQueue_.top();
     translationQueue_.pop();
     
-    utils::Logger::debug("Translation dequeued: " + translation.sessionId);
+    speechrnt::utils::Logger::debug("Translation dequeued: " + translation.sessionId);
     return true;
 }
 
@@ -485,7 +485,7 @@ void PerformanceMonitor::clearQueue() {
         translationQueue_.pop();
     }
     
-    utils::Logger::info("Translation queue cleared");
+    speechrnt::utils::Logger::info("Translation queue cleared");
 }
 
 void PerformanceMonitor::setPriorityBoost(const std::string& sessionId, int boost) {
@@ -496,13 +496,13 @@ void PerformanceMonitor::setPriorityBoost(const std::string& sessionId, int boos
     std::lock_guard<std::mutex> lock(queueMutex_);
     sessionPriorityBoosts_[sessionId] = boost;
     
-    utils::Logger::debug("Priority boost set for session " + sessionId + ": " + std::to_string(boost));
+    speechrnt::utils::Logger::debug("Priority boost set for session " + sessionId + ": " + std::to_string(boost));
 }
 
 void PerformanceMonitor::setMemoryOptimizer(std::unique_ptr<MemoryOptimizer> optimizer) {
     std::lock_guard<std::mutex> lock(optimizerMutex_);
     memoryOptimizer_ = std::move(optimizer);
-    utils::Logger::info("Memory optimizer set");
+    speechrnt::utils::Logger::info("Memory optimizer set");
 }
 
 MemoryOptimizer::OptimizationResult PerformanceMonitor::optimizeMemory(
@@ -512,13 +512,13 @@ MemoryOptimizer::OptimizationResult PerformanceMonitor::optimizeMemory(
     std::lock_guard<std::mutex> lock(optimizerMutex_);
     
     if (!memoryOptimizer_) {
-        utils::Logger::warn("No memory optimizer available");
+        speechrnt::utils::Logger::warn("No memory optimizer available");
         return MemoryOptimizer::OptimizationResult();
     }
     
     auto result = memoryOptimizer_->optimize(strategy, targetMemoryMB);
     
-    utils::Logger::info("Memory optimization completed: freed " + 
+    speechrnt::utils::Logger::info("Memory optimization completed: freed " + 
              std::to_string(result.memoryFreedMB) + "MB, " +
              "unloaded " + std::to_string(result.modelsUnloaded) + " models");
     
@@ -627,7 +627,7 @@ void PerformanceMonitor::startRealTimeMonitoring(std::chrono::seconds interval) 
     
     monitoringThread_ = std::make_unique<std::thread>(&PerformanceMonitor::realTimeMonitoringLoop, this);
     
-    utils::Logger::info("Real-time monitoring started with " + std::to_string(interval.count()) + "s interval");
+    speechrnt::utils::Logger::info("Real-time monitoring started with " + std::to_string(interval.count()) + "s interval");
 }
 
 void PerformanceMonitor::stopRealTimeMonitoring() {
@@ -643,7 +643,7 @@ void PerformanceMonitor::stopRealTimeMonitoring() {
     }
     monitoringThread_.reset();
     
-    utils::Logger::info("Real-time monitoring stopped");
+    speechrnt::utils::Logger::info("Real-time monitoring stopped");
 }
 
 bool PerformanceMonitor::isRealTimeMonitoringActive() const {
@@ -687,35 +687,35 @@ bool PerformanceMonitor::savePerformanceReport(const std::string& filePath, std:
     try {
         std::ofstream file(filePath);
         if (!file.is_open()) {
-            utils::Logger::error("Failed to open file for performance report: " + filePath);
+            speechrnt::utils::Logger::error("Failed to open file for performance report: " + filePath);
             return false;
         }
         
         auto stats = getStatistics(period);
         file << statisticsToJson(stats);
         
-        utils::Logger::info("Performance report saved to: " + filePath);
+        speechrnt::utils::Logger::info("Performance report saved to: " + filePath);
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to save performance report: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to save performance report: " + std::string(e.what()));
         return false;
     }
 }
 
 void PerformanceMonitor::setMetricsRetentionPeriod(std::chrono::hours period) {
     config_.metricsRetentionPeriod = period;
-    utils::Logger::info("Metrics retention period set to " + std::to_string(period.count()) + " hours");
+    speechrnt::utils::Logger::info("Metrics retention period set to " + std::to_string(period.count()) + " hours");
 }
 
 void PerformanceMonitor::setResourceMonitoringInterval(std::chrono::seconds interval) {
     config_.resourceMonitoringInterval = interval;
-    utils::Logger::info("Resource monitoring interval set to " + std::to_string(interval.count()) + " seconds");
+    speechrnt::utils::Logger::info("Resource monitoring interval set to " + std::to_string(interval.count()) + " seconds");
 }
 
 void PerformanceMonitor::enableDetailedLogging(bool enabled) {
     config_.detailedLoggingEnabled = enabled;
-    utils::Logger::info("Detailed logging " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Detailed logging " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 // Private methods implementation
@@ -811,12 +811,12 @@ void PerformanceMonitor::emitWarning(const PerformanceWarning& warning) {
             try {
                 warningCallback_(warning);
             } catch (const std::exception& e) {
-                utils::Logger::error("Warning callback failed: " + std::string(e.what()));
+                speechrnt::utils::Logger::error("Warning callback failed: " + std::string(e.what()));
             }
         }
     }
     
-    utils::Logger::warn("Performance warning: " + warning.message);
+    speechrnt::utils::Logger::warn("Performance warning: " + warning.message);
 }
 
 void PerformanceMonitor::cleanupOldMetrics() {
@@ -858,7 +858,7 @@ void PerformanceMonitor::realTimeMonitoringLoop() {
             std::this_thread::sleep_for(config_.resourceMonitoringInterval);
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Error in real-time monitoring loop: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Error in real-time monitoring loop: " + std::string(e.what()));
             std::this_thread::sleep_for(std::chrono::seconds(5)); // Wait before retrying
         }
     }
@@ -926,7 +926,7 @@ ResourceMetrics PerformanceMonitor::collectCurrentResourceMetrics() const {
         metrics.diskUsageMB = 0;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to collect resource metrics: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to collect resource metrics: " + std::string(e.what()));
     }
     
     return metrics;

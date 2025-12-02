@@ -37,33 +37,33 @@ ClientSession::ClientSession(const std::string& sessionId)
         handleUtteranceComplete(utteranceId, audioData);
     });
     
-    utils::Logger::info("Created session: " + sessionId);
+    speechrnt::utils::Logger::info("Created session: " + sessionId);
 }
 
 ClientSession::~ClientSession() {
     shutdownTranscription();
     shutdownVAD();
-    utils::Logger::info("Destroyed session: " + sessionId_);
+    speechrnt::utils::Logger::info("Destroyed session: " + sessionId_);
     connected_ = false;
 }
 
 void ClientSession::handleMessage(const std::string& message) {
-    utils::Logger::debug("Session " + sessionId_ + " received JSON: " + message);
+    speechrnt::utils::Logger::debug("Session " + sessionId_ + " received JSON: " + message);
     
     if (!connected_) {
-        utils::Logger::warn("Received message for disconnected session: " + sessionId_);
+        speechrnt::utils::Logger::warn("Received message for disconnected session: " + sessionId_);
         return;
     }
     
     // Validate and parse message using protocol
     if (!MessageProtocol::validateMessage(message)) {
-        utils::Logger::warn("Invalid message format from session " + sessionId_);
+        speechrnt::utils::Logger::warn("Invalid message format from session " + sessionId_);
         return;
     }
     
     auto parsedMessage = MessageProtocol::parseMessage(message);
     if (!parsedMessage) {
-        utils::Logger::warn("Failed to parse message from session " + sessionId_);
+        speechrnt::utils::Logger::warn("Failed to parse message from session " + sessionId_);
         return;
     }
     
@@ -79,17 +79,17 @@ void ClientSession::handleMessage(const std::string& message) {
             processPingMessage(static_cast<PingMessage*>(parsedMessage.get()));
             break;
         default:
-            utils::Logger::warn("Unexpected message type from client session " + sessionId_);
+            speechrnt::utils::Logger::warn("Unexpected message type from client session " + sessionId_);
             break;
     }
 }
 
 void ClientSession::handleBinaryMessage(std::string_view data) {
-    utils::Logger::debug("Session " + sessionId_ + " received binary data: " + 
+    speechrnt::utils::Logger::debug("Session " + sessionId_ + " received binary data: " + 
                         std::to_string(data.size()) + " bytes");
     
     if (!connected_) {
-        utils::Logger::warn("Received binary data for disconnected session: " + sessionId_);
+        speechrnt::utils::Logger::warn("Received binary data for disconnected session: " + sessionId_);
         return;
     }
     
@@ -98,38 +98,38 @@ void ClientSession::handleBinaryMessage(std::string_view data) {
 
 void ClientSession::sendMessage(const std::string& message) {
     if (connected_ && server_) {
-        utils::Logger::debug("Session " + sessionId_ + " sending JSON: " + message);
+        speechrnt::utils::Logger::debug("Session " + sessionId_ + " sending JSON: " + message);
         server_->sendMessage(sessionId_, message);
     } else {
-        utils::Logger::warn("Attempted to send message to disconnected session or no server: " + sessionId_);
+        speechrnt::utils::Logger::warn("Attempted to send message to disconnected session or no server: " + sessionId_);
     }
 }
 
 void ClientSession::sendBinaryMessage(const std::vector<uint8_t>& data) {
     if (connected_ && server_) {
-        utils::Logger::debug("Session " + sessionId_ + " sending binary: " + 
+        speechrnt::utils::Logger::debug("Session " + sessionId_ + " sending binary: " + 
                             std::to_string(data.size()) + " bytes");
         server_->sendBinaryMessage(sessionId_, data);
     } else {
-        utils::Logger::warn("Attempted to send binary data to disconnected session or no server: " + sessionId_);
+        speechrnt::utils::Logger::warn("Attempted to send binary data to disconnected session or no server: " + sessionId_);
     }
 }
 
 void ClientSession::setLanguageConfig(const std::string& sourceLang, const std::string& targetLang) {
     sourceLang_ = sourceLang;
     targetLang_ = targetLang;
-    utils::Logger::info("Session " + sessionId_ + " language config: " + 
+    speechrnt::utils::Logger::info("Session " + sessionId_ + " language config: " + 
                        sourceLang + " -> " + targetLang);
 }
 
 void ClientSession::setVoiceConfig(const std::string& voiceId) {
     voiceId_ = voiceId;
-    utils::Logger::info("Session " + sessionId_ + " voice config: " + voiceId);
+    speechrnt::utils::Logger::info("Session " + sessionId_ + " voice config: " + voiceId);
 }
 
 bool ClientSession::ingestAudioData(std::string_view data) {
     if (!audioIngestion_) {
-        utils::Logger::error("Audio ingestion manager not initialized for session " + sessionId_);
+        speechrnt::utils::Logger::error("Audio ingestion manager not initialized for session " + sessionId_);
         return false;
     }
     
@@ -147,14 +147,14 @@ std::shared_ptr<audio::AudioBuffer> ClientSession::getAudioBuffer() {
 void ClientSession::clearAudioBuffer() {
     if (audioIngestion_) {
         audioIngestion_->getAudioBuffer()->clear();
-        utils::Logger::debug("Session " + sessionId_ + " audio buffer cleared");
+        speechrnt::utils::Logger::debug("Session " + sessionId_ + " audio buffer cleared");
     }
 }
 
 void ClientSession::setAudioFormat(const audio::AudioFormat& format) {
     if (audioIngestion_) {
         audioIngestion_->setAudioFormat(format);
-        utils::Logger::info("Session " + sessionId_ + " audio format updated: " +
+        speechrnt::utils::Logger::info("Session " + sessionId_ + " audio format updated: " +
                            std::to_string(format.sampleRate) + "Hz, " +
                            std::to_string(format.channels) + " channels, " +
                            std::to_string(format.bitsPerSample) + "-bit");
@@ -179,7 +179,7 @@ audio::AudioIngestionManager::Statistics ClientSession::getAudioStatistics() con
 }
 
 void ClientSession::processConfigMessage(const ConfigMessage* message) {
-    utils::Logger::info("Processing config message for session " + sessionId_);
+    speechrnt::utils::Logger::info("Processing config message for session " + sessionId_);
     
     setLanguageConfig(message->getSourceLang(), message->getTargetLang());
     setVoiceConfig(message->getVoice());
@@ -191,7 +191,7 @@ void ClientSession::processConfigMessage(const ConfigMessage* message) {
             whisperSTT->setAutoLanguageSwitching(message->isAutoLanguageSwitching());
             whisperSTT->setLanguageDetectionThreshold(message->getLanguageDetectionThreshold());
             
-            utils::Logger::info("Updated language detection settings for session " + sessionId_ + 
+            speechrnt::utils::Logger::info("Updated language detection settings for session " + sessionId_ + 
                                ": detection=" + (message->isLanguageDetectionEnabled() ? "enabled" : "disabled") +
                                ", auto-switch=" + (message->isAutoLanguageSwitching() ? "enabled" : "disabled") +
                                ", threshold=" + std::to_string(message->getLanguageDetectionThreshold()));
@@ -200,15 +200,15 @@ void ClientSession::processConfigMessage(const ConfigMessage* message) {
 }
 
 void ClientSession::processControlMessage(const EndSessionMessage* message) {
-    utils::Logger::info("Processing end session message for session " + sessionId_);
+    speechrnt::utils::Logger::info("Processing end session message for session " + sessionId_);
     
-    utils::Logger::info("Session " + sessionId_ + " requested to end");
+    speechrnt::utils::Logger::info("Session " + sessionId_ + " requested to end");
     connected_ = false;
     clearAudioBuffer();
 }
 
 void ClientSession::processPingMessage(const PingMessage* message) {
-    utils::Logger::debug("Processing ping message for session " + sessionId_);
+    speechrnt::utils::Logger::debug("Processing ping message for session " + sessionId_);
     
     // Send pong response
     PongMessage pong;
@@ -221,18 +221,18 @@ bool ClientSession::initializeVAD() {
     }
     
     if (!vad_) {
-        utils::Logger::error("VAD not created for session " + sessionId_);
+        speechrnt::utils::Logger::error("VAD not created for session " + sessionId_);
         return false;
     }
     
     if (!vad_->initialize()) {
-        utils::Logger::error("Failed to initialize VAD for session " + sessionId_ + ": " + 
+        speechrnt::utils::Logger::error("Failed to initialize VAD for session " + sessionId_ + ": " + 
                            vad_->getErrorMessage());
         return false;
     }
     
     vadInitialized_ = true;
-    utils::Logger::info("VAD initialized for session " + sessionId_);
+    speechrnt::utils::Logger::info("VAD initialized for session " + sessionId_);
     return true;
 }
 
@@ -240,7 +240,7 @@ void ClientSession::shutdownVAD() {
     if (vad_ && vadInitialized_) {
         vad_->shutdown();
         vadInitialized_ = false;
-        utils::Logger::info("VAD shutdown for session " + sessionId_);
+        speechrnt::utils::Logger::info("VAD shutdown for session " + sessionId_);
     }
 }
 
@@ -266,7 +266,7 @@ void ClientSession::setVADConfig(const audio::VadConfig& config) {
     vadConfig_ = config;
     if (vad_) {
         vad_->setConfig(config);
-        utils::Logger::info("VAD configuration updated for session " + sessionId_);
+        speechrnt::utils::Logger::info("VAD configuration updated for session " + sessionId_);
     }
 }
 
@@ -279,7 +279,7 @@ void ClientSession::setPipelineCallback(PipelineCallback callback) {
 }
 
 void ClientSession::handleVADEvent(const audio::VadEvent& event) {
-    utils::Logger::debug("Session " + sessionId_ + " VAD event: " + 
+    speechrnt::utils::Logger::debug("Session " + sessionId_ + " VAD event: " + 
                         std::to_string(static_cast<int>(event.previousState)) + " -> " +
                         std::to_string(static_cast<int>(event.currentState)) + 
                         " (confidence: " + std::to_string(event.confidence) + ")");
@@ -288,7 +288,7 @@ void ClientSession::handleVADEvent(const audio::VadEvent& event) {
     if (event.currentState == audio::VadState::SPEECH_DETECTED) {
         if (!streamingTranscriber_) {
             if (!initializeTranscription()) {
-                utils::Logger::error("Failed to initialize transcription at speech onset for session " + sessionId_);
+                speechrnt::utils::Logger::error("Failed to initialize transcription at speech onset for session " + sessionId_);
             }
         }
         if (streamingTranscriber_) {
@@ -320,7 +320,7 @@ void ClientSession::handleVADEvent(const audio::VadEvent& event) {
 }
 
 void ClientSession::handleUtteranceComplete(uint32_t utteranceId, const std::vector<float>& audioData) {
-    utils::Logger::info("Session " + sessionId_ + " utterance " + std::to_string(utteranceId) + 
+    speechrnt::utils::Logger::info("Session " + sessionId_ + " utterance " + std::to_string(utteranceId) + 
                        " completed with " + std::to_string(audioData.size()) + " samples");
     
     // Feed final audio chunk and finalize streaming transcription
@@ -338,13 +338,13 @@ void ClientSession::handleUtteranceComplete(uint32_t utteranceId, const std::vec
     if (pipelineCallback_) {
         pipelineCallback_(utteranceId, audioData, sourceLang_, targetLang_, voiceId_);
     } else {
-        utils::Logger::warn("No pipeline callback set for session " + sessionId_);
+        speechrnt::utils::Logger::warn("No pipeline callback set for session " + sessionId_);
     }
 }
 
 void ClientSession::processAudioData(std::string_view data) {
     if (!ingestAudioData(data)) {
-        utils::Logger::warn("Session " + sessionId_ + " failed to ingest audio data: " +
+        speechrnt::utils::Logger::warn("Session " + sessionId_ + " failed to ingest audio data: " +
                            audioIngestion_->getErrorMessage());
         
         // Send error message to client
@@ -356,7 +356,7 @@ void ClientSession::processAudioData(std::string_view data) {
     
     // Initialize VAD if not already done
     if (!vadInitialized_ && !initializeVAD()) {
-        utils::Logger::error("Failed to initialize VAD for session " + sessionId_);
+        speechrnt::utils::Logger::error("Failed to initialize VAD for session " + sessionId_);
         ErrorMessage errorMsg("VAD initialization failed", "VAD_INIT_ERROR");
         sendMessage(errorMsg.serialize());
         return;
@@ -385,7 +385,7 @@ void ClientSession::processAudioData(std::string_view data) {
     
     // Log successful ingestion
     auto stats = getAudioStatistics();
-    utils::Logger::debug("Session " + sessionId_ + " ingested " + 
+    speechrnt::utils::Logger::debug("Session " + sessionId_ + " ingested " + 
                         std::to_string(data.size()) + " bytes. " +
                         "Total: " + std::to_string(stats.totalBytesIngested) + " bytes, " +
                         std::to_string(stats.totalChunksIngested) + " chunks");
@@ -402,7 +402,7 @@ bool ClientSession::initializeTranscription() {
     // Initialize with default model (this should be configurable)
     std::string modelPath = "data/whisper/ggml-base.bin"; // Default model
     if (!transcriptionManager_->initialize(modelPath, "whisper")) {
-        utils::Logger::error("Failed to initialize transcription manager for session " + sessionId_ + 
+        speechrnt::utils::Logger::error("Failed to initialize transcription manager for session " + sessionId_ + 
                            ": " + transcriptionManager_->getLastError());
         return false;
     }
@@ -420,7 +420,7 @@ bool ClientSession::initializeTranscription() {
     
     // Initialize streaming transcriber
     if (!streamingTranscriber_->initialize(transcriptionManager_, messageSender)) {
-        utils::Logger::error("Failed to initialize streaming transcriber for session " + sessionId_);
+        speechrnt::utils::Logger::error("Failed to initialize streaming transcriber for session " + sessionId_);
         return false;
     }
     
@@ -444,27 +444,27 @@ bool ClientSession::initializeTranscription() {
         });
     }
     
-    utils::Logger::info("Transcription initialized for session " + sessionId_);
+    speechrnt::utils::Logger::info("Transcription initialized for session " + sessionId_);
     return true;
 }
 
 void ClientSession::shutdownTranscription() {
     if (streamingTranscriber_) {
         streamingTranscriber_.reset();
-        utils::Logger::info("Streaming transcriber shutdown for session " + sessionId_);
+        speechrnt::utils::Logger::info("Streaming transcriber shutdown for session " + sessionId_);
     }
     
     if (transcriptionManager_) {
         transcriptionManager_->stop();
         transcriptionManager_.reset();
-        utils::Logger::info("Transcription manager shutdown for session " + sessionId_);
+        speechrnt::utils::Logger::info("Transcription manager shutdown for session " + sessionId_);
     }
 }
 
 void ClientSession::startStreamingTranscription(uint32_t utteranceId, const std::vector<float>& audioData) {
     if (!streamingTranscriber_) {
         if (!initializeTranscription()) {
-            utils::Logger::error("Failed to initialize transcription for session " + sessionId_);
+            speechrnt::utils::Logger::error("Failed to initialize transcription for session " + sessionId_);
             
             // Send error message to client
             ErrorMessage errorMsg("Transcription initialization failed", "TRANSCRIPTION_INIT_ERROR", utteranceId);
@@ -476,12 +476,12 @@ void ClientSession::startStreamingTranscription(uint32_t utteranceId, const std:
     // Start streaming transcription
     streamingTranscriber_->startTranscription(utteranceId, audioData, true);
     
-    utils::Logger::debug("Started streaming transcription for utterance " + std::to_string(utteranceId) + 
+    speechrnt::utils::Logger::debug("Started streaming transcription for utterance " + std::to_string(utteranceId) + 
                         " in session " + sessionId_);
 }
 
 void ClientSession::handleLanguageChange(const std::string& oldLang, const std::string& newLang, float confidence) {
-    utils::Logger::info("Session " + sessionId_ + " detected language change: " + 
+    speechrnt::utils::Logger::info("Session " + sessionId_ + " detected language change: " + 
                        oldLang + " -> " + newLang + " (confidence: " + std::to_string(confidence) + ")");
     
     // Update session source language if auto-switching is enabled

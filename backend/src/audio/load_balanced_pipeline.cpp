@@ -40,7 +40,7 @@ bool PriorityJobQueue::initialize(size_t maxQueueSize) {
     priorityQueues_[ProcessingPriority::LOW] = std::queue<ProcessingJob>();
     priorityQueues_[ProcessingPriority::BACKGROUND] = std::queue<ProcessingJob>();
     
-    utils::Logger::info("PriorityJobQueue initialized with max size " + 
+    speechrnt::utils::Logger::info("PriorityJobQueue initialized with max size " + 
                        std::to_string(maxQueueSize));
     
     return true;
@@ -55,7 +55,7 @@ bool PriorityJobQueue::submitJob(const ProcessingJob& job) {
         removeTimedOutJobs();
         
         if (currentQueueSize_ >= maxQueueSize_) {
-            utils::Logger::warn("Job queue full, rejecting job " + std::to_string(job.jobId));
+            speechrnt::utils::Logger::warn("Job queue full, rejecting job " + std::to_string(job.jobId));
             return false;
         }
     }
@@ -68,7 +68,7 @@ bool PriorityJobQueue::submitJob(const ProcessingJob& job) {
     // Notify waiting workers
     queueCondition_.notify_one();
     
-    utils::Logger::debug("Job " + std::to_string(job.jobId) + " submitted with priority " + 
+    speechrnt::utils::Logger::debug("Job " + std::to_string(job.jobId) + " submitted with priority " + 
                         std::to_string(static_cast<int>(job.priority)));
     
     return true;
@@ -144,7 +144,7 @@ bool PriorityJobQueue::cancelJob(uint64_t jobId) {
         queue = tempQueue;
         
         if (found) {
-            utils::Logger::debug("Job " + std::to_string(jobId) + " cancelled");
+            speechrnt::utils::Logger::debug("Job " + std::to_string(jobId) + " cancelled");
             return true;
         }
     }
@@ -196,13 +196,13 @@ void PriorityJobQueue::clear() {
     }
     
     currentQueueSize_ = 0;
-    utils::Logger::info("Job queue cleared");
+    speechrnt::utils::Logger::info("Job queue cleared");
 }
 
 void PriorityJobQueue::setMaxQueueSize(size_t maxSize) {
     std::lock_guard<std::mutex> lock(queueMutex_);
     maxQueueSize_ = maxSize;
-    utils::Logger::info("Max queue size set to " + std::to_string(maxSize));
+    speechrnt::utils::Logger::info("Max queue size set to " + std::to_string(maxSize));
 }
 
 ProcessingPriority PriorityJobQueue::getHighestPriorityWithJobs() const {
@@ -256,7 +256,7 @@ ResourceMonitor::~ResourceMonitor() {
 bool ResourceMonitor::initialize(int updateIntervalMs) {
     updateIntervalMs_ = updateIntervalMs;
     
-    utils::Logger::info("ResourceMonitor initialized with " + 
+    speechrnt::utils::Logger::info("ResourceMonitor initialized with " + 
                        std::to_string(updateIntervalMs) + "ms update interval");
     
     return true;
@@ -264,14 +264,14 @@ bool ResourceMonitor::initialize(int updateIntervalMs) {
 
 bool ResourceMonitor::startMonitoring() {
     if (monitoring_.load()) {
-        utils::Logger::warn("Resource monitoring already started");
+        speechrnt::utils::Logger::warn("Resource monitoring already started");
         return true;
     }
     
     monitoring_ = true;
     monitoringThread_ = std::make_unique<std::thread>(&ResourceMonitor::monitoringLoop, this);
     
-    utils::Logger::info("Resource monitoring started");
+    speechrnt::utils::Logger::info("Resource monitoring started");
     return true;
 }
 
@@ -286,7 +286,7 @@ void ResourceMonitor::stopMonitoring() {
         monitoringThread_->join();
     }
     
-    utils::Logger::info("Resource monitoring stopped");
+    speechrnt::utils::Logger::info("Resource monitoring stopped");
 }
 
 SystemResources ResourceMonitor::getCurrentResources() const {
@@ -332,7 +332,7 @@ void ResourceMonitor::updateAverageLatency(float latencyMs) {
 }
 
 void ResourceMonitor::monitoringLoop() {
-    utils::Logger::info("Resource monitoring loop started");
+    speechrnt::utils::Logger::info("Resource monitoring loop started");
     
     while (monitoring_.load()) {
         try {
@@ -358,19 +358,19 @@ void ResourceMonitor::monitoringLoop() {
             }
             
             // Record performance metrics
-            utils::PerformanceMonitor::getInstance().recordValue(
+            speechrnt::utils::PerformanceMonitor::getInstance().recordValue(
                 "system.cpu_usage", resources.cpuUsage);
-            utils::PerformanceMonitor::getInstance().recordValue(
+            speechrnt::utils::PerformanceMonitor::getInstance().recordValue(
                 "system.memory_usage", resources.memoryUsage);
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Resource monitoring error: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Resource monitoring error: " + std::string(e.what()));
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(updateIntervalMs_));
     }
     
-    utils::Logger::info("Resource monitoring loop stopped");
+    speechrnt::utils::Logger::info("Resource monitoring loop stopped");
 }
 
 SystemResources ResourceMonitor::measureSystemResources() {
@@ -392,7 +392,7 @@ void ResourceMonitor::notifyResourceChange(const SystemResources& resources) {
         try {
             callback(resources);
         } catch (const std::exception& e) {
-            utils::Logger::error("Resource callback error: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Resource callback error: " + std::string(e.what()));
         }
     }
 }
@@ -537,18 +537,18 @@ bool LoadBalancedProcessingPipeline::initialize(size_t numWorkerThreads, size_t 
                 onResourceChange(resources);
             });
         
-        utils::Logger::info("LoadBalancedProcessingPipeline initialized with " + 
+        speechrnt::utils::Logger::info("LoadBalancedProcessingPipeline initialized with " + 
                            std::to_string(numWorkerThreads) + " worker threads");
         return true;
     } else {
-        utils::Logger::error("LoadBalancedProcessingPipeline initialization failed");
+        speechrnt::utils::Logger::error("LoadBalancedProcessingPipeline initialization failed");
         return false;
     }
 }
 
 bool LoadBalancedProcessingPipeline::start() {
     if (pipelineActive_.load()) {
-        utils::Logger::warn("Processing pipeline already active");
+        speechrnt::utils::Logger::warn("Processing pipeline already active");
         return true;
     }
     
@@ -564,7 +564,7 @@ bool LoadBalancedProcessingPipeline::start() {
             std::make_unique<std::thread>(&LoadBalancedProcessingPipeline::workerLoop, this, i));
     }
     
-    utils::Logger::info("Processing pipeline started with " + 
+    speechrnt::utils::Logger::info("Processing pipeline started with " + 
                        std::to_string(numWorkerThreads_) + " workers");
     return true;
 }
@@ -587,12 +587,12 @@ void LoadBalancedProcessingPipeline::stop() {
     }
     workerThreads_.clear();
     
-    utils::Logger::info("Processing pipeline stopped");
+    speechrnt::utils::Logger::info("Processing pipeline stopped");
 }
 
 uint64_t LoadBalancedProcessingPipeline::submitJob(const ProcessingJob& job) {
     if (!pipelineActive_.load()) {
-        utils::Logger::error("Cannot submit job: pipeline not active");
+        speechrnt::utils::Logger::error("Cannot submit job: pipeline not active");
         return 0;
     }
     
@@ -610,10 +610,10 @@ uint64_t LoadBalancedProcessingPipeline::submitJob(const ProcessingJob& job) {
         // Update resource monitor
         resourceMonitor_->updateQueueSize(jobQueue_->getQueueSize());
         
-        utils::Logger::debug("Job " + std::to_string(jobCopy.jobId) + " submitted successfully");
+        speechrnt::utils::Logger::debug("Job " + std::to_string(jobCopy.jobId) + " submitted successfully");
         return jobCopy.jobId;
     } else {
-        utils::Logger::error("Failed to submit job " + std::to_string(jobCopy.jobId));
+        speechrnt::utils::Logger::error("Failed to submit job " + std::to_string(jobCopy.jobId));
         return 0;
     }
 }
@@ -664,19 +664,19 @@ SystemResources LoadBalancedProcessingPipeline::getCurrentResources() const {
 void LoadBalancedProcessingPipeline::setJobTypePriority(ProcessingJobType jobType, 
                                                        ProcessingPriority priority) {
     jobTypePriorities_[jobType] = priority;
-    utils::Logger::info("Job type " + std::to_string(static_cast<int>(jobType)) + 
+    speechrnt::utils::Logger::info("Job type " + std::to_string(static_cast<int>(jobType)) + 
                        " priority set to " + std::to_string(static_cast<int>(priority)));
 }
 
 void LoadBalancedProcessingPipeline::setGracefulDegradation(bool enabled) {
     gracefulDegradation_ = enabled;
-    utils::Logger::info("Graceful degradation " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Graceful degradation " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 void LoadBalancedProcessingPipeline::setResourceThresholds(float cpuThreshold, float memoryThreshold) {
     cpuThreshold_ = cpuThreshold;
     memoryThreshold_ = memoryThreshold;
-    utils::Logger::info("Resource thresholds set: CPU=" + std::to_string(cpuThreshold) + 
+    speechrnt::utils::Logger::info("Resource thresholds set: CPU=" + std::to_string(cpuThreshold) + 
                        ", Memory=" + std::to_string(memoryThreshold));
 }
 
@@ -731,7 +731,7 @@ std::map<std::string, double> LoadBalancedProcessingPipeline::getPipelineStats()
 }
 
 void LoadBalancedProcessingPipeline::workerLoop(size_t workerId) {
-    utils::Logger::info("Worker thread " + std::to_string(workerId) + " started");
+    speechrnt::utils::Logger::info("Worker thread " + std::to_string(workerId) + " started");
     
     while (pipelineActive_.load()) {
         try {
@@ -754,12 +754,12 @@ void LoadBalancedProcessingPipeline::workerLoop(size_t workerId) {
                     
                     updateStatistics(job, processingTime, queueTime);
                     
-                    utils::Logger::debug("Worker " + std::to_string(workerId) + 
+                    speechrnt::utils::Logger::debug("Worker " + std::to_string(workerId) + 
                                         " completed job " + std::to_string(job.jobId) + 
                                         " in " + std::to_string(processingTime) + "ms");
                 } else {
                     // Job was skipped due to resource constraints
-                    utils::Logger::debug("Worker " + std::to_string(workerId) + 
+                    speechrnt::utils::Logger::debug("Worker " + std::to_string(workerId) + 
                                         " skipped job " + std::to_string(job.jobId) + 
                                         " due to resource constraints");
                 }
@@ -773,12 +773,12 @@ void LoadBalancedProcessingPipeline::workerLoop(size_t workerId) {
             }
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Worker " + std::to_string(workerId) + 
+            speechrnt::utils::Logger::error("Worker " + std::to_string(workerId) + 
                                " error: " + std::string(e.what()));
         }
     }
     
-    utils::Logger::info("Worker thread " + std::to_string(workerId) + " stopped");
+    speechrnt::utils::Logger::info("Worker thread " + std::to_string(workerId) + " stopped");
 }
 
 void LoadBalancedProcessingPipeline::processJob(const ProcessingJob& job) {
@@ -790,7 +790,7 @@ void LoadBalancedProcessingPipeline::processJob(const ProcessingJob& job) {
             stats_.totalJobsCompleted++;
         }
     } catch (const std::exception& e) {
-        utils::Logger::error("Job " + std::to_string(job.jobId) + 
+        speechrnt::utils::Logger::error("Job " + std::to_string(job.jobId) + 
                            " failed: " + std::string(e.what()));
         
         std::lock_guard<std::mutex> lock(statsMutex_);
@@ -870,7 +870,7 @@ bool LoadBalancedProcessingPipeline::shouldProcessJob(const ProcessingJob& job) 
 void LoadBalancedProcessingPipeline::performGracefulDegradation() {
     // Reduce processing of low-priority jobs
     // This could involve adjusting queue priorities, reducing worker threads, etc.
-    utils::Logger::info("Performing graceful degradation due to resource constraints");
+    speechrnt::utils::Logger::info("Performing graceful degradation due to resource constraints");
 }
 
 void LoadBalancedProcessingPipeline::onResourceChange(const SystemResources& resources) {

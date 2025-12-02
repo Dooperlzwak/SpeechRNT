@@ -172,7 +172,7 @@ std::unique_ptr<Message> MessageProtocol::parseMessage(const std::string& json) 
         utils::JsonValue root = utils::JsonParser::parse(json);
         
         if (root.getType() != utils::JsonType::OBJECT || !root.hasProperty("type")) {
-            utils::Logger::warn("Invalid message format: missing type field");
+            speechrnt::utils::Logger::warn("Invalid message format: missing type field");
             return nullptr;
         }
         
@@ -342,12 +342,12 @@ std::unique_ptr<Message> MessageProtocol::parseMessage(const std::string& json) 
             }
                 
             default:
-                utils::Logger::warn("Unknown message type: " + typeStr);
+                speechrnt::utils::Logger::warn("Unknown message type: " + typeStr);
                 return nullptr;
         }
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to parse message: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to parse message: " + std::string(e.what()));
         return nullptr;
     }
 }
@@ -364,7 +364,7 @@ MessageType MessageProtocol::getMessageType(const std::string& json) {
         return stringToMessageType(typeStr);
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to get message type: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to get message type: " + std::string(e.what()));
         return MessageType::UNKNOWN;
     }
 }

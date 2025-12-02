@@ -41,13 +41,13 @@ ModelManager::ModelManager(size_t maxMemoryMB, size_t maxModels)
     supportedLanguagePairs_["ja"] = {"en"};
     supportedLanguagePairs_["ko"] = {"en"};
     
-    utils::Logger::info("ModelManager initialized with max memory: " + std::to_string(maxMemoryMB) + 
+    speechrnt::utils::Logger::info("ModelManager initialized with max memory: " + std::to_string(maxMemoryMB) + 
                        "MB, max models: " + std::to_string(maxModels));
 }
 
 ModelManager::~ModelManager() {
     clearAll();
-    utils::Logger::info("ModelManager destroyed");
+    speechrnt::utils::Logger::info("ModelManager destroyed");
 }
 
 bool ModelManager::loadModel(const std::string& sourceLang, const std::string& targetLang, const std::string& modelPath) {
@@ -60,13 +60,13 @@ bool ModelManager::loadModel(const std::string& sourceLang, const std::string& t
     if (it != cacheMap_.end()) {
         updateLRU(key);
         cacheHits_++;
-        utils::Logger::debug("Model already loaded for " + key);
+        speechrnt::utils::Logger::debug("Model already loaded for " + key);
         return true;
     }
     
     // Validate language pair
     if (!validateLanguagePair(sourceLang, targetLang)) {
-        utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
         return false;
     }
     
@@ -83,7 +83,7 @@ bool ModelManager::loadModel(const std::string& sourceLang, const std::string& t
     while (needsEviction() || (currentMemoryUsage_ + modelInfo->memoryUsage > maxMemoryMB_) || 
            (cacheMap_.size() >= maxModels_)) {
         if (cacheMap_.empty()) {
-            utils::Logger::error("Cannot load model: insufficient memory or model too large");
+            speechrnt::utils::Logger::error("Cannot load model: insufficient memory or model too large");
             return false;
         }
         performEviction();
@@ -91,7 +91,7 @@ bool ModelManager::loadModel(const std::string& sourceLang, const std::string& t
     
     // Load the actual model data
     if (!loadModelData(modelInfo)) {
-        utils::Logger::error("Failed to load model data for " + key);
+        speechrnt::utils::Logger::error("Failed to load model data for " + key);
         return false;
     }
     
@@ -101,7 +101,7 @@ bool ModelManager::loadModel(const std::string& sourceLang, const std::string& t
     currentMemoryUsage_ += modelInfo->memoryUsage;
     cacheMisses_++;
     
-    utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + "MB)");
+    speechrnt::utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + "MB)");
     return true;
 }
 
@@ -140,7 +140,7 @@ bool ModelManager::unloadModel(const std::string& sourceLang, const std::string&
         lruList_.erase(listIt);
         cacheMap_.erase(it);
         
-        utils::Logger::info("Unloaded model for " + key);
+        speechrnt::utils::Logger::info("Unloaded model for " + key);
         return true;
     }
     
@@ -188,7 +188,7 @@ void ModelManager::setMaxMemoryUsage(size_t maxMemoryMB) {
         performEviction();
     }
     
-    utils::Logger::info("Max memory usage set to " + std::to_string(maxMemoryMB) + "MB");
+    speechrnt::utils::Logger::info("Max memory usage set to " + std::to_string(maxMemoryMB) + "MB");
 }
 
 void ModelManager::setMaxModels(size_t maxModels) {
@@ -200,7 +200,7 @@ void ModelManager::setMaxModels(size_t maxModels) {
         performEviction();
     }
     
-    utils::Logger::info("Max models set to " + std::to_string(maxModels));
+    speechrnt::utils::Logger::info("Max models set to " + std::to_string(maxModels));
 }
 
 void ModelManager::clearAll() {
@@ -215,7 +215,7 @@ void ModelManager::clearAll() {
     lruList_.clear();
     currentMemoryUsage_ = 0;
     
-    utils::Logger::info("All models cleared from cache");
+    speechrnt::utils::Logger::info("All models cleared from cache");
 }
 
 bool ModelManager::validateLanguagePair(const std::string& sourceLang, const std::string& targetLang) const {
@@ -294,7 +294,7 @@ void ModelManager::evictLRU() {
             cacheMap_.erase(it);
             evictions_++;
             
-            utils::Logger::info("Evicted LRU model: " + lruKey);
+            speechrnt::utils::Logger::info("Evicted LRU model: " + lruKey);
         }
     }
 }
@@ -302,7 +302,7 @@ void ModelManager::evictLRU() {
 bool ModelManager::loadModelData(std::shared_ptr<ModelInfo> modelInfo) {
     // Validate model files first
     if (!validateModelFiles(modelInfo->modelPath)) {
-        utils::Logger::error("Model validation failed for: " + modelInfo->modelPath);
+        speechrnt::utils::Logger::error("Model validation failed for: " + modelInfo->modelPath);
         return false;
     }
     
@@ -310,7 +310,7 @@ bool ModelManager::loadModelData(std::shared_ptr<ModelInfo> modelInfo) {
         // Initialize GPU manager if not already done
         auto& gpuManager = utils::GPUManager::getInstance();
         if (!gpuManager.initialize()) {
-            utils::Logger::warn("GPU manager initialization failed, using CPU-only mode");
+            speechrnt::utils::Logger::warn("GPU manager initialization failed, using CPU-only mode");
         }
         
         // For now, we'll use a placeholder structure to represent loaded model data
@@ -333,13 +333,13 @@ bool ModelManager::loadModelData(std::shared_ptr<ModelInfo> modelInfo) {
         modelInfo->loadedAt = std::chrono::system_clock::now();
         modelInfo->accessCount = 0;
         
-        utils::Logger::info("Successfully loaded model: " + modelInfo->languagePair + 
+        speechrnt::utils::Logger::info("Successfully loaded model: " + modelInfo->languagePair + 
                            " from " + modelInfo->modelPath);
         
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load model data: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to load model data: " + std::string(e.what()));
         return false;
     }
 }
@@ -361,10 +361,10 @@ void ModelManager::unloadModelData(std::shared_ptr<ModelInfo> modelInfo) {
             modelInfo->modelData = nullptr;
             modelInfo->loaded = false;
             
-            utils::Logger::info("Successfully unloaded model: " + modelInfo->languagePair);
+            speechrnt::utils::Logger::info("Successfully unloaded model: " + modelInfo->languagePair);
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Error during model cleanup: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Error during model cleanup: " + std::string(e.what()));
             // Still mark as unloaded to prevent memory leaks
             modelInfo->modelData = nullptr;
             modelInfo->loaded = false;
@@ -385,7 +385,7 @@ size_t ModelManager::estimateModelMemoryUsage(const std::string& modelPath) cons
             }
         }
     } catch (const std::exception& e) {
-        utils::Logger::warn("Failed to estimate model size: " + std::string(e.what()));
+        speechrnt::utils::Logger::warn("Failed to estimate model size: " + std::string(e.what()));
         // Default estimate for unknown models
         return 500; // 500MB default
     }
@@ -418,19 +418,19 @@ bool ModelManager::loadModelWithGPU(const std::string& sourceLang, const std::st
     if (it != cacheMap_.end()) {
         updateLRU(key);
         cacheHits_++;
-        utils::Logger::debug("Model already loaded for " + key);
+        speechrnt::utils::Logger::debug("Model already loaded for " + key);
         return true;
     }
     
     // Validate language pair
     if (!validateLanguagePair(sourceLang, targetLang)) {
-        utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
         return false;
     }
     
     // Validate model integrity if auto-validation is enabled
     if (autoValidationEnabled_ && !validateModelIntegrity(modelPath)) {
-        utils::Logger::error("Model integrity validation failed for " + key);
+        speechrnt::utils::Logger::error("Model integrity validation failed for " + key);
         integrityFailures_++;
         return false;
     }
@@ -460,14 +460,14 @@ bool ModelManager::loadModelWithGPU(const std::string& sourceLang, const std::st
         if (selectedDevice == -1) {
             selectedDevice = selectOptimalGPUDevice(modelInfo->memoryUsage);
             if (selectedDevice == -1) {
-                utils::Logger::warn("No suitable GPU device found, falling back to CPU for " + key);
+                speechrnt::utils::Logger::warn("No suitable GPU device found, falling back to CPU for " + key);
                 modelInfo->useGPU = false;
                 modelInfo->gpuDeviceId = -1;
             } else {
                 modelInfo->gpuDeviceId = selectedDevice;
             }
         } else if (!isGPUMemorySufficient(modelInfo->memoryUsage, selectedDevice)) {
-            utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(selectedDevice) + 
+            speechrnt::utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(selectedDevice) + 
                                ", falling back to CPU for " + key);
             modelInfo->useGPU = false;
             modelInfo->gpuDeviceId = -1;
@@ -478,7 +478,7 @@ bool ModelManager::loadModelWithGPU(const std::string& sourceLang, const std::st
     while (needsEviction() || (currentMemoryUsage_ + modelInfo->memoryUsage > maxMemoryMB_) || 
            (cacheMap_.size() >= maxModels_)) {
         if (cacheMap_.empty()) {
-            utils::Logger::error("Cannot load model: insufficient memory or model too large");
+            speechrnt::utils::Logger::error("Cannot load model: insufficient memory or model too large");
             return false;
         }
         performEviction();
@@ -486,7 +486,7 @@ bool ModelManager::loadModelWithGPU(const std::string& sourceLang, const std::st
     
     // Load the actual model data with GPU support
     if (!loadModelDataWithGPU(modelInfo, modelInfo->useGPU, modelInfo->gpuDeviceId)) {
-        utils::Logger::error("Failed to load model data for " + key);
+        speechrnt::utils::Logger::error("Failed to load model data for " + key);
         return false;
     }
     
@@ -500,7 +500,7 @@ bool ModelManager::loadModelWithGPU(const std::string& sourceLang, const std::st
         gpuLoadCount_++;
     }
     
-    utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + 
+    speechrnt::utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + 
                        "MB, GPU: " + (modelInfo->useGPU ? "enabled" : "disabled") + ")");
     return true;
 }
@@ -516,26 +516,26 @@ bool ModelManager::loadModelWithQuantization(const std::string& sourceLang, cons
     if (it != cacheMap_.end()) {
         updateLRU(key);
         cacheHits_++;
-        utils::Logger::debug("Model already loaded for " + key);
+        speechrnt::utils::Logger::debug("Model already loaded for " + key);
         return true;
     }
     
     // Validate language pair
     if (!validateLanguagePair(sourceLang, targetLang)) {
-        utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
         return false;
     }
     
     // Check if quantization is supported
     if (quantization != QuantizationType::NONE && !isQuantizationSupported(modelPath, quantization)) {
-        utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
+        speechrnt::utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
                              " not supported for model " + key);
         return false;
     }
     
     // Validate model integrity if auto-validation is enabled
     if (autoValidationEnabled_ && !validateModelIntegrity(modelPath)) {
-        utils::Logger::error("Model integrity validation failed for " + key);
+        speechrnt::utils::Logger::error("Model integrity validation failed for " + key);
         integrityFailures_++;
         return false;
     }
@@ -584,7 +584,7 @@ bool ModelManager::loadModelWithQuantization(const std::string& sourceLang, cons
     while (needsEviction() || (currentMemoryUsage_ + modelInfo->memoryUsage > maxMemoryMB_) || 
            (cacheMap_.size() >= maxModels_)) {
         if (cacheMap_.empty()) {
-            utils::Logger::error("Cannot load model: insufficient memory or model too large");
+            speechrnt::utils::Logger::error("Cannot load model: insufficient memory or model too large");
             return false;
         }
         performEviction();
@@ -592,7 +592,7 @@ bool ModelManager::loadModelWithQuantization(const std::string& sourceLang, cons
     
     // Load the actual model data with quantization
     if (!loadModelDataWithQuantization(modelInfo, quantization)) {
-        utils::Logger::error("Failed to load model data with quantization for " + key);
+        speechrnt::utils::Logger::error("Failed to load model data with quantization for " + key);
         return false;
     }
     
@@ -606,7 +606,7 @@ bool ModelManager::loadModelWithQuantization(const std::string& sourceLang, cons
         quantizationCount_++;
     }
     
-    utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + 
+    speechrnt::utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + 
                        "MB, quantization: " + getQuantizationString(quantization) + ")");
     return true;
 }
@@ -623,26 +623,26 @@ bool ModelManager::loadModelAdvanced(const std::string& sourceLang, const std::s
     if (it != cacheMap_.end()) {
         updateLRU(key);
         cacheHits_++;
-        utils::Logger::debug("Model already loaded for " + key);
+        speechrnt::utils::Logger::debug("Model already loaded for " + key);
         return true;
     }
     
     // Validate language pair
     if (!validateLanguagePair(sourceLang, targetLang)) {
-        utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
+        speechrnt::utils::Logger::error("Invalid language pair: " + sourceLang + " -> " + targetLang);
         return false;
     }
     
     // Check if quantization is supported
     if (quantization != QuantizationType::NONE && !isQuantizationSupported(modelPath, quantization)) {
-        utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
+        speechrnt::utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
                              " not supported for model " + key);
         return false;
     }
     
     // Validate model integrity if auto-validation is enabled
     if (autoValidationEnabled_ && !validateModelIntegrity(modelPath)) {
-        utils::Logger::error("Model integrity validation failed for " + key);
+        speechrnt::utils::Logger::error("Model integrity validation failed for " + key);
         integrityFailures_++;
         return false;
     }
@@ -693,14 +693,14 @@ bool ModelManager::loadModelAdvanced(const std::string& sourceLang, const std::s
         if (selectedDevice == -1) {
             selectedDevice = selectOptimalGPUDevice(modelInfo->memoryUsage);
             if (selectedDevice == -1) {
-                utils::Logger::warn("No suitable GPU device found, falling back to CPU for " + key);
+                speechrnt::utils::Logger::warn("No suitable GPU device found, falling back to CPU for " + key);
                 modelInfo->useGPU = false;
                 modelInfo->gpuDeviceId = -1;
             } else {
                 modelInfo->gpuDeviceId = selectedDevice;
             }
         } else if (!isGPUMemorySufficient(modelInfo->memoryUsage, selectedDevice)) {
-            utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(selectedDevice) + 
+            speechrnt::utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(selectedDevice) + 
                                ", falling back to CPU for " + key);
             modelInfo->useGPU = false;
             modelInfo->gpuDeviceId = -1;
@@ -711,7 +711,7 @@ bool ModelManager::loadModelAdvanced(const std::string& sourceLang, const std::s
     while (needsEviction() || (currentMemoryUsage_ + modelInfo->memoryUsage > maxMemoryMB_) || 
            (cacheMap_.size() >= maxModels_)) {
         if (cacheMap_.empty()) {
-            utils::Logger::error("Cannot load model: insufficient memory or model too large");
+            speechrnt::utils::Logger::error("Cannot load model: insufficient memory or model too large");
             return false;
         }
         performEviction();
@@ -719,7 +719,7 @@ bool ModelManager::loadModelAdvanced(const std::string& sourceLang, const std::s
     
     // Load the actual model data with advanced configuration
     if (!loadModelDataAdvanced(modelInfo, modelInfo->useGPU, modelInfo->gpuDeviceId, quantization)) {
-        utils::Logger::error("Failed to load model data with advanced configuration for " + key);
+        speechrnt::utils::Logger::error("Failed to load model data with advanced configuration for " + key);
         return false;
     }
     
@@ -736,7 +736,7 @@ bool ModelManager::loadModelAdvanced(const std::string& sourceLang, const std::s
         quantizationCount_++;
     }
     
-    utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + 
+    speechrnt::utils::Logger::info("Loaded model for " + key + " (memory: " + std::to_string(modelInfo->memoryUsage) + 
                        "MB, GPU: " + (modelInfo->useGPU ? "enabled" : "disabled") + 
                        ", quantization: " + getQuantizationString(quantization) + ")");
     return true;
@@ -753,7 +753,7 @@ bool ModelManager::validateModelIntegrity(const std::string& modelPath) {
     // Calculate current hash
     std::string currentHash = calculateModelHash(modelPath);
     if (currentHash.empty()) {
-        utils::Logger::error("Failed to calculate model hash for " + modelPath);
+        speechrnt::utils::Logger::error("Failed to calculate model hash for " + modelPath);
         return false;
     }
     
@@ -762,7 +762,7 @@ bool ModelManager::validateModelIntegrity(const std::string& modelPath) {
     if (std::filesystem::exists(metadataPath)) {
         ModelMetadata metadata = loadModelMetadata(modelPath);
         if (!metadata.checksum.empty() && metadata.checksum != currentHash) {
-            utils::Logger::error("Model integrity check failed: hash mismatch for " + modelPath);
+            speechrnt::utils::Logger::error("Model integrity check failed: hash mismatch for " + modelPath);
             return false;
         }
     }
@@ -770,12 +770,12 @@ bool ModelManager::validateModelIntegrity(const std::string& modelPath) {
     // Use custom validation callback if set
     if (validationCallback_) {
         if (!validationCallback_(modelPath)) {
-            utils::Logger::error("Custom validation failed for " + modelPath);
+            speechrnt::utils::Logger::error("Custom validation failed for " + modelPath);
             return false;
         }
     }
     
-    utils::Logger::debug("Model integrity validation passed for " + modelPath);
+    speechrnt::utils::Logger::debug("Model integrity validation passed for " + modelPath);
     return true;
 }
 
@@ -804,10 +804,10 @@ bool ModelManager::updateModelMetadata(const std::string& sourceLang, const std:
         
         // Save metadata to file
         if (!saveModelMetadata(it->second.first->modelPath, metadata)) {
-            utils::Logger::warn("Failed to save metadata to file for " + key);
+            speechrnt::utils::Logger::warn("Failed to save metadata to file for " + key);
         }
         
-        utils::Logger::info("Updated metadata for model " + key);
+        speechrnt::utils::Logger::info("Updated metadata for model " + key);
         return true;
     }
     
@@ -823,7 +823,7 @@ bool ModelManager::hotSwapModel(const std::string& sourceLang, const std::string
     auto it = cacheMap_.find(key);
     
     if (it == cacheMap_.end()) {
-        utils::Logger::error("Cannot hot-swap: model " + key + " not currently loaded");
+        speechrnt::utils::Logger::error("Cannot hot-swap: model " + key + " not currently loaded");
         return false;
     }
     
@@ -831,7 +831,7 @@ bool ModelManager::hotSwapModel(const std::string& sourceLang, const std::string
     
     // Validate new model integrity
     if (autoValidationEnabled_ && !validateModelIntegrity(newModelPath)) {
-        utils::Logger::error("New model integrity validation failed for hot-swap of " + key);
+        speechrnt::utils::Logger::error("New model integrity validation failed for hot-swap of " + key);
         return false;
     }
     
@@ -876,14 +876,14 @@ bool ModelManager::hotSwapModel(const std::string& sourceLang, const std::string
     // Check if we have enough memory for the new model
     size_t availableMemory = maxMemoryMB_ - (currentMemoryUsage_ - currentModel->memoryUsage);
     if (newModelInfo->memoryUsage > availableMemory) {
-        utils::Logger::error("Insufficient memory for hot-swap of " + key);
+        speechrnt::utils::Logger::error("Insufficient memory for hot-swap of " + key);
         return false;
     }
     
     // Load new model data
     if (!loadModelDataAdvanced(newModelInfo, newModelInfo->useGPU, 
                               newModelInfo->gpuDeviceId, newModelInfo->quantization)) {
-        utils::Logger::error("Failed to load new model data for hot-swap of " + key);
+        speechrnt::utils::Logger::error("Failed to load new model data for hot-swap of " + key);
         return false;
     }
     
@@ -897,7 +897,7 @@ bool ModelManager::hotSwapModel(const std::string& sourceLang, const std::string
     
     hotSwapCount_++;
     
-    utils::Logger::info("Successfully hot-swapped model " + key + " to " + newModelPath);
+    speechrnt::utils::Logger::info("Successfully hot-swapped model " + key + " to " + newModelPath);
     return true;
 }
 
@@ -952,13 +952,13 @@ std::vector<QuantizationType> ModelManager::getSupportedQuantizations(const std:
 void ModelManager::setAutoValidation(bool enabled) {
     std::lock_guard<std::mutex> lock(cacheMutex_);
     autoValidationEnabled_ = enabled;
-    utils::Logger::info("Auto-validation " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Auto-validation " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 void ModelManager::setValidationCallback(std::function<bool(const std::string&)> callback) {
     std::lock_guard<std::mutex> lock(cacheMutex_);
     validationCallback_ = callback;
-    utils::Logger::info("Custom validation callback set");
+    speechrnt::utils::Logger::info("Custom validation callback set");
 }
 
 std::string ModelManager::getModelVersion(const std::string& sourceLang, const std::string& targetLang) const {
@@ -1031,7 +1031,7 @@ std::unordered_map<std::string, std::unordered_map<std::string, std::string>> Mo
 
 bool ModelManager::loadModelDataWithGPU(std::shared_ptr<ModelInfo> modelInfo, bool useGPU, int gpuDeviceId) {
     if (!validateModelFiles(modelInfo->modelPath)) {
-        utils::Logger::error("Model validation failed for GPU loading: " + modelInfo->modelPath);
+        speechrnt::utils::Logger::error("Model validation failed for GPU loading: " + modelInfo->modelPath);
         return false;
     }
     
@@ -1039,9 +1039,9 @@ bool ModelManager::loadModelDataWithGPU(std::shared_ptr<ModelInfo> modelInfo, bo
         // Initialize and configure GPU if requested
         auto& gpuManager = utils::GPUManager::getInstance();
         if (!gpuManager.initialize()) {
-            utils::Logger::warn("GPU manager initialization failed");
+            speechrnt::utils::Logger::warn("GPU manager initialization failed");
             if (useGPU) {
-                utils::Logger::warn("Falling back to CPU-only mode");
+                speechrnt::utils::Logger::warn("Falling back to CPU-only mode");
                 modelInfo->useGPU = false;
                 modelInfo->gpuDeviceId = -1;
                 useGPU = false;
@@ -1052,7 +1052,7 @@ bool ModelManager::loadModelDataWithGPU(std::shared_ptr<ModelInfo> modelInfo, bo
             // Validate GPU device and memory requirements
             if (gpuDeviceId >= 0) {
                 if (!gpuManager.setDevice(gpuDeviceId)) {
-                    utils::Logger::warn("Failed to set GPU device " + std::to_string(gpuDeviceId) + 
+                    speechrnt::utils::Logger::warn("Failed to set GPU device " + std::to_string(gpuDeviceId) + 
                                        ", falling back to CPU");
                     modelInfo->useGPU = false;
                     modelInfo->gpuDeviceId = -1;
@@ -1060,7 +1060,7 @@ bool ModelManager::loadModelDataWithGPU(std::shared_ptr<ModelInfo> modelInfo, bo
                 } else {
                     // Check if GPU has sufficient memory
                     if (!isGPUMemorySufficient(modelInfo->memoryUsage, gpuDeviceId)) {
-                        utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(gpuDeviceId) + 
+                        speechrnt::utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(gpuDeviceId) + 
                                            ", falling back to CPU");
                         modelInfo->useGPU = false;
                         modelInfo->gpuDeviceId = -1;
@@ -1073,23 +1073,23 @@ bool ModelManager::loadModelDataWithGPU(std::shared_ptr<ModelInfo> modelInfo, bo
                 if (optimalDevice >= 0) {
                     if (gpuManager.setDevice(optimalDevice)) {
                         modelInfo->gpuDeviceId = optimalDevice;
-                        utils::Logger::info("Auto-selected GPU device " + std::to_string(optimalDevice) + 
+                        speechrnt::utils::Logger::info("Auto-selected GPU device " + std::to_string(optimalDevice) + 
                                            " for model " + modelInfo->languagePair);
                     } else {
-                        utils::Logger::warn("Failed to set auto-selected GPU device, falling back to CPU");
+                        speechrnt::utils::Logger::warn("Failed to set auto-selected GPU device, falling back to CPU");
                         modelInfo->useGPU = false;
                         modelInfo->gpuDeviceId = -1;
                         useGPU = false;
                     }
                 } else {
-                    utils::Logger::warn("No suitable GPU device found, falling back to CPU");
+                    speechrnt::utils::Logger::warn("No suitable GPU device found, falling back to CPU");
                     modelInfo->useGPU = false;
                     modelInfo->gpuDeviceId = -1;
                     useGPU = false;
                 }
             }
         } else if (useGPU) {
-            utils::Logger::warn("CUDA not available, falling back to CPU");
+            speechrnt::utils::Logger::warn("CUDA not available, falling back to CPU");
             modelInfo->useGPU = false;
             modelInfo->gpuDeviceId = -1;
             useGPU = false;
@@ -1130,10 +1130,10 @@ bool ModelManager::loadModelDataWithGPU(std::shared_ptr<ModelInfo> modelInfo, bo
                                                                   "model_" + modelInfo->languagePair);
             if (modelData->gpuMemoryPtr) {
                 modelData->gpuMemorySize = memoryBytes;
-                utils::Logger::info("Allocated " + std::to_string(modelInfo->memoryUsage) + 
+                speechrnt::utils::Logger::info("Allocated " + std::to_string(modelInfo->memoryUsage) + 
                                    "MB GPU memory for model " + modelInfo->languagePair);
             } else {
-                utils::Logger::warn("Failed to allocate GPU memory, falling back to CPU");
+                speechrnt::utils::Logger::warn("Failed to allocate GPU memory, falling back to CPU");
                 modelData->useGPU = false;
                 modelInfo->useGPU = false;
                 modelInfo->gpuDeviceId = -1;
@@ -1145,26 +1145,26 @@ bool ModelManager::loadModelDataWithGPU(std::shared_ptr<ModelInfo> modelInfo, bo
         modelInfo->loadedAt = std::chrono::system_clock::now();
         modelInfo->accessCount = 0;
         
-        utils::Logger::info("Successfully loaded model with GPU support: " + modelInfo->languagePair + 
+        speechrnt::utils::Logger::info("Successfully loaded model with GPU support: " + modelInfo->languagePair + 
                            " (GPU: " + (modelInfo->useGPU ? "enabled" : "disabled") + ")");
         
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load model with GPU support: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to load model with GPU support: " + std::string(e.what()));
         return false;
     }
 }
 
 bool ModelManager::loadModelDataWithQuantization(std::shared_ptr<ModelInfo> modelInfo, QuantizationType quantization) {
     if (!validateModelFiles(modelInfo->modelPath)) {
-        utils::Logger::error("Model validation failed for quantization loading: " + modelInfo->modelPath);
+        speechrnt::utils::Logger::error("Model validation failed for quantization loading: " + modelInfo->modelPath);
         return false;
     }
     
     // Validate quantization support
     if (quantization != QuantizationType::NONE && !isQuantizationSupported(modelInfo->modelPath, quantization)) {
-        utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
+        speechrnt::utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
                              " not supported for model: " + modelInfo->modelPath);
         return false;
     }
@@ -1173,9 +1173,9 @@ bool ModelManager::loadModelDataWithQuantization(std::shared_ptr<ModelInfo> mode
         // Initialize quantization manager
         auto& quantizationManager = models::QuantizationManager::getInstance();
         if (!quantizationManager.initialize()) {
-            utils::Logger::warn("Quantization manager initialization failed");
+            speechrnt::utils::Logger::warn("Quantization manager initialization failed");
             if (quantization != QuantizationType::NONE) {
-                utils::Logger::warn("Falling back to non-quantized model");
+                speechrnt::utils::Logger::warn("Falling back to non-quantized model");
                 quantization = QuantizationType::NONE;
                 modelInfo->quantization = QuantizationType::NONE;
             }
@@ -1241,7 +1241,7 @@ bool ModelManager::loadModelDataWithQuantization(std::shared_ptr<ModelInfo> mode
             // Update model info with quantized memory usage
             modelInfo->memoryUsage = modelData->quantizedSize;
             
-            utils::Logger::info("Applied " + getQuantizationString(quantization) + " quantization: " +
+            speechrnt::utils::Logger::info("Applied " + getQuantizationString(quantization) + " quantization: " +
                                std::to_string(modelData->compressionRatio) + "x compression ratio");
         } else {
             modelData->originalSize = modelInfo->memoryUsage;
@@ -1258,13 +1258,13 @@ bool ModelManager::loadModelDataWithQuantization(std::shared_ptr<ModelInfo> mode
         modelInfo->loadedAt = std::chrono::system_clock::now();
         modelInfo->accessCount = 0;
         
-        utils::Logger::info("Successfully loaded model with quantization: " + modelInfo->languagePair + 
+        speechrnt::utils::Logger::info("Successfully loaded model with quantization: " + modelInfo->languagePair + 
                            " (" + getQuantizationString(quantization) + ")");
         
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load model with quantization: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to load model with quantization: " + std::string(e.what()));
         return false;
     }
 }
@@ -1272,13 +1272,13 @@ bool ModelManager::loadModelDataWithQuantization(std::shared_ptr<ModelInfo> mode
 bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, bool useGPU, 
                                         int gpuDeviceId, QuantizationType quantization) {
     if (!validateModelFiles(modelInfo->modelPath)) {
-        utils::Logger::error("Model validation failed for advanced loading: " + modelInfo->modelPath);
+        speechrnt::utils::Logger::error("Model validation failed for advanced loading: " + modelInfo->modelPath);
         return false;
     }
     
     // Validate quantization support if requested
     if (quantization != QuantizationType::NONE && !isQuantizationSupported(modelInfo->modelPath, quantization)) {
-        utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
+        speechrnt::utils::Logger::error("Quantization type " + getQuantizationString(quantization) + 
                              " not supported for model: " + modelInfo->modelPath);
         return false;
     }
@@ -1289,9 +1289,9 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
         auto& quantizationManager = models::QuantizationManager::getInstance();
         
         if (!gpuManager.initialize()) {
-            utils::Logger::warn("GPU manager initialization failed");
+            speechrnt::utils::Logger::warn("GPU manager initialization failed");
             if (useGPU) {
-                utils::Logger::warn("Falling back to CPU-only mode");
+                speechrnt::utils::Logger::warn("Falling back to CPU-only mode");
                 modelInfo->useGPU = false;
                 modelInfo->gpuDeviceId = -1;
                 useGPU = false;
@@ -1299,9 +1299,9 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
         }
         
         if (!quantizationManager.initialize()) {
-            utils::Logger::warn("Quantization manager initialization failed");
+            speechrnt::utils::Logger::warn("Quantization manager initialization failed");
             if (quantization != QuantizationType::NONE) {
-                utils::Logger::warn("Falling back to non-quantized model");
+                speechrnt::utils::Logger::warn("Falling back to non-quantized model");
                 quantization = QuantizationType::NONE;
                 modelInfo->quantization = QuantizationType::NONE;
             }
@@ -1311,7 +1311,7 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
         if (useGPU && gpuManager.isCudaAvailable()) {
             if (gpuDeviceId >= 0) {
                 if (!gpuManager.setDevice(gpuDeviceId)) {
-                    utils::Logger::warn("Failed to set GPU device " + std::to_string(gpuDeviceId) + 
+                    speechrnt::utils::Logger::warn("Failed to set GPU device " + std::to_string(gpuDeviceId) + 
                                        ", falling back to CPU");
                     modelInfo->useGPU = false;
                     modelInfo->gpuDeviceId = -1;
@@ -1332,7 +1332,7 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
                     }
                     
                     if (!isGPUMemorySufficient(requiredMemory, gpuDeviceId)) {
-                        utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(gpuDeviceId) + 
+                        speechrnt::utils::Logger::warn("Insufficient GPU memory on device " + std::to_string(gpuDeviceId) + 
                                            ", falling back to CPU");
                         modelInfo->useGPU = false;
                         modelInfo->gpuDeviceId = -1;
@@ -1358,23 +1358,23 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
                 if (optimalDevice >= 0) {
                     if (gpuManager.setDevice(optimalDevice)) {
                         modelInfo->gpuDeviceId = optimalDevice;
-                        utils::Logger::info("Auto-selected GPU device " + std::to_string(optimalDevice) + 
+                        speechrnt::utils::Logger::info("Auto-selected GPU device " + std::to_string(optimalDevice) + 
                                            " for advanced model loading");
                     } else {
-                        utils::Logger::warn("Failed to set auto-selected GPU device, falling back to CPU");
+                        speechrnt::utils::Logger::warn("Failed to set auto-selected GPU device, falling back to CPU");
                         modelInfo->useGPU = false;
                         modelInfo->gpuDeviceId = -1;
                         useGPU = false;
                     }
                 } else {
-                    utils::Logger::warn("No suitable GPU device found, falling back to CPU");
+                    speechrnt::utils::Logger::warn("No suitable GPU device found, falling back to CPU");
                     modelInfo->useGPU = false;
                     modelInfo->gpuDeviceId = -1;
                     useGPU = false;
                 }
             }
         } else if (useGPU) {
-            utils::Logger::warn("CUDA not available, falling back to CPU");
+            speechrnt::utils::Logger::warn("CUDA not available, falling back to CPU");
             modelInfo->useGPU = false;
             modelInfo->gpuDeviceId = -1;
             useGPU = false;
@@ -1448,10 +1448,10 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
                                                                   "advanced_model_" + modelInfo->languagePair);
             if (modelData->gpuMemoryPtr) {
                 modelData->gpuMemorySize = memoryBytes;
-                utils::Logger::info("Allocated " + std::to_string(modelData->finalSize) + 
+                speechrnt::utils::Logger::info("Allocated " + std::to_string(modelData->finalSize) + 
                                    "MB GPU memory for advanced model " + modelInfo->languagePair);
             } else {
-                utils::Logger::warn("Failed to allocate GPU memory, falling back to CPU");
+                speechrnt::utils::Logger::warn("Failed to allocate GPU memory, falling back to CPU");
                 modelData->useGPU = false;
                 modelInfo->useGPU = false;
                 modelInfo->gpuDeviceId = -1;
@@ -1467,7 +1467,7 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
         modelInfo->loadedAt = std::chrono::system_clock::now();
         modelInfo->accessCount = 0;
         
-        utils::Logger::info("Successfully loaded advanced model: " + modelInfo->languagePair + 
+        speechrnt::utils::Logger::info("Successfully loaded advanced model: " + modelInfo->languagePair + 
                            " (GPU: " + (modelInfo->useGPU ? "enabled" : "disabled") + 
                            ", Quantization: " + getQuantizationString(quantization) + 
                            ", Compression: " + std::to_string(modelData->compressionRatio) + "x)");
@@ -1475,7 +1475,7 @@ bool ModelManager::loadModelDataAdvanced(std::shared_ptr<ModelInfo> modelInfo, b
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load advanced model: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to load advanced model: " + std::string(e.what()));
         return false;
     }
 }
@@ -1522,19 +1522,19 @@ std::string ModelManager::calculateModelHash(const std::string& modelPath) const
         return hashStream.str();
         
     } catch (const std::exception& e) {
-        utils::Logger::warn("Failed to calculate model hash: " + std::string(e.what()));
+        speechrnt::utils::Logger::warn("Failed to calculate model hash: " + std::string(e.what()));
         return "";
     }
 }
 
 bool ModelManager::validateModelFiles(const std::string& modelPath) const {
     if (!std::filesystem::exists(modelPath)) {
-        utils::Logger::error("Model path does not exist: " + modelPath);
+        speechrnt::utils::Logger::error("Model path does not exist: " + modelPath);
         return false;
     }
     
     if (!std::filesystem::is_directory(modelPath)) {
-        utils::Logger::error("Model path is not a directory: " + modelPath);
+        speechrnt::utils::Logger::error("Model path is not a directory: " + modelPath);
         return false;
     }
     
@@ -1556,7 +1556,7 @@ bool ModelManager::validateModelFiles(const std::string& modelPath) const {
             }
             
             if (!found && requiredFile == "model.bin") {
-                utils::Logger::error("Required model file not found: " + requiredFile);
+                speechrnt::utils::Logger::error("Required model file not found: " + requiredFile);
                 return false;
             }
         }
@@ -1604,7 +1604,7 @@ ModelMetadata ModelManager::loadModelMetadata(const std::string& modelPath) cons
         metadata.lastModified = std::chrono::system_clock::now();
         
     } catch (const std::exception& e) {
-        utils::Logger::warn("Failed to load metadata: " + std::string(e.what()));
+        speechrnt::utils::Logger::warn("Failed to load metadata: " + std::string(e.what()));
     }
     
     return metadata;
@@ -1632,7 +1632,7 @@ bool ModelManager::saveModelMetadata(const std::string& modelPath, const ModelMe
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::warn("Failed to save metadata: " + std::string(e.what()));
+        speechrnt::utils::Logger::warn("Failed to save metadata: " + std::string(e.what()));
         return false;
     }
 }

@@ -12,7 +12,7 @@ TranslationPipeline::TranslationPipeline(const TranslationPipelineConfig& config
     , shutdown_requested_(false)
     , statistics_{}
 {
-    utils::Logger::info("TranslationPipeline created with config");
+    speechrnt::utils::Logger::info("TranslationPipeline created with config");
 }
 
 TranslationPipeline::~TranslationPipeline() {
@@ -28,17 +28,17 @@ bool TranslationPipeline::initialize(
     std::lock_guard<std::mutex> lock(operations_mutex_);
     
     if (initialized_) {
-        utils::Logger::warn("TranslationPipeline already initialized");
+        speechrnt::utils::Logger::warn("TranslationPipeline already initialized");
         return true;
     }
     
     if (!stt_engine || !mt_engine || !task_queue) {
-        utils::Logger::error("TranslationPipeline initialization failed: null engine or task queue");
+        speechrnt::utils::Logger::error("TranslationPipeline initialization failed: null engine or task queue");
         return false;
     }
     
     if (!language_detector) {
-        utils::Logger::warn("TranslationPipeline initialized without language detector - language detection will be disabled");
+        speechrnt::utils::Logger::warn("TranslationPipeline initialized without language detector - language detection will be disabled");
         config_.enable_language_detection = false;
     }
     
@@ -51,14 +51,14 @@ bool TranslationPipeline::initialize(
     try {
         performance_monitor_ = std::make_shared<utils::PerformanceMonitor>();
     } catch (const std::exception& e) {
-        utils::Logger::warn("Failed to initialize performance monitor: " + std::string(e.what()));
+        speechrnt::utils::Logger::warn("Failed to initialize performance monitor: " + std::string(e.what()));
         // Continue without performance monitoring
     }
     
     initialized_ = true;
     shutdown_requested_ = false;
     
-    utils::Logger::info("TranslationPipeline initialized successfully");
+    speechrnt::utils::Logger::info("TranslationPipeline initialized successfully");
     return true;
 }
 
@@ -81,7 +81,7 @@ void TranslationPipeline::shutdown() {
     active_operations_.clear();
     initialized_ = false;
     
-    utils::Logger::info("TranslationPipeline shutdown completed");
+    speechrnt::utils::Logger::info("TranslationPipeline shutdown completed");
 }
 
 void TranslationPipeline::processTranscriptionResult(
@@ -91,14 +91,14 @@ void TranslationPipeline::processTranscriptionResult(
     const std::vector<stt::TranscriptionResult>& candidates
 ) {
     if (!initialized_ || shutdown_requested_) {
-        utils::Logger::warn("TranslationPipeline not ready for processing");
+        speechrnt::utils::Logger::warn("TranslationPipeline not ready for processing");
         return;
     }
     
     // Create pipeline operation
     auto operation = createPipelineOperation(utterance_id, session_id);
     if (!operation) {
-        utils::Logger::error("Failed to create pipeline operation for utterance " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::error("Failed to create pipeline operation for utterance " + std::to_string(utterance_id));
         return;
     }
     
@@ -156,7 +156,7 @@ void TranslationPipeline::processTranscriptionInternal(
                     try {
                         should_translate = confidence_gate_callback_(transcription);
                     } catch (const std::exception& e) {
-                        utils::Logger::error("Confidence gate callback failed: " + std::string(e.what()));
+                        speechrnt::utils::Logger::error("Confidence gate callback failed: " + std::string(e.what()));
                         should_translate = false;
                     }
                 }
@@ -370,7 +370,7 @@ std::vector<mt::TranslationResult> TranslationPipeline::translateMultipleCandida
                 translation_results.push_back(result);
             }
         } catch (const std::exception& e) {
-            utils::Logger::warn("Failed to translate candidate: " + std::string(e.what()));
+            speechrnt::utils::Logger::warn("Failed to translate candidate: " + std::string(e.what()));
         }
     }
     
@@ -384,13 +384,13 @@ void TranslationPipeline::triggerTranslation(
     bool force_translation
 ) {
     if (!initialized_ || shutdown_requested_) {
-        utils::Logger::warn("TranslationPipeline not ready for manual translation trigger");
+        speechrnt::utils::Logger::warn("TranslationPipeline not ready for manual translation trigger");
         return;
     }
     
     auto operation = createPipelineOperation(utterance_id, session_id);
     if (!operation) {
-        utils::Logger::error("Failed to create pipeline operation for manual translation");
+        speechrnt::utils::Logger::error("Failed to create pipeline operation for manual translation");
         return;
     }
     
@@ -416,11 +416,11 @@ void TranslationPipeline::setLanguageConfiguration(
         try {
             mt_engine_->initialize(source_language, target_language);
         } catch (const std::exception& e) {
-            utils::Logger::error("Failed to initialize MT engine with new language pair: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Failed to initialize MT engine with new language pair: " + std::string(e.what()));
         }
     }
     
-    utils::Logger::info("Language configuration updated: " + source_language + " -> " + target_language);
+    speechrnt::utils::Logger::info("Language configuration updated: " + source_language + " -> " + target_language);
 }
 
 std::pair<std::string, std::string> TranslationPipeline::getLanguageConfiguration() const {
@@ -431,7 +431,7 @@ std::pair<std::string, std::string> TranslationPipeline::getLanguageConfiguratio
 void TranslationPipeline::updateConfiguration(const TranslationPipelineConfig& config) {
     std::lock_guard<std::mutex> lock(operations_mutex_);
     config_ = config;
-    utils::Logger::info("TranslationPipeline configuration updated");
+    speechrnt::utils::Logger::info("TranslationPipeline configuration updated");
 }
 
 std::shared_ptr<TranslationPipeline::PipelineOperation> TranslationPipeline::createPipelineOperation(
@@ -442,13 +442,13 @@ std::shared_ptr<TranslationPipeline::PipelineOperation> TranslationPipeline::cre
     
     // Check if operation already exists
     if (active_operations_.find(utterance_id) != active_operations_.end()) {
-        utils::Logger::warn("Pipeline operation already exists for utterance " + std::to_string(utterance_id));
+        speechrnt::utils::Logger::warn("Pipeline operation already exists for utterance " + std::to_string(utterance_id));
         return active_operations_[utterance_id];
     }
     
     // Check concurrent operation limit
     if (active_operations_.size() >= config_.max_concurrent_translations) {
-        utils::Logger::warn("Maximum concurrent translations reached");
+        speechrnt::utils::Logger::warn("Maximum concurrent translations reached");
         return nullptr;
     }
     
@@ -488,7 +488,7 @@ void TranslationPipeline::handlePipelineError(
     operation->result.error_message = error_message;
     operation->is_active = false;
     
-    utils::Logger::error("Pipeline error in stage '" + stage + "' for utterance " + 
+    speechrnt::utils::Logger::error("Pipeline error in stage '" + stage + "' for utterance " + 
                         std::to_string(operation->utterance_id) + ": " + error_message);
     
     notifyPipelineError(operation->result, error_message);
@@ -541,7 +541,7 @@ void TranslationPipeline::notifyTranscriptionComplete(const PipelineResult& resu
         try {
             transcription_complete_callback_(result);
         } catch (const std::exception& e) {
-            utils::Logger::error("Transcription complete callback failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Transcription complete callback failed: " + std::string(e.what()));
         }
     }
 }
@@ -552,7 +552,7 @@ void TranslationPipeline::notifyLanguageDetectionComplete(const PipelineResult& 
         try {
             language_detection_complete_callback_(result);
         } catch (const std::exception& e) {
-            utils::Logger::error("Language detection complete callback failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Language detection complete callback failed: " + std::string(e.what()));
         }
     }
 }
@@ -563,7 +563,7 @@ void TranslationPipeline::notifyLanguageChange(const std::string& session_id, co
         try {
             language_change_callback_(session_id, old_lang, new_lang, confidence);
         } catch (const std::exception& e) {
-            utils::Logger::error("Language change callback failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Language change callback failed: " + std::string(e.what()));
         }
     }
 }
@@ -574,7 +574,7 @@ void TranslationPipeline::notifyTranslationComplete(const PipelineResult& result
         try {
             translation_complete_callback_(result);
         } catch (const std::exception& e) {
-            utils::Logger::error("Translation complete callback failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Translation complete callback failed: " + std::string(e.what()));
         }
     }
 }
@@ -585,7 +585,7 @@ void TranslationPipeline::notifyPipelineError(const PipelineResult& result, cons
         try {
             pipeline_error_callback_(result, error);
         } catch (const std::exception& e) {
-            utils::Logger::error("Pipeline error callback failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Pipeline error callback failed: " + std::string(e.what()));
         }
     }
 }
@@ -783,7 +783,7 @@ void TranslationPipeline::processLanguageDetectionResult(
                 try {
                     mt_engine_->initialize(detection_result.detectedLanguage, target_language_);
                 } catch (const std::exception& e) {
-                    utils::Logger::error("Failed to update MT engine with new source language: " + std::string(e.what()));
+                    speechrnt::utils::Logger::error("Failed to update MT engine with new source language: " + std::string(e.what()));
                 }
             }
             
@@ -812,7 +812,7 @@ void TranslationPipeline::processLanguageDetectionResult(
                 try {
                     should_translate = confidence_gate_callback_(operation->result.transcription);
                 } catch (const std::exception& e) {
-                    utils::Logger::error("Confidence gate callback failed: " + std::string(e.what()));
+                    speechrnt::utils::Logger::error("Confidence gate callback failed: " + std::string(e.what()));
                     should_translate = false;
                 }
             }
@@ -876,7 +876,7 @@ void TranslationPipeline::processTranslationResult(
         
         // Try fallback translation if enabled
         if (config_.enable_fallback_translation) {
-            utils::Logger::info("Attempting fallback translation for utterance " + 
+            speechrnt::utils::Logger::info("Attempting fallback translation for utterance " + 
                               std::to_string(operation->utterance_id));
             // Could implement fallback logic here (e.g., different model, simplified text)
         }
@@ -922,13 +922,13 @@ void TranslationPipeline::triggerLanguageDetection(
     const std::vector<float>& audio_data
 ) {
     if (!initialized_ || shutdown_requested_ || !language_detector_) {
-        utils::Logger::warn("TranslationPipeline not ready for manual language detection trigger");
+        speechrnt::utils::Logger::warn("TranslationPipeline not ready for manual language detection trigger");
         return;
     }
     
     auto operation = createPipelineOperation(utterance_id, session_id);
     if (!operation) {
-        utils::Logger::error("Failed to create pipeline operation for manual language detection");
+        speechrnt::utils::Logger::error("Failed to create pipeline operation for manual language detection");
         return;
     }
     
@@ -1051,7 +1051,7 @@ std::string TranslationPipeline::getCurrentDetectedLanguage(const std::string& s
 void TranslationPipeline::clearLanguageDetectionCache() {
     std::lock_guard<std::mutex> lock(language_cache_mutex_);
     language_detection_cache_.clear();
-    utils::Logger::info("Language detection cache cleared");
+    speechrnt::utils::Logger::info("Language detection cache cleared");
 }
 
 void TranslationPipeline::clearLanguageDetectionCache(const std::string& session_id) {
@@ -1060,6 +1060,6 @@ void TranslationPipeline::clearLanguageDetectionCache(const std::string& session
     auto it = language_detection_cache_.find(session_id);
     if (it != language_detection_cache_.end()) {
         language_detection_cache_.erase(it);
-        utils::Logger::info("Language detection cache cleared for session: " + session_id);
+        speechrnt::utils::Logger::info("Language detection cache cleared for session: " + session_id);
     }
 }

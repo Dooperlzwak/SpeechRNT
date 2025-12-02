@@ -28,13 +28,13 @@ bool QualityManager::initialize(const std::string& configPath) {
     
     // Load configuration from file if it exists
     if (!loadConfiguration(configPath)) {
-        utils::Logger::warn("Failed to load quality configuration from " + configPath + 
+        speechrnt::utils::Logger::warn("Failed to load quality configuration from " + configPath + 
                            ", using defaults");
     }
     
     // Validate configuration
     if (!validateConfiguration()) {
-        utils::Logger::error("Invalid quality configuration");
+        speechrnt::utils::Logger::error("Invalid quality configuration");
         return false;
     }
     
@@ -42,7 +42,7 @@ bool QualityManager::initialize(const std::string& configPath) {
     // For now, we'll use rule-based approaches
     
     initialized_ = true;
-    utils::Logger::info("QualityManager initialized successfully");
+    speechrnt::utils::Logger::info("QualityManager initialized successfully");
     
     return true;
 }
@@ -60,7 +60,7 @@ void QualityManager::cleanup() {
     languageQualityModels_.clear();
     
     initialized_ = false;
-    utils::Logger::info("QualityManager cleaned up");
+    speechrnt::utils::Logger::info("QualityManager cleaned up");
 }
 
 QualityMetrics QualityManager::assessTranslationQuality(
@@ -75,12 +75,12 @@ QualityMetrics QualityManager::assessTranslationQuality(
     QualityMetrics metrics;
     
     if (!initialized_) {
-        utils::Logger::warn("QualityManager not initialized");
+        speechrnt::utils::Logger::warn("QualityManager not initialized");
         return metrics;
     }
     
     if (sourceText.empty() || translatedText.empty()) {
-        utils::Logger::warn("Empty source or translated text provided");
+        speechrnt::utils::Logger::warn("Empty source or translated text provided");
         return metrics;
     }
     
@@ -114,7 +114,7 @@ QualityMetrics QualityManager::assessTranslationQuality(
         updateStatistics(metrics, duration);
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Error in quality assessment: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error in quality assessment: " + std::string(e.what()));
         metrics.qualityLevel = "low";
         metrics.qualityIssues.push_back("Assessment error: " + std::string(e.what()));
     }
@@ -262,7 +262,7 @@ std::vector<TranslationCandidate> QualityManager::generateTranslationCandidates(
         }
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Error generating translation candidates: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error generating translation candidates: " + std::string(e.what()));
     }
     
     return candidates;
@@ -279,7 +279,7 @@ bool QualityManager::meetsQualityThreshold(const QualityMetrics& metrics,
     } else if (requiredLevel == "low") {
         threshold = config_.lowQualityThreshold;
     } else {
-        utils::Logger::warn("Unknown quality level: " + requiredLevel);
+        speechrnt::utils::Logger::warn("Unknown quality level: " + requiredLevel);
         return false;
     }
     
@@ -320,7 +320,7 @@ std::vector<std::string> QualityManager::getFallbackTranslations(
         }
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Error generating fallback translations: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error generating fallback translations: " + std::string(e.what()));
     }
     
     return fallbacks;
@@ -370,7 +370,7 @@ void QualityManager::setQualityThresholds(float high, float medium, float low) {
     config_.mediumQualityThreshold = std::max(0.0f, std::min(1.0f, medium));
     config_.lowQualityThreshold = std::max(0.0f, std::min(1.0f, low));
     
-    utils::Logger::info("Quality thresholds updated: high=" + std::to_string(high) + 
+    speechrnt::utils::Logger::info("Quality thresholds updated: high=" + std::to_string(high) + 
                        ", medium=" + std::to_string(medium) + ", low=" + std::to_string(low));
 }
 
@@ -381,7 +381,7 @@ const QualityConfig& QualityManager::getConfig() const {
 void QualityManager::updateConfig(const QualityConfig& config) {
     std::lock_guard<std::mutex> lock(assessmentMutex_);
     config_ = config;
-    utils::Logger::info("Quality configuration updated");
+    speechrnt::utils::Logger::info("Quality configuration updated");
 }
 
 bool QualityManager::isReady() const {
@@ -850,7 +850,7 @@ bool QualityManager::loadConfiguration(const std::string& configPath) {
         
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Error loading quality configuration: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error loading quality configuration: " + std::string(e.what()));
         return false;
     }
 }

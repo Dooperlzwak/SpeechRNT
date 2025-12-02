@@ -20,12 +20,12 @@ PipelineWebSocketIntegration::~PipelineWebSocketIntegration() {
 
 bool PipelineWebSocketIntegration::initialize() {
     if (active_) {
-        utils::Logger::warn("PipelineWebSocketIntegration already initialized");
+        speechrnt::utils::Logger::warn("PipelineWebSocketIntegration already initialized");
         return true;
     }
     
     if (!pipeline_ || !websocket_server_) {
-        utils::Logger::error("PipelineWebSocketIntegration initialization failed: null pipeline or websocket server");
+        speechrnt::utils::Logger::error("PipelineWebSocketIntegration initialization failed: null pipeline or websocket server");
         return false;
     }
     
@@ -55,7 +55,7 @@ bool PipelineWebSocketIntegration::initialize() {
     );
     
     active_ = true;
-    utils::Logger::info("PipelineWebSocketIntegration initialized successfully");
+    speechrnt::utils::Logger::info("PipelineWebSocketIntegration initialized successfully");
     return true;
 }
 
@@ -73,7 +73,7 @@ void PipelineWebSocketIntegration::shutdown() {
     }
     
     active_ = false;
-    utils::Logger::info("PipelineWebSocketIntegration shutdown completed");
+    speechrnt::utils::Logger::info("PipelineWebSocketIntegration shutdown completed");
 }
 
 void PipelineWebSocketIntegration::handleLanguageChange(
@@ -88,11 +88,11 @@ void PipelineWebSocketIntegration::handleLanguageChange(
     
     try {
         sendLanguageChangeNotification(session_id, old_lang, new_lang, confidence);
-        utils::Logger::info("Language change notification sent for session " + session_id + 
+        speechrnt::utils::Logger::info("Language change notification sent for session " + session_id + 
                            ": " + old_lang + " -> " + new_lang + 
                            " (confidence: " + std::to_string(confidence) + ")");
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to send language change notification: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to send language change notification: " + std::string(e.what()));
     }
 }
 
@@ -103,9 +103,9 @@ void PipelineWebSocketIntegration::handleLanguageDetectionComplete(const Pipelin
     
     try {
         sendLanguageDetectionResult(result.session_id, result.language_detection);
-        utils::Logger::debug("Language detection result sent for session " + result.session_id);
+        speechrnt::utils::Logger::debug("Language detection result sent for session " + result.session_id);
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to send language detection result: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to send language detection result: " + std::string(e.what()));
     }
 }
 
@@ -133,9 +133,9 @@ void PipelineWebSocketIntegration::handleTranslationComplete(const PipelineResul
             json << "}";
             
             websocket_server_->sendMessage(result.session_id, json.str());
-            utils::Logger::debug("Translation complete with language change sent for session " + result.session_id);
+            speechrnt::utils::Logger::debug("Translation complete with language change sent for session " + result.session_id);
         } catch (const std::exception& e) {
-            utils::Logger::error("Failed to send translation complete with language change: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Failed to send translation complete with language change: " + std::string(e.what()));
         }
     }
 }
@@ -158,9 +158,9 @@ void PipelineWebSocketIntegration::handlePipelineError(const PipelineResult& res
         json << "}";
         
         websocket_server_->sendMessage(result.session_id, json.str());
-        utils::Logger::debug("Pipeline error notification sent for session " + result.session_id);
+        speechrnt::utils::Logger::debug("Pipeline error notification sent for session " + result.session_id);
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to send pipeline error notification: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to send pipeline error notification: " + std::string(e.what()));
     }
 }
 

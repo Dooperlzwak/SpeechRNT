@@ -29,7 +29,7 @@ bool PerformanceOptimizedSTT::initialize() {
         return true;
     }
     
-    utils::Logger::info("Initializing PerformanceOptimizedSTT with memory and threading optimizations");
+    speechrnt::utils::Logger::info("Initializing PerformanceOptimizedSTT with memory and threading optimizations");
     
     // Initialize memory pools first
     audioBufferPool_ = std::make_unique<utils::AudioBufferPool>(
@@ -39,31 +39,31 @@ bool PerformanceOptimizedSTT::initialize() {
         config_.transcriptionResultPoolSize, config_.transcriptionResultPoolSize * 2);
     
     if (!audioBufferPool_ || !transcriptionResultPool_) {
-        utils::Logger::error("Failed to initialize memory pools");
+        speechrnt::utils::Logger::error("Failed to initialize memory pools");
         return false;
     }
     
     // Initialize GPU memory pool if enabled
     if (config_.enableGPUMemoryPool && !initializeGPUMemoryPool()) {
-        utils::Logger::warn("GPU memory pool initialization failed, continuing without GPU optimization");
+        speechrnt::utils::Logger::warn("GPU memory pool initialization failed, continuing without GPU optimization");
     }
     
     // Initialize thread pool
     if (!initializeThreadPool()) {
-        utils::Logger::error("Failed to initialize thread pool");
+        speechrnt::utils::Logger::error("Failed to initialize thread pool");
         return false;
     }
     
     // Initialize streaming state manager
     if (!initializeStreamingState()) {
-        utils::Logger::error("Failed to initialize streaming state manager");
+        speechrnt::utils::Logger::error("Failed to initialize streaming state manager");
         return false;
     }
     
     // Initialize WhisperSTT (assuming it's already configured)
     whisperSTT_ = std::make_shared<WhisperSTT>();
     if (!whisperSTT_->initialize()) {
-        utils::Logger::error("Failed to initialize WhisperSTT");
+        speechrnt::utils::Logger::error("Failed to initialize WhisperSTT");
         return false;
     }
     
@@ -74,7 +74,7 @@ bool PerformanceOptimizedSTT::initialize() {
     }
     
     initialized_ = true;
-    utils::Logger::info("PerformanceOptimizedSTT initialized successfully");
+    speechrnt::utils::Logger::info("PerformanceOptimizedSTT initialized successfully");
     
     return true;
 }
@@ -108,7 +108,7 @@ void PerformanceOptimizedSTT::shutdown() {
     cleanupResources();
     
     initialized_ = false;
-    utils::Logger::info("PerformanceOptimizedSTT shutdown completed");
+    speechrnt::utils::Logger::info("PerformanceOptimizedSTT shutdown completed");
 }
 
 std::future<TranscriptionResult> PerformanceOptimizedSTT::transcribeAsync(
@@ -224,7 +224,7 @@ void PerformanceOptimizedSTT::performGarbageCollection() {
         streamingState_->forceCleanup();
     }
     
-    utils::Logger::info("Performed garbage collection on all memory pools");
+    speechrnt::utils::Logger::info("Performed garbage collection on all memory pools");
 }
 
 void PerformanceOptimizedSTT::preAllocateResources(size_t expectedUtterances) {
@@ -233,7 +233,7 @@ void PerformanceOptimizedSTT::preAllocateResources(size_t expectedUtterances) {
     }
     
     // Pre-allocate resources based on expected load
-    utils::Logger::info("Pre-allocating resources for " + std::to_string(expectedUtterances) + 
+    speechrnt::utils::Logger::info("Pre-allocating resources for " + std::to_string(expectedUtterances) + 
                        " expected utterances");
     
     // This would involve pre-allocating memory pools, GPU memory, etc.
@@ -348,7 +348,7 @@ void PerformanceOptimizedSTT::updateConfig(const OptimizationConfig& config) {
         streamingState_->updateConfig(streamConfig);
     }
     
-    utils::Logger::info("PerformanceOptimizedSTT configuration updated");
+    speechrnt::utils::Logger::info("PerformanceOptimizedSTT configuration updated");
 }
 
 size_t PerformanceOptimizedSTT::getCurrentMemoryUsageMB() const {
@@ -393,7 +393,7 @@ size_t PerformanceOptimizedSTT::getActiveTranscriptionCount() const {
 
 // Private helper methods
 void PerformanceOptimizedSTT::monitoringThreadFunction() {
-    utils::Logger::debug("Performance monitoring thread started");
+    speechrnt::utils::Logger::debug("Performance monitoring thread started");
     
     while (!shutdownRequested_) {
         std::this_thread::sleep_for(config_.monitoringInterval);
@@ -403,7 +403,7 @@ void PerformanceOptimizedSTT::monitoringThreadFunction() {
         }
     }
     
-    utils::Logger::debug("Performance monitoring thread stopped");
+    speechrnt::utils::Logger::debug("Performance monitoring thread stopped");
 }
 
 void PerformanceOptimizedSTT::updatePerformanceStatistics() {
@@ -436,7 +436,7 @@ bool PerformanceOptimizedSTT::initializeGPUMemoryPool() {
         return false;
     }
     
-    utils::Logger::info("GPU memory pool initialized with " + 
+    speechrnt::utils::Logger::info("GPU memory pool initialized with " + 
                        std::to_string(config_.gpuMemoryPoolSizeMB) + "MB");
     return true;
 }
@@ -481,7 +481,7 @@ TranscriptionResult PerformanceOptimizedSTT::performOptimizedTranscription(
     // Get audio buffer from pool
     auto buffer = audioBufferPool_->acquireBuffer(audioData.size());
     if (!buffer) {
-        utils::Logger::warn("Failed to acquire audio buffer for transcription");
+        speechrnt::utils::Logger::warn("Failed to acquire audio buffer for transcription");
         return TranscriptionResult{}; // Return empty result
     }
     
@@ -531,13 +531,13 @@ void PerformanceOptimizedSTT::performMemoryOptimization() {
     // Balance memory pool sizes
     balanceMemoryPools();
     
-    utils::Logger::debug("Memory optimization completed");
+    speechrnt::utils::Logger::debug("Memory optimization completed");
 }
 
 void PerformanceOptimizedSTT::balanceMemoryPools() {
     // This would implement dynamic pool size balancing based on usage patterns
     // For now, just log the operation
-    utils::Logger::debug("Memory pool balancing completed");
+    speechrnt::utils::Logger::debug("Memory pool balancing completed");
 }
 
 size_t PerformanceOptimizedSTT::calculateOptimalPoolSizes() {
@@ -558,7 +558,7 @@ std::unique_ptr<PerformanceOptimizedSTT> OptimizedSTTFactory::createOptimized(
     auto stt = std::make_unique<PerformanceOptimizedSTT>(config);
     
     if (!stt->initialize()) {
-        utils::Logger::error("Failed to initialize PerformanceOptimizedSTT");
+        speechrnt::utils::Logger::error("Failed to initialize PerformanceOptimizedSTT");
         return nullptr;
     }
     
@@ -597,7 +597,7 @@ PerformanceOptimizedSTT::OptimizationConfig OptimizedSTTFactory::getRecommendedC
     config.transcriptionResultPoolSize = config.audioBufferPoolSize * 2;
     config.maxConcurrentUtterances = std::max(50UL, cpuCores * 10);
     
-    utils::Logger::info("Recommended configuration: " + std::to_string(cpuCores) + 
+    speechrnt::utils::Logger::info("Recommended configuration: " + std::to_string(cpuCores) + 
                        " CPU cores, " + std::to_string(availableMemoryMB) + "MB RAM, " +
                        "GPU: " + (hasGPU ? "available" : "not available"));
     

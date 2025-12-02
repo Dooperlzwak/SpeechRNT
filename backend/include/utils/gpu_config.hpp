@@ -76,7 +76,7 @@ public:
 
   /**
    * Get model-specific GPU configuration
-   * @param modelName Model name (e.g., "whisper", "marian", "coqui")
+   * @param modelName Model name (e.g., "whisper", "marian", "piper")
    * @return Model GPU configuration
    */
   ModelGPUConfig getModelConfig(const std::string &modelName) const;

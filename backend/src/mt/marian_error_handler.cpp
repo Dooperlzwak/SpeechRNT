@@ -56,19 +56,19 @@ bool MarianErrorHandler::initialize(const std::string& configPath) {
             utils::Config config;
             if (config.loadFromFile(configPath)) {
                 loadConfigurationFromFile(config);
-                utils::Logger::info("MarianErrorHandler initialized with configuration from: " + configPath);
+                speechrnt::utils::Logger::info("MarianErrorHandler initialized with configuration from: " + configPath);
             } else {
-                utils::Logger::warning("Failed to load error handler configuration, using defaults");
+                speechrnt::utils::Logger::warning("Failed to load error handler configuration, using defaults");
             }
         } else {
-            utils::Logger::info("MarianErrorHandler initialized with default configuration");
+            speechrnt::utils::Logger::info("MarianErrorHandler initialized with default configuration");
         }
         
         initialized_ = true;
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to initialize MarianErrorHandler: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to initialize MarianErrorHandler: " + std::string(e.what()));
         return false;
     }
 }
@@ -107,7 +107,7 @@ RecoveryResult MarianErrorHandler::handleError(const std::string& error, const E
         
         if (result.successful) {
             statistics_.recoveredErrors++;
-            utils::Logger::info("Successfully recovered from error using strategy: " + 
+            speechrnt::utils::Logger::info("Successfully recovered from error using strategy: " + 
                               recoveryStrategyToString(strategy));
         } else {
             if (severity == ErrorSeverity::CRITICAL || severity == ErrorSeverity::FATAL) {
@@ -125,7 +125,7 @@ RecoveryResult MarianErrorHandler::handleError(const std::string& error, const E
     } catch (const std::exception& e) {
         result.successful = false;
         result.message = "Error handling failed: " + std::string(e.what());
-        utils::Logger::error("Error handling failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Error handling failed: " + std::string(e.what()));
     }
     
     return result;
@@ -147,18 +147,18 @@ RecoveryResult MarianErrorHandler::checkAndHandleModelCorruption(const std::stri
     try {
         // Check model integrity
         if (!validateModelIntegrity(modelPath)) {
-            utils::Logger::warning("Model corruption detected: " + modelPath);
+            speechrnt::utils::Logger::warning("Model corruption detected: " + modelPath);
             
             // Attempt to reload the model
             if (attemptModelReload(modelPath, context)) {
                 result.successful = true;
                 result.message = "Successfully reloaded corrupted model: " + modelPath;
-                utils::Logger::info(result.message);
+                speechrnt::utils::Logger::info(result.message);
             } else {
                 result.successful = false;
                 result.message = "Failed to reload corrupted model: " + modelPath;
                 result.requiresUserIntervention = true;
-                utils::Logger::error(result.message);
+                speechrnt::utils::Logger::error(result.message);
             }
         } else {
             result.successful = true;
@@ -168,7 +168,7 @@ RecoveryResult MarianErrorHandler::checkAndHandleModelCorruption(const std::stri
     } catch (const std::exception& e) {
         result.successful = false;
         result.message = "Model corruption check failed: " + std::string(e.what());
-        utils::Logger::error(result.message);
+        speechrnt::utils::Logger::error(result.message);
     }
     
     return result;
@@ -181,21 +181,21 @@ RecoveryResult MarianErrorHandler::handleGPUErrorWithFallback(const std::string&
     result.strategyUsed = RecoveryStrategy::FALLBACK_CPU;
     
     try {
-        utils::Logger::warning("GPU error detected, attempting CPU fallback: " + error);
+        speechrnt::utils::Logger::warning("GPU error detected, attempting CPU fallback: " + error);
         
         // Execute CPU fallback strategy
         result = fallbackToCPU(error, context);
         
         if (result.successful) {
-            utils::Logger::info("Successfully fell back to CPU processing");
+            speechrnt::utils::Logger::info("Successfully fell back to CPU processing");
         } else {
-            utils::Logger::error("CPU fallback failed: " + result.message);
+            speechrnt::utils::Logger::error("CPU fallback failed: " + result.message);
         }
         
     } catch (const std::exception& e) {
         result.successful = false;
         result.message = "GPU fallback handling failed: " + std::string(e.what());
-        utils::Logger::error(result.message);
+        speechrnt::utils::Logger::error(result.message);
     }
     
     return result;
@@ -205,7 +205,7 @@ bool MarianErrorHandler::enterDegradedMode(const std::string& reason, const Erro
     std::lock_guard<std::mutex> lock(errorMutex_);
     
     if (degradedModeActive_) {
-        utils::Logger::warning("Already in degraded mode, reason: " + degradedModeReason_);
+        speechrnt::utils::Logger::warning("Already in degraded mode, reason: " + degradedModeReason_);
         return true;
     }
     
@@ -233,15 +233,15 @@ bool MarianErrorHandler::enterDegradedMode(const std::string& reason, const Erro
             activeDegradedRestrictions_.push_back("Fallback translation enabled");
         }
         
-        utils::Logger::warning("Entered degraded mode: " + reason);
+        speechrnt::utils::Logger::warning("Entered degraded mode: " + reason);
         for (const auto& restriction : activeDegradedRestrictions_) {
-            utils::Logger::info("Degraded mode restriction: " + restriction);
+            speechrnt::utils::Logger::info("Degraded mode restriction: " + restriction);
         }
         
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to enter degraded mode: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to enter degraded mode: " + std::string(e.what()));
         degradedModeActive_ = false;
         return false;
     }
@@ -261,7 +261,7 @@ bool MarianErrorHandler::exitDegradedMode() {
         degradedModeActive_ = false;
         activeDegradedRestrictions_.clear();
         
-        utils::Logger::info("Exited degraded mode after " + std::to_string(durationMinutes.count()) + 
+        speechrnt::utils::Logger::info("Exited degraded mode after " + std::to_string(durationMinutes.count()) + 
                           " minutes. Reason was: " + degradedModeReason_);
         
         degradedModeReason_.clear();
@@ -269,7 +269,7 @@ bool MarianErrorHandler::exitDegradedMode() {
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to exit degraded mode: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to exit degraded mode: " + std::string(e.what()));
         return false;
     }
 }
@@ -283,7 +283,7 @@ bool MarianErrorHandler::isInDegradedMode() const {
         auto durationMinutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
         
         if (durationMinutes > degradedModeConfig_.maxDegradedTime) {
-            utils::Logger::warning("Degraded mode exceeded maximum time limit, attempting to exit");
+            speechrnt::utils::Logger::warning("Degraded mode exceeded maximum time limit, attempting to exit");
             const_cast<MarianErrorHandler*>(this)->exitDegradedMode();
             return false;
         }
@@ -515,13 +515,13 @@ std::vector<std::string> MarianErrorHandler::getRecoverySuggestions(const std::s
 
 void MarianErrorHandler::logError(const std::string& error, const std::string& severity) {
     if (severity == "critical") {
-        utils::Logger::error("[CRITICAL] " + error);
+        speechrnt::utils::Logger::error("[CRITICAL] " + error);
     } else if (severity == "error") {
-        utils::Logger::error(error);
+        speechrnt::utils::Logger::error(error);
     } else if (severity == "warning") {
-        utils::Logger::warning(error);
+        speechrnt::utils::Logger::warning(error);
     } else {
-        utils::Logger::info(error);
+        speechrnt::utils::Logger::info(error);
     }
 }
 
@@ -660,7 +660,7 @@ RecoveryResult MarianErrorHandler::executeRecoveryStrategy(RecoveryStrategy stra
             result = customIt->second(error, context);
             return result;
         } catch (const std::exception& e) {
-            utils::Logger::warning("Custom recovery strategy failed: " + std::string(e.what()));
+            speechrnt::utils::Logger::warning("Custom recovery strategy failed: " + std::string(e.what()));
             // Fall through to default strategies
         }
     }
@@ -720,7 +720,7 @@ RecoveryResult MarianErrorHandler::fallbackToCPU(const std::string& error, const
         result.successful = true;
         result.message = "CPU fallback activated due to: " + error;
         
-        utils::Logger::info("Activated CPU fallback for GPU error: " + error);
+        speechrnt::utils::Logger::info("Activated CPU fallback for GPU error: " + error);
         
     } catch (const std::exception& e) {
         result.successful = false;
@@ -784,13 +784,13 @@ bool MarianErrorHandler::validateModelIntegrity(const std::string& modelPath) co
         for (const auto& file : requiredFiles) {
             std::string filePath = modelPath + "/" + file;
             if (!std::filesystem::exists(filePath)) {
-                utils::Logger::debug("Missing model file: " + filePath);
+                speechrnt::utils::Logger::debug("Missing model file: " + filePath);
                 return false;
             }
             
             // Check if file is not empty
             if (std::filesystem::file_size(filePath) == 0) {
-                utils::Logger::debug("Empty model file: " + filePath);
+                speechrnt::utils::Logger::debug("Empty model file: " + filePath);
                 return false;
             }
         }
@@ -801,7 +801,7 @@ bool MarianErrorHandler::validateModelIntegrity(const std::string& modelPath) co
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Model integrity check failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Model integrity check failed: " + std::string(e.what()));
         return false;
     }
 }
@@ -815,22 +815,22 @@ bool MarianErrorHandler::attemptModelReload(const std::string& modelPath, const 
         // 3. Re-downloading or restoring the model if necessary
         // 4. Reloading the model
         
-        utils::Logger::info("Attempting to reload model: " + modelPath);
+        speechrnt::utils::Logger::info("Attempting to reload model: " + modelPath);
         
         // Simulate model reload delay
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         
         // Check if model files are now valid
         if (validateModelIntegrity(modelPath)) {
-            utils::Logger::info("Model reload successful: " + modelPath);
+            speechrnt::utils::Logger::info("Model reload successful: " + modelPath);
             return true;
         } else {
-            utils::Logger::error("Model reload failed - integrity check failed: " + modelPath);
+            speechrnt::utils::Logger::error("Model reload failed - integrity check failed: " + modelPath);
             return false;
         }
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Model reload attempt failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Model reload attempt failed: " + std::string(e.what()));
         return false;
     }
 }
@@ -877,17 +877,17 @@ void MarianErrorHandler::logErrorWithContext(const std::string& error, const Err
     switch (severity) {
         case ErrorSeverity::FATAL:
         case ErrorSeverity::CRITICAL:
-            utils::Logger::error(logMessage);
+            speechrnt::utils::Logger::error(logMessage);
             break;
         case ErrorSeverity::ERROR:
-            utils::Logger::error(logMessage);
+            speechrnt::utils::Logger::error(logMessage);
             break;
         case ErrorSeverity::WARNING:
-            utils::Logger::warning(logMessage);
+            speechrnt::utils::Logger::warning(logMessage);
             break;
         case ErrorSeverity::INFO:
         default:
-            utils::Logger::info(logMessage);
+            speechrnt::utils::Logger::info(logMessage);
             break;
     }
 }
@@ -896,13 +896,13 @@ void MarianErrorHandler::loadConfigurationFromFile(const utils::Config& config) 
     // Load retry configurations
     if (config.hasSection("retry_configs")) {
         // Implementation would load retry configs from file
-        utils::Logger::info("Loaded retry configurations from file");
+        speechrnt::utils::Logger::info("Loaded retry configurations from file");
     }
     
     // Load degraded mode configuration
     if (config.hasSection("degraded_mode")) {
         // Implementation would load degraded mode config from file
-        utils::Logger::info("Loaded degraded mode configuration from file");
+        speechrnt::utils::Logger::info("Loaded degraded mode configuration from file");
     }
 }
 

@@ -19,7 +19,7 @@ bool WhisperQuantizer::quantizeModel(const std::string& modelPath,
                                    const std::string& outputPath,
                                    const QuantizationConfig& config) {
     if (!std::filesystem::exists(modelPath)) {
-        utils::Logger::error("Whisper model not found: " + modelPath);
+        speechrnt::utils::Logger::error("Whisper model not found: " + modelPath);
         return false;
     }
     
@@ -50,7 +50,7 @@ bool WhisperQuantizer::quantizeModel(const std::string& modelPath,
             break;
             
         default:
-            utils::Logger::error("Unsupported quantization precision for Whisper");
+            speechrnt::utils::Logger::error("Unsupported quantization precision for Whisper");
             return false;
     }
     
@@ -61,7 +61,7 @@ bool WhisperQuantizer::quantizeModel(const std::string& modelPath,
         
         loadedModelPath_ = outputPath;
         
-        utils::Logger::info("Whisper model quantized successfully: " + 
+        speechrnt::utils::Logger::info("Whisper model quantized successfully: " + 
                            std::to_string(stats_.compressionRatio) + "x compression");
         
         utils::PerformanceMonitor::getInstance().recordMetric(
@@ -73,12 +73,12 @@ bool WhisperQuantizer::quantizeModel(const std::string& modelPath,
 
 bool WhisperQuantizer::loadQuantizedModel(const std::string& modelPath) {
     if (!std::filesystem::exists(modelPath)) {
-        utils::Logger::error("Quantized Whisper model not found: " + modelPath);
+        speechrnt::utils::Logger::error("Quantized Whisper model not found: " + modelPath);
         return false;
     }
     
     loadedModelPath_ = modelPath;
-    utils::Logger::info("Loaded quantized Whisper model: " + modelPath);
+    speechrnt::utils::Logger::info("Loaded quantized Whisper model: " + modelPath);
     return true;
 }
 
@@ -113,7 +113,7 @@ bool WhisperQuantizer::quantizeToFP16(const std::string& inputPath, const std::s
     // Placeholder implementation for FP16 quantization
     // In production, this would use actual quantization libraries
     
-    utils::Logger::info("Quantizing Whisper model to FP16: " + inputPath + " -> " + outputPath);
+    speechrnt::utils::Logger::info("Quantizing Whisper model to FP16: " + inputPath + " -> " + outputPath);
     
     // For now, simulate quantization by copying the file
     // Real implementation would convert weights to FP16
@@ -125,19 +125,19 @@ bool WhisperQuantizer::quantizeToFP16(const std::string& inputPath, const std::s
         
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to quantize Whisper model to FP16: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to quantize Whisper model to FP16: " + std::string(e.what()));
         return false;
     }
 }
 
 bool WhisperQuantizer::quantizeToINT8(const std::string& inputPath, const std::string& outputPath) {
     // Placeholder implementation for INT8 quantization
-    utils::Logger::info("Quantizing Whisper model to INT8: " + inputPath + " -> " + outputPath);
+    speechrnt::utils::Logger::info("Quantizing Whisper model to INT8: " + inputPath + " -> " + outputPath);
     
     // Calibration would be performed here in real implementation
     if (currentConfig_.enableStaticQuantization) {
         if (!calibrateQuantization(inputPath, currentConfig_)) {
-            utils::Logger::warn("Calibration failed, using dynamic quantization");
+            speechrnt::utils::Logger::warn("Calibration failed, using dynamic quantization");
         }
     }
     
@@ -145,7 +145,7 @@ bool WhisperQuantizer::quantizeToINT8(const std::string& inputPath, const std::s
         std::filesystem::copy_file(inputPath, outputPath);
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to quantize Whisper model to INT8: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to quantize Whisper model to INT8: " + std::string(e.what()));
         return false;
     }
 }
@@ -153,7 +153,7 @@ bool WhisperQuantizer::quantizeToINT8(const std::string& inputPath, const std::s
 bool WhisperQuantizer::calibrateQuantization(const std::string& modelPath, 
                                            const QuantizationConfig& config) {
     // Placeholder for calibration logic
-    utils::Logger::info("Calibrating quantization for Whisper model using method: " + 
+    speechrnt::utils::Logger::info("Calibrating quantization for Whisper model using method: " + 
                        config.calibrationMethod);
     
     // In real implementation, this would:
@@ -169,7 +169,7 @@ size_t WhisperQuantizer::getModelSize(const std::string& modelPath) const {
         auto fileSize = std::filesystem::file_size(modelPath);
         return fileSize / (1024 * 1024); // Convert to MB
     } catch (const std::exception& e) {
-        utils::Logger::warn("Failed to get model size: " + std::string(e.what()));
+        speechrnt::utils::Logger::warn("Failed to get model size: " + std::string(e.what()));
         return 0;
     }
 }
@@ -184,7 +184,7 @@ bool MarianQuantizer::quantizeModel(const std::string& modelPath,
                                   const std::string& outputPath,
                                   const QuantizationConfig& config) {
     if (!std::filesystem::exists(modelPath)) {
-        utils::Logger::error("Marian model not found: " + modelPath);
+        speechrnt::utils::Logger::error("Marian model not found: " + modelPath);
         return false;
     }
     
@@ -203,7 +203,7 @@ bool MarianQuantizer::quantizeModel(const std::string& modelPath,
         
         loadedModelPath_ = outputPath;
         
-        utils::Logger::info("Marian model quantized successfully: " + 
+        speechrnt::utils::Logger::info("Marian model quantized successfully: " + 
                            std::to_string(stats_.compressionRatio) + "x compression");
     }
     
@@ -212,12 +212,12 @@ bool MarianQuantizer::quantizeModel(const std::string& modelPath,
 
 bool MarianQuantizer::loadQuantizedModel(const std::string& modelPath) {
     if (!std::filesystem::exists(modelPath)) {
-        utils::Logger::error("Quantized Marian model not found: " + modelPath);
+        speechrnt::utils::Logger::error("Quantized Marian model not found: " + modelPath);
         return false;
     }
     
     loadedModelPath_ = modelPath;
-    utils::Logger::info("Loaded quantized Marian model: " + modelPath);
+    speechrnt::utils::Logger::info("Loaded quantized Marian model: " + modelPath);
     return true;
 }
 
@@ -250,14 +250,14 @@ bool MarianQuantizer::quantizeMarianModel(const std::string& inputPath,
                                         const std::string& outputPath,
                                         QuantizationPrecision precision) {
     // Placeholder implementation
-    utils::Logger::info("Quantizing Marian model to " + 
+    speechrnt::utils::Logger::info("Quantizing Marian model to " + 
                        QuantizationManager::precisionToString(precision));
     
     try {
         std::filesystem::copy_file(inputPath, outputPath);
         return validateMarianQuantization(outputPath);
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to quantize Marian model: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to quantize Marian model: " + std::string(e.what()));
         return false;
     }
 }
@@ -267,27 +267,27 @@ bool MarianQuantizer::validateMarianQuantization(const std::string& modelPath) c
     return std::filesystem::exists(modelPath) && std::filesystem::file_size(modelPath) > 0;
 }
 
-CoquiQuantizer::CoquiQuantizer() {
+PiperQuantizer::PiperQuantizer() {
 }
 
-CoquiQuantizer::~CoquiQuantizer() {
+PiperQuantizer::~PiperQuantizer() {
 }
 
-bool CoquiQuantizer::quantizeModel(const std::string& modelPath,
+bool PiperQuantizer::quantizeModel(const std::string& modelPath,
                                  const std::string& outputPath,
                                  const QuantizationConfig& config) {
     if (!std::filesystem::exists(modelPath)) {
-        utils::Logger::error("Coqui model not found: " + modelPath);
+        speechrnt::utils::Logger::error("Piper model not found: " + modelPath);
         return false;
     }
     
     auto timer = utils::PerformanceMonitor::getInstance().startLatencyTimer(
-        "quantization.coqui_quantization_latency_ms");
+        "quantization.piper_quantization_latency_ms");
     
     currentConfig_ = config;
     stats_.originalModelSizeMB = std::filesystem::file_size(modelPath) / (1024 * 1024);
     
-    bool success = quantizeCoquiModel(modelPath, outputPath, config.precision);
+    bool success = quantizePiperModel(modelPath, outputPath, config.precision);
     
     if (success) {
         stats_.quantizedModelSizeMB = std::filesystem::file_size(outputPath) / (1024 * 1024);
@@ -296,29 +296,29 @@ bool CoquiQuantizer::quantizeModel(const std::string& modelPath,
         
         loadedModelPath_ = outputPath;
         
-        utils::Logger::info("Coqui model quantized successfully: " + 
+        speechrnt::utils::Logger::info("Piper model quantized successfully: " + 
                            std::to_string(stats_.compressionRatio) + "x compression");
     }
     
     return success;
 }
 
-bool CoquiQuantizer::loadQuantizedModel(const std::string& modelPath) {
+bool PiperQuantizer::loadQuantizedModel(const std::string& modelPath) {
     if (!std::filesystem::exists(modelPath)) {
-        utils::Logger::error("Quantized Coqui model not found: " + modelPath);
+        speechrnt::utils::Logger::error("Quantized Piper model not found: " + modelPath);
         return false;
     }
     
     loadedModelPath_ = modelPath;
-    utils::Logger::info("Loaded quantized Coqui model: " + modelPath);
+    speechrnt::utils::Logger::info("Loaded quantized Piper model: " + modelPath);
     return true;
 }
 
-QuantizationStats CoquiQuantizer::getQuantizationStats() const {
+QuantizationStats PiperQuantizer::getQuantizationStats() const {
     return stats_;
 }
 
-float CoquiQuantizer::validateAccuracy(const std::string& testDataPath) const {
+float PiperQuantizer::validateAccuracy(const std::string& testDataPath) const {
     // Placeholder - would run audio quality metrics in production
     if (currentConfig_.precision == QuantizationPrecision::FP32) {
         return 1.0f;
@@ -331,7 +331,7 @@ float CoquiQuantizer::validateAccuracy(const std::string& testDataPath) const {
     return 0.85f;
 }
 
-std::vector<QuantizationPrecision> CoquiQuantizer::getSupportedPrecisions() const {
+std::vector<QuantizationPrecision> PiperQuantizer::getSupportedPrecisions() const {
     return {
         QuantizationPrecision::FP32,
         QuantizationPrecision::FP16,
@@ -339,23 +339,23 @@ std::vector<QuantizationPrecision> CoquiQuantizer::getSupportedPrecisions() cons
     };
 }
 
-bool CoquiQuantizer::quantizeCoquiModel(const std::string& inputPath, 
+bool PiperQuantizer::quantizePiperModel(const std::string& inputPath, 
                                       const std::string& outputPath,
                                       QuantizationPrecision precision) {
     // Placeholder implementation
-    utils::Logger::info("Quantizing Coqui model to " + 
+    speechrnt::utils::Logger::info("Quantizing Piper model to " + 
                        QuantizationManager::precisionToString(precision));
     
     try {
         std::filesystem::copy_file(inputPath, outputPath);
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to quantize Coqui model: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to quantize Piper model: " + std::string(e.what()));
         return false;
     }
 }
 
-float CoquiQuantizer::evaluateAudioQuality(const std::string& originalAudio, 
+float PiperQuantizer::evaluateAudioQuality(const std::string& originalAudio, 
                                           const std::string& quantizedAudio) const {
     // Placeholder for audio quality evaluation
     // Would use metrics like PESQ, STOI, or MOS in production
@@ -375,7 +375,7 @@ bool QuantizationManager::initialize() {
     initializeDefaultQuantizers();
     initialized_ = true;
     
-    utils::Logger::info("QuantizationManager initialized with " + 
+    speechrnt::utils::Logger::info("QuantizationManager initialized with " + 
                        std::to_string(quantizers_.size()) + " quantizers");
     
     return true;
@@ -384,7 +384,7 @@ bool QuantizationManager::initialize() {
 void QuantizationManager::registerQuantizer(const std::string& modelType, 
                                            std::unique_ptr<ModelQuantizer> quantizer) {
     quantizers_[modelType] = std::move(quantizer);
-    utils::Logger::info("Registered quantizer for model type: " + modelType);
+    speechrnt::utils::Logger::info("Registered quantizer for model type: " + modelType);
 }
 
 bool QuantizationManager::quantizeModel(const std::string& modelType,
@@ -392,17 +392,17 @@ bool QuantizationManager::quantizeModel(const std::string& modelType,
                                        const std::string& outputPath,
                                        const QuantizationConfig& config) {
     if (!isValidModelType(modelType)) {
-        utils::Logger::error("Unsupported model type for quantization: " + modelType);
+        speechrnt::utils::Logger::error("Unsupported model type for quantization: " + modelType);
         return false;
     }
     
     auto it = quantizers_.find(modelType);
     if (it == quantizers_.end()) {
-        utils::Logger::error("No quantizer registered for model type: " + modelType);
+        speechrnt::utils::Logger::error("No quantizer registered for model type: " + modelType);
         return false;
     }
     
-    utils::Logger::info("Starting quantization for " + modelType + " model: " + modelPath);
+    speechrnt::utils::Logger::info("Starting quantization for " + modelType + " model: " + modelPath);
     
     bool success = it->second->quantizeModel(modelPath, outputPath, config);
     
@@ -448,7 +448,7 @@ QuantizationConfig QuantizationManager::getRecommendedConfig(const std::string& 
     } else if (modelType == "marian") {
         config.calibrationDataRatio = 0.1f;
         config.calibrationMethod = "kl_divergence"; // Better for translation models
-    } else if (modelType == "coqui") {
+    } else if (modelType == "piper") {
         config.calibrationDataRatio = 0.15f; // TTS needs more calibration for quality
         config.calibrationMethod = "percentile";
     }
@@ -465,15 +465,15 @@ std::map<std::string, bool> QuantizationManager::batchQuantize(
         const std::string& modelType = spec.first;
         const auto& [inputPath, outputPath, config] = spec.second;
         
-        utils::Logger::info("Batch quantizing " + modelType + " model");
+        speechrnt::utils::Logger::info("Batch quantizing " + modelType + " model");
         
         bool success = quantizeModel(modelType, inputPath, outputPath, config);
         results[modelType] = success;
         
         if (success) {
-            utils::Logger::info("Successfully quantized " + modelType + " model");
+            speechrnt::utils::Logger::info("Successfully quantized " + modelType + " model");
         } else {
-            utils::Logger::error("Failed to quantize " + modelType + " model");
+            speechrnt::utils::Logger::error("Failed to quantize " + modelType + " model");
         }
     }
     
@@ -504,7 +504,7 @@ std::map<std::string, float> QuantizationManager::validateAllModels(
             float accuracy = it->second->validateAccuracy(testDataPath);
             accuracyScores[modelType] = accuracy;
             
-            utils::Logger::info("Validation accuracy for " + modelType + ": " + 
+            speechrnt::utils::Logger::info("Validation accuracy for " + modelType + ": " + 
                                std::to_string(accuracy * 100.0f) + "%");
         }
     }
@@ -545,11 +545,11 @@ QuantizationPrecision QuantizationManager::stringToPrecision(const std::string& 
 void QuantizationManager::initializeDefaultQuantizers() {
     quantizers_["whisper"] = std::make_unique<WhisperQuantizer>();
     quantizers_["marian"] = std::make_unique<MarianQuantizer>();
-    quantizers_["coqui"] = std::make_unique<CoquiQuantizer>();
+    quantizers_["piper"] = std::make_unique<PiperQuantizer>();
 }
 
 bool QuantizationManager::isValidModelType(const std::string& modelType) const {
-    return modelType == "whisper" || modelType == "marian" || modelType == "coqui";
+    return modelType == "whisper" || modelType == "marian" || modelType == "piper";
 }
 
 } // namespace models

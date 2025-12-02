@@ -18,7 +18,7 @@ CustomModelIntegration::CustomModelIntegration(std::shared_ptr<models::ModelMana
     // Start background processing thread
     backgroundThread_ = std::thread(&CustomModelIntegration::backgroundProcessingLoop, this);
     
-    utils::Logger::info("CustomModelIntegration initialized");
+    speechrnt::utils::Logger::info("CustomModelIntegration initialized");
 }
 
 CustomModelIntegration::~CustomModelIntegration() {
@@ -27,7 +27,7 @@ CustomModelIntegration::~CustomModelIntegration() {
         backgroundThread_.join();
     }
     
-    utils::Logger::info("CustomModelIntegration destroyed");
+    speechrnt::utils::Logger::info("CustomModelIntegration destroyed");
 }
 
 ModelValidationResult CustomModelIntegration::validateModel(const std::string& modelPath, 
@@ -41,7 +41,7 @@ ModelValidationResult CustomModelIntegration::validateModel(const std::string& m
     result.modelId = modelId;
     result.modelPath = modelPath;
     
-    utils::Logger::info("Starting validation for model: " + modelId + " at path: " + modelPath);
+    speechrnt::utils::Logger::info("Starting validation for model: " + modelId + " at path: " + modelPath);
     
     try {
         // Check if model files exist
@@ -121,12 +121,12 @@ ModelValidationResult CustomModelIntegration::validateModel(const std::string& m
         // Store validation result
         validationResults_[modelId] = result;
         
-        utils::Logger::info("Model validation completed for " + modelId + 
+        speechrnt::utils::Logger::info("Model validation completed for " + modelId + 
                            " - Result: " + (result.isValid ? "PASSED" : "FAILED"));
         
     } catch (const std::exception& e) {
         result.errors.push_back("Validation exception: " + std::string(e.what()));
-        utils::Logger::error("Model validation failed for " + modelId + ": " + e.what());
+        speechrnt::utils::Logger::error("Model validation failed for " + modelId + ": " + e.what());
     }
     
     return result;
@@ -157,7 +157,7 @@ std::pair<float, float> CustomModelIntegration::validateModelPerformance(
     float accuracy = 0.95f;
     float latency = 150.0f;
     
-    utils::Logger::info("Performance validation completed for " + modelPath + 
+    speechrnt::utils::Logger::info("Performance validation completed for " + modelPath + 
                        " - Accuracy: " + std::to_string(accuracy) + 
                        ", Latency: " + std::to_string(latency) + "ms");
     
@@ -175,7 +175,7 @@ odelOptimizationResult CustomModelIntegration::quantizeModel(
     result.optimizedModelPath = outputPath;
     
     try {
-        utils::Logger::info("Starting model quantization: " + modelPath + " -> " + outputPath);
+        speechrnt::utils::Logger::info("Starting model quantization: " + modelPath + " -> " + outputPath);
         
         // Get original model size
         if (std::filesystem::exists(modelPath)) {
@@ -214,11 +214,11 @@ odelOptimizationResult CustomModelIntegration::quantizeModel(
         result.successful = true;
         successfulOptimizations_++;
         
-        utils::Logger::info("Model quantization completed successfully");
+        speechrnt::utils::Logger::info("Model quantization completed successfully");
         
     } catch (const std::exception& e) {
         result.successful = false;
-        utils::Logger::error("Model quantization failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Model quantization failed: " + std::string(e.what()));
     }
     
     return result;
@@ -233,7 +233,7 @@ ModelOptimizationResult CustomModelIntegration::optimizeModelForHardware(
     result.optimizedModelPath = outputPath;
     
     try {
-        utils::Logger::info("Optimizing model for " + targetDevice + ": " + modelPath);
+        speechrnt::utils::Logger::info("Optimizing model for " + targetDevice + ": " + modelPath);
         
         // Device-specific optimizations
         std::vector<std::string> optimizations;
@@ -248,11 +248,11 @@ ModelOptimizationResult CustomModelIntegration::optimizeModelForHardware(
         result.appliedOptimizations = optimizations;
         result.successful = true;
         
-        utils::Logger::info("Hardware optimization completed for " + targetDevice);
+        speechrnt::utils::Logger::info("Hardware optimization completed for " + targetDevice);
         
     } catch (const std::exception& e) {
         result.successful = false;
-        utils::Logger::error("Hardware optimization failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Hardware optimization failed: " + std::string(e.what()));
     }
     
     return result;
@@ -272,7 +272,7 @@ lDeploymentResult CustomModelIntegration::deployModel(
     result.status = ModelDeploymentResult::DeploymentStatus::PENDING;
     
     try {
-        utils::Logger::info("Starting model deployment: " + modelId + " (ID: " + result.deploymentId + ")");
+        speechrnt::utils::Logger::info("Starting model deployment: " + modelId + " (ID: " + result.deploymentId + ")");
         
         // Validate model before deployment
         auto validation = validateModel(modelPath, modelId);
@@ -360,12 +360,12 @@ lDeploymentResult CustomModelIntegration::deployModel(
             deploymentCallback_(result);
         }
         
-        utils::Logger::info("Model deployment completed successfully: " + result.deploymentId);
+        speechrnt::utils::Logger::info("Model deployment completed successfully: " + result.deploymentId);
         
     } catch (const std::exception& e) {
         result.status = ModelDeploymentResult::DeploymentStatus::FAILED;
         result.deploymentLogs.push_back("Deployment exception: " + std::string(e.what()));
-        utils::Logger::error("Model deployment failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Model deployment failed: " + std::string(e.what()));
     }
     
     return result;
@@ -506,7 +506,7 @@ odelIntegration::runSecurityScan(const std::string& modelPath) {
         // Check file permissions
         auto perms = std::filesystem::status(modelPath).permissions();
         if ((perms & std::filesystem::perms::others_write) != std::filesystem::perms::none) {
-            utils::Logger::warn("Model files have world-writable permissions: " + modelPath);
+            speechrnt::utils::Logger::warn("Model files have world-writable permissions: " + modelPath);
             return false;
         }
         
@@ -517,7 +517,7 @@ odelIntegration::runSecurityScan(const std::string& modelPath) {
                 std::string extension = entry.path().extension().string();
                 if (std::find(suspiciousExtensions.begin(), suspiciousExtensions.end(), extension)
                     != suspiciousExtensions.end()) {
-                    utils::Logger::warn("Suspicious file found in model: " + entry.path().string());
+                    speechrnt::utils::Logger::warn("Suspicious file found in model: " + entry.path().string());
                     // Don't fail for now, just warn
                 }
             }
@@ -533,14 +533,14 @@ odelIntegration::runSecurityScan(const std::string& modelPath) {
         
         // Fail if model is larger than 10GB
         if (totalSize > 10ULL * 1024 * 1024 * 1024) {
-            utils::Logger::error("Model size exceeds maximum allowed size: " + std::to_string(totalSize));
+            speechrnt::utils::Logger::error("Model size exceeds maximum allowed size: " + std::to_string(totalSize));
             return false;
         }
         
         return true;
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Security scan failed: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Security scan failed: " + std::string(e.what()));
         return false;
     }
 }
@@ -578,7 +578,7 @@ bool CustomModelIntegration::performHealthCheck(const std::string& modelId) {
         return dis(gen) > 0.1; // 90% success rate
         
     } catch (const std::exception& e) {
-        utils::Logger::error("Health check failed for model " + modelId + ": " + e.what());
+        speechrnt::utils::Logger::error("Health check failed for model " + modelId + ": " + e.what());
         return false;
     }
 }
@@ -596,7 +596,7 @@ void CustomModelIntegration::backgroundProcessingLoop() {
             std::this_thread::sleep_for(std::chrono::seconds(30));
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Error in background processing: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Error in background processing: " + std::string(e.what()));
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
     }

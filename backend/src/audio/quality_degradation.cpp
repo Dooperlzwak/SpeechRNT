@@ -46,10 +46,10 @@ bool QualityDegradationManager::initialize(std::shared_ptr<NetworkMonitor> netwo
                 }
             });
         
-        // utils::Logger::info("QualityDegradationManager initialized with network monitor");
+        // speechrnt::utils::Logger::info("QualityDegradationManager initialized with network monitor");
         std::cout << "QualityDegradationManager initialized with network monitor" << std::endl;
     } else {
-        // utils::Logger::info("QualityDegradationManager initialized without network monitor");
+        // speechrnt::utils::Logger::info("QualityDegradationManager initialized without network monitor");
         std::cout << "QualityDegradationManager initialized without network monitor" << std::endl;
     }
     
@@ -71,7 +71,7 @@ void QualityDegradationManager::setTargetQualityLevel(AudioQualityLevel level) {
     notifyQualityChange(oldParams, currentParams_);
     recordQualityChange(currentParams_);
     
-    // utils::Logger::info("Target quality level set to " + std::to_string(static_cast<int>(level)));
+    // speechrnt::utils::Logger::info("Target quality level set to " + std::to_string(static_cast<int>(level)));
     std::cout << "Target quality level set to " << static_cast<int>(level) << std::endl;
 }
 
@@ -100,7 +100,7 @@ bool QualityDegradationManager::applyNetworkBasedDegradation(NetworkQuality netw
         notifyQualityChange(oldParams, currentParams_);
         recordQualityChange(currentParams_);
         
-        // utils::Logger::info("Applied network-based quality degradation");
+        // speechrnt::utils::Logger::info("Applied network-based quality degradation");
         std::cout << "Applied network-based quality degradation" << std::endl;
         return true;
     }
@@ -134,7 +134,7 @@ bool QualityDegradationManager::applyResourceBasedDegradation(float cpuUsage, fl
         notifyQualityChange(oldParams, currentParams_);
         recordQualityChange(currentParams_);
         
-        // utils::Logger::info("Applied resource-based quality degradation");
+        // speechrnt::utils::Logger::info("Applied resource-based quality degradation");
         std::cout << "Applied resource-based quality degradation" << std::endl;
         return true;
     }
@@ -194,12 +194,12 @@ void QualityDegradationManager::registerQualityChangeCallback(
 
 void QualityDegradationManager::setAutoAdjustment(bool enabled) {
     autoAdjustment_ = enabled;
-    utils::Logger::info("Quality auto-adjustment " + std::string(enabled ? "enabled" : "disabled"));
+    speechrnt::utils::Logger::info("Quality auto-adjustment " + std::string(enabled ? "enabled" : "disabled"));
 }
 
 void QualityDegradationManager::setAdjustmentAggressiveness(float aggressiveness) {
     adjustmentAggressiveness_ = std::max(0.0f, std::min(1.0f, aggressiveness));
-    utils::Logger::info("Quality adjustment aggressiveness set to " + 
+    speechrnt::utils::Logger::info("Quality adjustment aggressiveness set to " + 
                        std::to_string(adjustmentAggressiveness_));
 }
 
@@ -236,7 +236,7 @@ void QualityDegradationManager::resetToDefault() {
     notifyQualityChange(oldParams, currentParams_);
     recordQualityChange(currentParams_);
     
-    utils::Logger::info("Quality parameters reset to default");
+    speechrnt::utils::Logger::info("Quality parameters reset to default");
 }
 
 AudioQualityParams QualityDegradationManager::calculateNetworkOptimizedParams(
@@ -413,7 +413,7 @@ void QualityDegradationManager::notifyQualityChange(const AudioQualityParams& ol
         try {
             callback(oldParams, newParams);
         } catch (const std::exception& e) {
-            utils::Logger::error("Quality change callback error: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Quality change callback error: " + std::string(e.what()));
         }
     }
 }
@@ -532,17 +532,17 @@ bool AdaptiveQualityController::initialize(std::shared_ptr<QualityDegradationMan
     networkMonitor_ = networkMonitor;
     
     if (degradationManager_ && networkMonitor_) {
-        utils::Logger::info("AdaptiveQualityController initialized successfully");
+        speechrnt::utils::Logger::info("AdaptiveQualityController initialized successfully");
         return true;
     } else {
-        utils::Logger::error("AdaptiveQualityController initialization failed");
+        speechrnt::utils::Logger::error("AdaptiveQualityController initialization failed");
         return false;
     }
 }
 
 bool AdaptiveQualityController::startAutoControl(int updateIntervalMs) {
     if (controlActive_.load()) {
-        utils::Logger::warn("Adaptive quality control already active");
+        speechrnt::utils::Logger::warn("Adaptive quality control already active");
         return true;
     }
     
@@ -550,7 +550,7 @@ bool AdaptiveQualityController::startAutoControl(int updateIntervalMs) {
     controlActive_ = true;
     controlThread_ = std::make_unique<std::thread>(&AdaptiveQualityController::controlLoop, this);
     
-    utils::Logger::info("Adaptive quality control started with " + 
+    speechrnt::utils::Logger::info("Adaptive quality control started with " + 
                        std::to_string(updateIntervalMs) + "ms interval");
     return true;
 }
@@ -566,7 +566,7 @@ void AdaptiveQualityController::stopAutoControl() {
         controlThread_->join();
     }
     
-    utils::Logger::info("Adaptive quality control stopped");
+    speechrnt::utils::Logger::info("Adaptive quality control stopped");
 }
 
 void AdaptiveQualityController::updateSystemResources(float cpuUsage, float memoryUsage, 
@@ -583,7 +583,7 @@ void AdaptiveQualityController::setControlThresholds(float cpuThreshold, float m
     memoryThreshold_ = memoryThreshold;
     latencyThreshold_ = latencyThreshold;
     
-    utils::Logger::info("Quality control thresholds updated: CPU=" + 
+    speechrnt::utils::Logger::info("Quality control thresholds updated: CPU=" + 
                        std::to_string(cpuThreshold) + ", Memory=" + 
                        std::to_string(memoryThreshold) + ", Latency=" + 
                        std::to_string(latencyThreshold) + "ms");
@@ -591,13 +591,13 @@ void AdaptiveQualityController::setControlThresholds(float cpuThreshold, float m
 
 void AdaptiveQualityController::setNetworkBasedControl(bool enabled) {
     networkBasedControl_ = enabled;
-    utils::Logger::info("Network-based quality control " + 
+    speechrnt::utils::Logger::info("Network-based quality control " + 
                        std::string(enabled ? "enabled" : "disabled"));
 }
 
 void AdaptiveQualityController::setResourceBasedControl(bool enabled) {
     resourceBasedControl_ = enabled;
-    utils::Logger::info("Resource-based quality control " + 
+    speechrnt::utils::Logger::info("Resource-based quality control " + 
                        std::string(enabled ? "enabled" : "disabled"));
 }
 
@@ -626,7 +626,7 @@ std::map<std::string, double> AdaptiveQualityController::getControlStats() const
 }
 
 void AdaptiveQualityController::controlLoop() {
-    utils::Logger::info("Adaptive quality control loop started");
+    speechrnt::utils::Logger::info("Adaptive quality control loop started");
     
     while (controlActive_.load()) {
         try {
@@ -634,13 +634,13 @@ void AdaptiveQualityController::controlLoop() {
             totalControlCycles_++;
             
         } catch (const std::exception& e) {
-            utils::Logger::error("Quality control error: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Quality control error: " + std::string(e.what()));
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(updateIntervalMs_));
     }
     
-    utils::Logger::info("Adaptive quality control loop stopped");
+    speechrnt::utils::Logger::info("Adaptive quality control loop stopped");
 }
 
 void AdaptiveQualityController::performQualityControl() {
@@ -682,7 +682,7 @@ void AdaptiveQualityController::performQualityControl() {
     }
     
     if (adjustmentMade) {
-        utils::Logger::debug("Adaptive quality control made adjustment");
+        speechrnt::utils::Logger::debug("Adaptive quality control made adjustment");
     }
 }
 

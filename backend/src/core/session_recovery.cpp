@@ -27,7 +27,7 @@ void SessionRecoveryManager::initialize() {
     // Start cleanup worker thread
     cleanup_thread_ = std::thread(&SessionRecoveryManager::cleanupWorker, this);
     
-    utils::Logger::info("SessionRecoveryManager initialized");
+    speechrnt::utils::Logger::info("SessionRecoveryManager initialized");
 }
 
 void SessionRecoveryManager::shutdown() {
@@ -46,7 +46,7 @@ void SessionRecoveryManager::shutdown() {
         std::lock_guard<std::mutex> lock(sessions_mutex_);
         stored_sessions_.clear();
         
-        utils::Logger::info("SessionRecoveryManager shutdown complete");
+        speechrnt::utils::Logger::info("SessionRecoveryManager shutdown complete");
     }
 }
 
@@ -62,14 +62,14 @@ bool SessionRecoveryManager::storeSessionData(const std::string& session_id, con
             });
         
         if (oldest_it != stored_sessions_.end()) {
-            utils::Logger::info("Removing oldest session to make room: " + oldest_it->first);
+            speechrnt::utils::Logger::info("Removing oldest session to make room: " + oldest_it->first);
             stored_sessions_.erase(oldest_it);
         }
     }
     
     // Validate the recovery data
     if (!SessionRecoveryHelper::validateRecoveryData(data)) {
-        utils::Logger::error("Invalid session recovery data for session: " + session_id);
+        speechrnt::utils::Logger::error("Invalid session recovery data for session: " + session_id);
         return false;
     }
     
@@ -83,7 +83,7 @@ bool SessionRecoveryManager::storeSessionData(const std::string& session_id, con
     stats_.total_sessions_stored++;
     stats_.current_stored_sessions = stored_sessions_.size();
     
-    utils::Logger::info("Stored session recovery data for session: " + session_id);
+    speechrnt::utils::Logger::info("Stored session recovery data for session: " + session_id);
     return true;
 }
 
@@ -92,7 +92,7 @@ bool SessionRecoveryManager::recoverSession(const std::string& session_id, std::
     
     auto it = stored_sessions_.find(session_id);
     if (it == stored_sessions_.end()) {
-        utils::Logger::warn("No recovery data found for session: " + session_id);
+        speechrnt::utils::Logger::warn("No recovery data found for session: " + session_id);
         std::lock_guard<std::mutex> stats_lock(stats_mutex_);
         stats_.failed_recoveries++;
         return false;
@@ -102,7 +102,7 @@ bool SessionRecoveryManager::recoverSession(const std::string& session_id, std::
     
     // Check if session has expired
     if (isSessionExpired(recovery_data)) {
-        utils::Logger::warn("Session recovery data expired for session: " + session_id);
+        speechrnt::utils::Logger::warn("Session recovery data expired for session: " + session_id);
         stored_sessions_.erase(it);
         std::lock_guard<std::mutex> stats_lock(stats_mutex_);
         stats_.failed_recoveries++;
@@ -113,7 +113,7 @@ bool SessionRecoveryManager::recoverSession(const std::string& session_id, std::
     
     // Check recovery attempts
     if (recovery_data.recovery_attempts >= config_.max_recovery_attempts) {
-        utils::Logger::error("Max recovery attempts exceeded for session: " + session_id);
+        speechrnt::utils::Logger::error("Max recovery attempts exceeded for session: " + session_id);
         recovery_data.is_recoverable = false;
         std::lock_guard<std::mutex> stats_lock(stats_mutex_);
         stats_.failed_recoveries++;
@@ -130,7 +130,7 @@ bool SessionRecoveryManager::recoverSession(const std::string& session_id, std::
         try {
             recovery_success = recovery_callback_(recovery_data, new_session);
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception during session recovery callback: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception during session recovery callback: " + std::string(e.what()));
             recovery_success = false;
         }
     } else {
@@ -139,7 +139,7 @@ bool SessionRecoveryManager::recoverSession(const std::string& session_id, std::
     }
     
     if (recovery_success) {
-        utils::Logger::info("Successfully recovered session: " + session_id);
+        speechrnt::utils::Logger::info("Successfully recovered session: " + session_id);
         
         // Update session activity and remove from storage (session is now active)
         stored_sessions_.erase(it);
@@ -151,7 +151,7 @@ bool SessionRecoveryManager::recoverSession(const std::string& session_id, std::
         
         return true;
     } else {
-        utils::Logger::error("Failed to recover session: " + session_id);
+        speechrnt::utils::Logger::error("Failed to recover session: " + session_id);
         
         // Update statistics
         std::lock_guard<std::mutex> stats_lock(stats_mutex_);
@@ -172,7 +172,7 @@ void SessionRecoveryManager::removeSessionData(const std::string& session_id) {
         std::lock_guard<std::mutex> stats_lock(stats_mutex_);
         stats_.current_stored_sessions = stored_sessions_.size();
         
-        utils::Logger::info("Removed session recovery data for session: " + session_id);
+        speechrnt::utils::Logger::info("Removed session recovery data for session: " + session_id);
     }
 }
 
@@ -235,11 +235,11 @@ void SessionRecoveryManager::cleanupExpiredSessions() {
                 try {
                     cleanup_callback_(it->first);
                 } catch (const std::exception& e) {
-                    utils::Logger::error("Exception during session cleanup callback: " + std::string(e.what()));
+                    speechrnt::utils::Logger::error("Exception during session cleanup callback: " + std::string(e.what()));
                 }
             }
             
-            utils::Logger::info("Cleaning up expired session: " + it->first);
+            speechrnt::utils::Logger::info("Cleaning up expired session: " + it->first);
             it = stored_sessions_.erase(it);
             cleaned_count++;
         } else {
@@ -253,7 +253,7 @@ void SessionRecoveryManager::cleanupExpiredSessions() {
         stats_.expired_sessions += cleaned_count;
         stats_.current_stored_sessions = stored_sessions_.size();
         
-        utils::Logger::info("Cleaned up " + std::to_string(cleaned_count) + " expired sessions");
+        speechrnt::utils::Logger::info("Cleaned up " + std::to_string(cleaned_count) + " expired sessions");
     }
 }
 
@@ -271,7 +271,7 @@ std::vector<SessionRecoveryData> SessionRecoveryManager::exportSessionData() con
 }
 
 void SessionRecoveryManager::cleanupWorker() {
-    utils::Logger::info("Session recovery cleanup worker started");
+    speechrnt::utils::Logger::info("Session recovery cleanup worker started");
     
     while (running_) {
         try {
@@ -280,11 +280,11 @@ void SessionRecoveryManager::cleanupWorker() {
             // Sleep for cleanup interval
             std::this_thread::sleep_for(config_.cleanup_interval);
         } catch (const std::exception& e) {
-            utils::Logger::error("Exception in session recovery cleanup worker: " + std::string(e.what()));
+            speechrnt::utils::Logger::error("Exception in session recovery cleanup worker: " + std::string(e.what()));
         }
     }
     
-    utils::Logger::info("Session recovery cleanup worker stopped");
+    speechrnt::utils::Logger::info("Session recovery cleanup worker stopped");
 }
 
 bool SessionRecoveryManager::isSessionExpired(const SessionRecoveryData& data) const {
@@ -299,7 +299,7 @@ bool SessionRecoveryManager::loadFromStorage() {
     
     std::ifstream file(config_.storage_path);
     if (!file.is_open()) {
-        utils::Logger::info("No existing session recovery storage found");
+        speechrnt::utils::Logger::info("No existing session recovery storage found");
         return true; // Not an error, just no existing data
     }
     
@@ -310,13 +310,13 @@ bool SessionRecoveryManager::loadFromStorage() {
         while (std::getline(file, line)) {
             // Parse session data from line
             // This is a simplified implementation
-            utils::Logger::info("Loaded session recovery data from storage");
+            speechrnt::utils::Logger::info("Loaded session recovery data from storage");
         }
         
         file.close();
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to load session recovery data: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to load session recovery data: " + std::string(e.what()));
         return false;
     }
 }
@@ -324,7 +324,7 @@ bool SessionRecoveryManager::loadFromStorage() {
 bool SessionRecoveryManager::saveToStorage() {
     std::ofstream file(config_.storage_path);
     if (!file.is_open()) {
-        utils::Logger::error("Failed to open session recovery storage for writing");
+        speechrnt::utils::Logger::error("Failed to open session recovery storage for writing");
         return false;
     }
     
@@ -339,10 +339,10 @@ bool SessionRecoveryManager::saveToStorage() {
         }
         
         file.close();
-        utils::Logger::info("Saved session recovery data to storage");
+        speechrnt::utils::Logger::info("Saved session recovery data to storage");
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to save session recovery data: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to save session recovery data: " + std::string(e.what()));
         return false;
     }
 }
@@ -408,7 +408,7 @@ bool SessionRecoveryHelper::applyToClientSession(const SessionRecoveryData& data
         
         return true;
     } catch (const std::exception& e) {
-        utils::Logger::error("Failed to apply recovery data to session: " + std::string(e.what()));
+        speechrnt::utils::Logger::error("Failed to apply recovery data to session: " + std::string(e.what()));
         return false;
     }
 }
