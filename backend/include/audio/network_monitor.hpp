@@ -9,7 +9,6 @@
 #include <thread>
 #include <vector>
 
-namespace speechrnt {
 namespace audio {
 
 /**
@@ -255,4 +254,3 @@ private:
 };
 
 } // namespace audio
-} // namespace speechrnt
