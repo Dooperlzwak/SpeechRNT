@@ -57,13 +57,13 @@ bool AdvancedStreamingOptimizer::initialize(
 
     // Initialize quality degradation if enabled
     if (config.enableQualityDegradation) {
-      qualityManager_ = std::make_unique<QualityDegradationManager>();
+      qualityManager_ = std::make_shared<QualityDegradationManager>();
       if (!qualityManager_->initialize(networkMonitor_)) {
         speechrnt::utils::Logger::error("Failed to initialize quality manager");
         return false;
       }
 
-      qualityController_ = std::make_unique<AdaptiveQualityController>();
+      qualityController_ = std::make_shared<AdaptiveQualityController>();
       if (!qualityController_->initialize(qualityManager_, networkMonitor_)) {
         speechrnt::utils::Logger::error(
             "Failed to initialize quality controller");
@@ -621,14 +621,14 @@ bool UltraLowLatencyProcessor::initialize(int targetLatencyMs) {
 
 bool UltraLowLatencyProcessor::processChunk(const AudioChunk &chunk,
                                             AudioChunk &optimizedChunk) {
-  auto startTime = std::chrono::high_resolution_clock::now();
+  auto startTime = std::chrono::steady_clock::now();
 
   optimizedChunk = chunk;
 
   // Apply ultra-low latency optimizations
   applyUltraLowLatencyOptimizations(optimizedChunk);
 
-  auto endTime = std::chrono::high_resolution_clock::now();
+  auto endTime = std::chrono::steady_clock::now();
   float processingTime =
       std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime)
           .count() /

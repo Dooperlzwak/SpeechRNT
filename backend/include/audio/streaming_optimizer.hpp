@@ -260,9 +260,9 @@ private:
   bool compressionEnabled_;
 
   // Statistics
-  std::atomic<uint64_t> totalMessagesOptimized_;
-  std::atomic<uint64_t> totalBytesTransmitted_;
-  std::atomic<uint64_t> totalBytesCompressed_;
+  mutable std::atomic<uint64_t> totalMessagesOptimized_;
+  mutable std::atomic<uint64_t> totalBytesTransmitted_;
+  mutable std::atomic<uint64_t> totalBytesCompressed_;
 
   // Private methods
   std::vector<uint8_t> compressData(const std::vector<uint8_t> &data) const;

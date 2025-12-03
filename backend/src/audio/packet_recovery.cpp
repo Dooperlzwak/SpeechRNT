@@ -72,8 +72,8 @@ PacketLossDetector::detectLostPackets(std::vector<uint32_t> &lostPackets) {
 
   if (!lostPackets.empty()) {
     updateLossRate();
-    speechrnt::utils::Logger::debug("Detected " + std::to_string(lostPackets.size()) +
-                         " lost packets");
+    speechrnt::utils::Logger::debug(
+        "Detected " + std::to_string(lostPackets.size()) + " lost packets");
   }
 
   // Cleanup old acknowledged packets
@@ -125,13 +125,14 @@ void PacketLossDetector::resetStats() {
 
 void PacketLossDetector::setPacketTimeout(int timeoutMs) {
   packetTimeoutMs_ = timeoutMs;
-  speechrnt::utils::Logger::info("Packet timeout set to " + std::to_string(timeoutMs) +
-                      "ms");
+  speechrnt::utils::Logger::info("Packet timeout set to " +
+                                 std::to_string(timeoutMs) + "ms");
 }
 
 void PacketLossDetector::setMaxRetries(int maxRetries) {
   maxRetries_ = maxRetries;
-  speechrnt::utils::Logger::info("Max retries set to " + std::to_string(maxRetries));
+  speechrnt::utils::Logger::info("Max retries set to " +
+                                 std::to_string(maxRetries));
 }
 
 bool PacketLossDetector::isLossRateAcceptable(float threshold) const {
@@ -164,8 +165,8 @@ void PacketLossDetector::updateLossRate() {
   stats_.lastUpdate = std::chrono::steady_clock::now();
 
   // Record performance metrics
-  speechrnt::utils::PerformanceMonitor::getInstance().recordValue("audio.packet_loss_rate",
-                                                       stats_.currentLossRate);
+  speechrnt::utils::PerformanceMonitor::getInstance().recordMetric(
+      "audio.packet_loss_rate", stats_.currentLossRate);
 }
 
 void PacketLossDetector::cleanupOldPackets() {
@@ -202,9 +203,10 @@ bool AudioChunkReorderBuffer::initialize(size_t maxBufferSize,
   maxBufferSize_ = maxBufferSize;
   reorderTimeoutMs_ = reorderTimeoutMs;
 
-  speechrnt::utils::Logger::info("AudioChunkReorderBuffer initialized: " +
-                      std::to_string(maxBufferSize) + " max buffer size, " +
-                      std::to_string(reorderTimeoutMs) + "ms reorder timeout");
+  speechrnt::utils::Logger::info(
+      "AudioChunkReorderBuffer initialized: " + std::to_string(maxBufferSize) +
+      " max buffer size, " + std::to_string(reorderTimeoutMs) +
+      "ms reorder timeout");
 
   return true;
 }
@@ -445,10 +447,12 @@ bool PacketRecoverySystem::initialize(
   bool reorderBufferOk = reorderBuffer_->initialize(bufferSize, reorderTimeout);
 
   if (lossDetectorOk && reorderBufferOk) {
-    speechrnt::utils::Logger::info("PacketRecoverySystem initialized successfully");
+    speechrnt::utils::Logger::info(
+        "PacketRecoverySystem initialized successfully");
     return true;
   } else {
-    speechrnt::utils::Logger::error("PacketRecoverySystem initialization failed");
+    speechrnt::utils::Logger::error(
+        "PacketRecoverySystem initialization failed");
     return false;
   }
 }
@@ -599,13 +603,13 @@ std::map<std::string, double> PacketRecoverySystem::getRecoveryStats() const {
 void PacketRecoverySystem::setRecoveryEnabled(bool enabled) {
   recoveryEnabled_ = enabled;
   speechrnt::utils::Logger::info("Packet recovery " +
-                      std::string(enabled ? "enabled" : "disabled"));
+                                 std::string(enabled ? "enabled" : "disabled"));
 }
 
 void PacketRecoverySystem::setRecoveryAggressiveness(float level) {
   recoveryAggressiveness_ = std::max(0.0f, std::min(1.0f, level));
   speechrnt::utils::Logger::info("Recovery aggressiveness set to " +
-                      std::to_string(recoveryAggressiveness_));
+                                 std::to_string(recoveryAggressiveness_));
 }
 
 void PacketRecoverySystem::cleanupOldChunks() {

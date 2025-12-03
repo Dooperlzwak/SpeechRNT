@@ -194,13 +194,13 @@ private:
   bool running_;
 
   // Core components
-  std::unique_ptr<StreamingOptimizer> streamingOptimizer_;
-  std::unique_ptr<NetworkMonitor> networkMonitor_;
-  std::unique_ptr<NetworkAwareStreamingAdapter> networkAdapter_;
-  std::unique_ptr<PacketRecoverySystem> packetRecovery_;
-  std::unique_ptr<QualityDegradationManager> qualityManager_;
-  std::unique_ptr<AdaptiveQualityController> qualityController_;
-  std::unique_ptr<LoadBalancedProcessingPipeline> processingPipeline_;
+  std::shared_ptr<StreamingOptimizer> streamingOptimizer_;
+  std::shared_ptr<NetworkMonitor> networkMonitor_;
+  std::shared_ptr<NetworkAwareStreamingAdapter> networkAdapter_;
+  std::shared_ptr<PacketRecoverySystem> packetRecovery_;
+  std::shared_ptr<QualityDegradationManager> qualityManager_;
+  std::shared_ptr<AdaptiveQualityController> qualityController_;
+  std::shared_ptr<LoadBalancedProcessingPipeline> processingPipeline_;
 
   // Ultra-low latency mode
   std::atomic<bool> ultraLowLatencyMode_;
